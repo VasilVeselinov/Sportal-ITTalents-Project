@@ -1,8 +1,9 @@
-package sportal.model.DAO;
+package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import sportal.exception.TransactionException;
+import sportal.model.dao.DAO;
 import sportal.model.pojo.Article;
 import sportal.model.pojo.Category;
 

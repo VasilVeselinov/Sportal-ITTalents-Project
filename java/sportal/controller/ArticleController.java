@@ -3,10 +3,13 @@ package sportal.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.BadRequestException;
-import sportal.exception.NotExistsObjectExceptions;
-import sportal.model.DAO.*;
+import sportal.exception.ExistsObjectException;
+import sportal.model.dao.ArticleDAO;
+import sportal.model.dao.ArticlesCategoriesDAO;
+import sportal.model.dao.PictureDAO;
+import sportal.model.dao.UsersLikeArticlesDAO;
 import sportal.model.data_validators.ArticleValidator;
-import sportal.model.data_validators.SessionManagerValidator;
+import sportal.model.data_validators.SessionValidator;
 import sportal.model.dto.article.*;
 import sportal.model.dto.category.CategoryResponseDTO;
 import sportal.model.dto.picture.PictureDTO;
@@ -24,8 +27,6 @@ public class ArticleController extends AbstractController {
     @Autowired
     private ArticleDAO articlesDAO;
     @Autowired
-    private ArticleValidator validator;
-    @Autowired
     private PictureDAO pictureDAO;
     @Autowired
     private ArticlesCategoriesDAO articlesCategoriesDAO;
@@ -35,9 +36,9 @@ public class ArticleController extends AbstractController {
     @PostMapping(value = "/articles")
     public ArticleAfterCreateDTO addArticle(@RequestBody ArticleCreateDTO articleCreateDTO,
                                             HttpSession session) throws SQLException, BadRequestException {
-        User user = SessionManagerValidator.checkUserIsLogged(session);
-        SessionManagerValidator.checkUserIsAdmin(user);
-        ArticleCreateDTO validArticle = this.validator.checkArticleForValidData(articleCreateDTO);
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
+        ArticleCreateDTO validArticle = ArticleValidator.checkArticleForValidData(articleCreateDTO);
         Article article = new Article(validArticle);
         article.setAuthorId(user.getId());
         article = this.articlesDAO.addArticle(article);
@@ -54,9 +55,6 @@ public class ArticleController extends AbstractController {
     public List<ArticleRespDTO> searchOfArticlesByTitleOfCategoryName(
             @PathVariable(TITLE_OR_CATEGORY) String titleOrCategory) throws SQLException {
         List<Article> listFromArticles = this.articlesDAO.allArticlesByTitleOrCategory(titleOrCategory);
-        if (listFromArticles.isEmpty()) {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
-        }
         List<ArticleRespDTO> listFromReturnArticle = new ArrayList<>();
         for (Article a : listFromArticles) {
             listFromReturnArticle.add(new ArticleRespDTO(a));
@@ -73,7 +71,7 @@ public class ArticleController extends AbstractController {
         ArticleFullDataDTO viewArticle = new ArticleFullDataDTO();
         Article article = this.articlesDAO.articleById(articleId);
         if (article == null) {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
         viewArticle.setArticle(new ArticleWithViewsAndFullTextDTO(article));
         List<Category> categories = this.articlesCategoriesDAO.allCategoriesByArticlesId(articleId);
@@ -97,18 +95,12 @@ public class ArticleController extends AbstractController {
             throw new BadRequestException(WRONG_REQUEST);
         }
         List<Article> articles = this.articlesCategoriesDAO.allArticlesByCategoryId(categoryId);
-        if (articles == null || articles.isEmpty()) {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
-        }
         return ArticleRespDTO.fromArticleToArticleRespDTO(articles);
     }
 
     @GetMapping(value = "/articles/top_5_view_articles")
     public List<ArticleRespDTO> topFiveViewedArticlesToday() throws SQLException {
         List<Article> listFromArticles = this.articlesDAO.topFiveMostViewedArticlesForToday();
-        if (listFromArticles.isEmpty()) {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
-        }
         List<ArticleRespDTO> listFromReturnArticle = new ArrayList<>();
         for (Article a : listFromArticles) {
             listFromReturnArticle.add(new ArticleRespDTO(a));
@@ -120,30 +112,31 @@ public class ArticleController extends AbstractController {
     @PutMapping(value = "/articles")
     public ArticleAfterEditDTO editArticleTitleOrText(@RequestBody ArticleEditDTO articleEditDTO,
                                                       HttpSession session) throws SQLException, BadRequestException {
-        User user = SessionManagerValidator.checkUserIsLogged(session);
-        SessionManagerValidator.checkUserIsAdmin(user);
-        ArticleEditDTO validArticle = this.validator.validationBeforeEdit(articleEditDTO);
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
+        ArticleEditDTO validArticle = ArticleValidator.validationBeforeEdit(articleEditDTO);
         Article article = new Article(validArticle);
-        if (this.articlesDAO.editOfTitleAndFullText(article) > 0) {
-            return new ArticleAfterEditDTO(article);
+        Article editedArticle = this.articlesDAO.editOfTitleAndFullText(article);
+        if (editedArticle != null) {
+            return new ArticleAfterEditDTO(editedArticle);
         } else {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
     }
 
     @DeleteMapping(value = "/articles/{" + ARTICLE_ID + "}")
-    public long deleteArticle(@PathVariable(name = ARTICLE_ID) long articleId,
+    public ArticleRespDTO deleteArticle(@PathVariable(name = ARTICLE_ID) long articleId,
                        HttpSession session) throws SQLException, BadRequestException {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
-        SessionManagerValidator.checkUserIsAdmin(user);
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
         Article article = this.articlesDAO.articleById(articleId);
         if (article == null) {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
         this.articlesDAO.deleteById(articleId);
-        return articleId;
+        return new  ArticleRespDTO(article);
     }
 }

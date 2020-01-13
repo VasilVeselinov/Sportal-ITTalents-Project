@@ -1,4 +1,4 @@
-package sportal.model.DAO;
+package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;

@@ -6,10 +6,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sportal.exception.*;
-import sportal.model.DAO.UsersDislikeCommentsDAO;
-import sportal.model.DAO.UsersLikeArticlesDAO;
-import sportal.model.DAO.UsersLikeCommentsDAO;
-import sportal.model.data_validators.SessionManagerValidator;
+import sportal.model.dao.ArticleDAO;
+import sportal.model.dao.UsersDislikeCommentsDAO;
+import sportal.model.dao.UsersLikeArticlesDAO;
+import sportal.model.dao.UsersLikeCommentsDAO;
+import sportal.model.data_validators.SessionValidator;
+import sportal.model.pojo.Article;
 import sportal.model.pojo.User;
 
 import javax.servlet.http.HttpSession;
@@ -24,6 +26,8 @@ public class UserLikeDislikeController extends AbstractController {
     private UsersLikeCommentsDAO likeCommentsDAO;
     @Autowired
     private UsersDislikeCommentsDAO dislikeCommentsDAO;
+    @Autowired
+    private ArticleDAO articleDAO;
 
     @PostMapping(value = "/users/like_articles/{" + ARTICLE_ID + "}")
     public long likeOfArticle(@PathVariable(name = ARTICLE_ID) long articleId,
@@ -31,7 +35,11 @@ public class UserLikeDislikeController extends AbstractController {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
+        User user = SessionValidator.checkUserIsLogged(session);
+        Article article = this.articleDAO.articleById(articleId);
+        if (article == null){
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
+        }
         if (this.likeArticlesDAO.existsInThirdTable(articleId, user.getId())) {
             throw new ExistsObjectException(WITHOUT_MORE_VOTE);
         }
@@ -48,7 +56,7 @@ public class UserLikeDislikeController extends AbstractController {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
+        User user = SessionValidator.checkUserIsLogged(session);
         if (this.likeArticlesDAO.deleteFromThirdTable(articleId, user.getId()) > 0) {
             return articleId;
         } else {
@@ -62,7 +70,7 @@ public class UserLikeDislikeController extends AbstractController {
         if (commentId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
+        User user = SessionValidator.checkUserIsLogged(session);
         if (this.likeCommentsDAO.existsInThirdTable(commentId, user.getId())) {
             throw new ExistsObjectException(ALREADY_VOTED);
         }
@@ -82,7 +90,8 @@ public class UserLikeDislikeController extends AbstractController {
         if (commentId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
+        User user = SessionValidator.checkUserIsLogged(session);
+        // vasko check comment exists by id
         if (this.dislikeCommentsDAO.existsInThirdTable(commentId, user.getId())) {
             throw new ExistsObjectException(ALREADY_VOTED);
         }
@@ -102,7 +111,7 @@ public class UserLikeDislikeController extends AbstractController {
         if (commentId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
+        User user = SessionValidator.checkUserIsLogged(session);
         if (this.likeCommentsDAO.deleteFromThirdTable(commentId, user.getId()) > 0) {
             return commentId;
         } else {
@@ -116,7 +125,7 @@ public class UserLikeDislikeController extends AbstractController {
         if (commentId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
+        User user = SessionValidator.checkUserIsLogged(session);
         if (this.dislikeCommentsDAO.deleteFromThirdTable(commentId, user.getId()) > 0) {
             return commentId;
         } else {

@@ -1,8 +1,9 @@
-package sportal.model.DAO;
+package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import sportal.model.DAO.interfaceDAO.IDAODeleteById;
+import sportal.model.dao.DAO;
 import sportal.model.dto.user.UserRegistrationFormDTO;
 import sportal.model.pojo.User;
 
@@ -17,7 +18,7 @@ public class UserDAO extends DAO implements IDAODeleteById {
     private static final String FIND_USER_BY_USER_ID =
             "SELECT id, user_name, user_password, user_email, is_admin FROM users WHERE id = ?;";
 
-    public int add(User user) throws SQLException {
+    public User add(User user) throws SQLException {
         try (
                 Connection connection = this.jdbcTemplate.getDataSource().getConnection();
                 PreparedStatement ps = connection.prepareStatement(INSERT_USER, Statement.RETURN_GENERATED_KEYS)
@@ -26,11 +27,11 @@ public class UserDAO extends DAO implements IDAODeleteById {
             ps.setString(2, user.getUserPassword());
             ps.setString(3, user.getUserEmail());
             ps.setBoolean(4, user.getIsAdmin());
-            int rowAffected = ps.executeUpdate();
+            ps.executeUpdate();
             ResultSet resultSet = ps.getGeneratedKeys();
             resultSet.next();
             user.setId(resultSet.getLong(1));
-            return rowAffected;
+            return user;
         }
     }
 

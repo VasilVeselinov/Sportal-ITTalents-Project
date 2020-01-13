@@ -15,12 +15,9 @@ public abstract class AbstractController {
     public static final String LOGGED_USER_KEY_IN_SESSION = "loggedUser";
 
     // responses
-    public static final String WRONG_CREDENTIALS = "Your username or password is wrong!";
     public static final String WRONG_REQUEST = "Invalid request!";
     static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String EXISTS = "That object exists!";
-    static final String FAILED_CREDENTIALS = "Validate your data is failed!";
-    public static final String WRONG_INFORMATION = "Wrong information about the user or empty fields!";
     static final String ALREADY_VOTED = "You have already voted on this comment!";
     static final String NOT_EXISTS_OBJECT = "Not found!";
     static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
@@ -65,18 +62,6 @@ public abstract class AbstractController {
         ExceptionObject exceptionObject = new ExceptionObject(
                 e.getMessage(),
                 HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
-        return exceptionObject;
-    }
-
-    @ExceptionHandler(NotExistsObjectExceptions.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ExceptionObject handlerOfNotExistsObjectException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
-                HttpStatus.NOT_FOUND.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()
         );

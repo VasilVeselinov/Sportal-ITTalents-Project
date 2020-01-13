@@ -1,19 +1,16 @@
 package sportal.model.data_validators;
 
-import org.springframework.stereotype.Component;
 import sportal.exception.FailedCredentialsException;
 import sportal.exception.WrongCredentialsException;
 import sportal.model.dto.user.UserLoginFormDTO;
 import sportal.model.dto.user.UserRegistrationFormDTO;
 import sportal.model.dto.user.UserChangePasswordDTO;
+import sportal.model.pojo.User;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import static sportal.controller.AbstractController.WRONG_CREDENTIALS;
-
-@Component
-public class UserValidator {
+public class UserValidator extends AbstractValidator {
 
 
     private static final String YOU_HAVE_EMPTY_FIELDS = "You have empty fields!";
@@ -24,8 +21,29 @@ public class UserValidator {
     private static final String SPECIAL_CHARACTER_PATTERN =
             "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
     private static final String INVALID_USER_NAME = "Your user name is invalid!";
+    private static final String FAILED_CREDENTIALS = "Validate your data is failed!";
+    private static final String WRONG_CREDENTIALS = "Your username or password is wrong!";
 
-    public UserRegistrationFormDTO checkForTheValidDataForRegistration(UserRegistrationFormDTO user) {
+    public static User checkCredentials(User user, UserChangePasswordDTO userChangePasswordDTO ) {
+        if (userChangePasswordDTO.getUserPassword().isEmpty()) {
+            throw new FailedCredentialsException(FAILED_CREDENTIALS);
+        }
+        if (userChangePasswordDTO.getNewPassword().isEmpty() || userChangePasswordDTO.getVerificationPassword().isEmpty()) {
+            throw new FailedCredentialsException(FAILED_CREDENTIALS);
+        }
+        if (!userChangePasswordDTO.getNewPassword().equals(userChangePasswordDTO.getVerificationPassword())) {
+            throw new FailedCredentialsException(FAILED_CREDENTIALS);
+        }
+        if (!userChangePasswordDTO.getUserPassword().matches(SPECIAL_CHARACTER_PATTERN)) {
+            throw new FailedCredentialsException(FAILED_CREDENTIALS);
+        }
+        if (!BCryptValidator.checkPassword(userChangePasswordDTO.getUserPassword(), user.getUserPassword())) {
+            throw new FailedCredentialsException(FAILED_CREDENTIALS);
+        }
+        return user;
+    }
+
+    public static UserRegistrationFormDTO checkForTheValidDataForRegistration(UserRegistrationFormDTO user) {
         if (user.getUserName() == null || user.getUserEmail() == null) {
             throw new FailedCredentialsException(YOU_HAVE_EMPTY_FIELDS);
         }
@@ -42,10 +60,10 @@ public class UserValidator {
         if (!user.getUserPassword().equals(user.getVerificationPassword())) {
             throw new FailedCredentialsException(NOT_EQUAL_PASSWORD);
         }
-        if (!this.userNameCheck(user.getUserName())) {
+        if (!userNameCheck(user.getUserName())) {
             throw new FailedCredentialsException(INVALID_USER_NAME);
         }
-        if (!this.emailValidation(user.getUserEmail())) {
+        if (!emailValidation(user.getUserEmail())) {
             throw new FailedCredentialsException(EMAIL_IS_INVALID);
         }
         if (!user.getUserPassword().matches(SPECIAL_CHARACTER_PATTERN)) {
@@ -54,11 +72,11 @@ public class UserValidator {
         return user;
     }
 
-    private boolean userNameCheck(String userName) {
-        return userName.length() < MIN_NUMBER_OF_SYMBOLS;
+    private static boolean userNameCheck(String userName) {
+        return userName.length() > MIN_NUMBER_OF_SYMBOLS;
     }
 
-    private boolean emailValidation(String userEmail) {
+    private static boolean emailValidation(String userEmail) {
         if (userEmail == null) {
             return false;
         }
@@ -71,23 +89,7 @@ public class UserValidator {
         return true;
     }
 
-    public boolean checkForTheValidDataForUpdate(UserChangePasswordDTO userChangePasswordDTO) {
-        if (userChangePasswordDTO.getUserPassword().isEmpty()) {
-            return false;
-        }
-        if (userChangePasswordDTO.getNewPassword().isEmpty() || userChangePasswordDTO.getVerificationPassword().isEmpty()) {
-            return false;
-        }
-        if (!userChangePasswordDTO.getNewPassword().equals(userChangePasswordDTO.getVerificationPassword())) {
-            return false;
-        }
-        if (!userChangePasswordDTO.getUserPassword().matches(SPECIAL_CHARACTER_PATTERN)) {
-            return false;
-        }
-        return true;
-    }
-
-    public UserLoginFormDTO checkForTheValidDataForLogin(UserLoginFormDTO userLoginFormDTO) {
+    public static UserLoginFormDTO checkForTheValidDataForLogin(UserLoginFormDTO userLoginFormDTO) {
         if (userLoginFormDTO.getUserName() == null) {
             throw new WrongCredentialsException(WRONG_CREDENTIALS);
         }
@@ -105,5 +107,15 @@ public class UserValidator {
             throw new WrongCredentialsException(WRONG_CREDENTIALS);
         }
         return userLoginFormDTO;
+    }
+
+    public static User checkCredentialsOfUserFromDB(User user, UserLoginFormDTO validLogUser) {
+        if (user == null) {
+            throw new WrongCredentialsException(WRONG_CREDENTIALS);
+        }
+        if (!BCryptValidator.checkPassword(validLogUser.getUserPassword(), user.getUserPassword())) {
+            throw new WrongCredentialsException(WRONG_CREDENTIALS);
+        }
+        return user;
     }
 }

@@ -1,4 +1,4 @@
-package sportal.model.DAO;
+package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -36,8 +36,11 @@ public class CategoryDAO extends DAO implements IDAODeleteById {
         return category;
     }
 
-    public int editById(Category category) throws SQLException {
-        return this.jdbcTemplate.update(UPDATE_CATEGORY_NAME, category.getCategoryName(), category.getId());
+    public Category editCategory(Category category) throws SQLException {
+        if (this.jdbcTemplate.update(UPDATE_CATEGORY_NAME, category.getCategoryName(), category.getId()) > 0){
+            return category;
+        }
+        return null;
     }
 
     public Category findById(long id) throws SQLException {

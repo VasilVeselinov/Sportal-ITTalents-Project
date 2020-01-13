@@ -1,4 +1,4 @@
-package sportal.model.DAO;
+package sportal.model.dao;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

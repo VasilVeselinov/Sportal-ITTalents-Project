@@ -1,9 +1,10 @@
-package sportal.model.DAO;
+package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import sportal.exception.TransactionException;
 import sportal.model.DAO.interfaceDAO.IDAODeleteById;
+import sportal.model.dao.DAO;
 import sportal.model.pojo.Article;
 
 import java.sql.*;
@@ -139,7 +140,10 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
         }
     }
 
-    public int editOfTitleAndFullText(Article article) {
-        return this.jdbcTemplate.update(UPDATE_ARTICLE, article.getTitle(), article.getFullText(), article.getId());
+    public Article editOfTitleAndFullText(Article article) throws SQLException {
+        if (this.jdbcTemplate.update(UPDATE_ARTICLE, article.getTitle(), article.getFullText(), article.getId()) > 0){
+            return article;
+        }
+        return null;
     }
 }

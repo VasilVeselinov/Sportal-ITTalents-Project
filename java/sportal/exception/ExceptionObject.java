@@ -1,5 +1,6 @@
 package sportal.exception;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ public class ExceptionObject {
 
     private String messages;
     private int status;
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime time;
     private String exceptionClass;
 }

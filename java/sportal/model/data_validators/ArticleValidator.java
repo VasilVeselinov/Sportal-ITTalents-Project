@@ -1,17 +1,15 @@
 package sportal.model.data_validators;
 
-import org.springframework.stereotype.Component;
 import sportal.exception.BadRequestException;
 import sportal.model.dto.article.ArticleCreateDTO;
 import sportal.model.dto.article.ArticleEditDTO;
 
 import static sportal.controller.AbstractController.WRONG_REQUEST;
 
-@Component
-public class ArticleValidator {
+public class ArticleValidator extends AbstractValidator{
 
 
-    public ArticleCreateDTO checkArticleForValidData(ArticleCreateDTO articleCreateDTO) throws BadRequestException {
+    public static ArticleCreateDTO checkArticleForValidData(ArticleCreateDTO articleCreateDTO) throws BadRequestException {
         if (articleCreateDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -27,7 +25,7 @@ public class ArticleValidator {
         return articleCreateDTO;
     }
 
-    public ArticleEditDTO validationBeforeEdit(ArticleEditDTO artEditDTO) throws BadRequestException {
+    public static ArticleEditDTO validationBeforeEdit(ArticleEditDTO artEditDTO) throws BadRequestException {
         if (artEditDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }

@@ -1,4 +1,4 @@
-package sportal.model.DAO;
+package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ public class UsersLikeArticlesDAO extends DAO
     private static final String CHECK_EXISTS_LIKE =
             "SELECT article_id, user_id " +
                     "FROM users_like_articles " +
-                    "WHERE article_id = ? AND user_id = ?;";
+                    "WHERE article_id = ? AND user_id = ?";
     private static final String COUNT_LIKES =
             "SELECT COUNT(user_id) AS number_likes FROM users_like_articles WHERE article_id = ?;";
     private static final String DELETE_LIKE = "DELETE FROM users_like_articles WHERE article_id = ? AND user_id = ?;";

@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
-import sportal.exception.NotExistsObjectExceptions;
-import sportal.model.DAO.FileManagerDAO;
-import sportal.model.DAO.PictureDAO;
-import sportal.model.data_validators.SessionManagerValidator;
+import sportal.exception.ExistsObjectException;
+import sportal.model.dao.FileManagerDAO;
+import sportal.model.dao.PictureDAO;
+import sportal.model.data_validators.SessionValidator;
 import sportal.model.dto.picture.PictureDTO;
 import sportal.model.pojo.Picture;
 import sportal.model.pojo.User;
@@ -34,20 +34,21 @@ public class PictureController extends AbstractController {
     @PostMapping(value = "/pictures")
     public List<PictureDTO> uploadPictures(@RequestPart(value = "picture") List<MultipartFile> multipartFile,
                                            HttpSession session) throws SQLException, BadRequestException {
-        User user = SessionManagerValidator.checkUserIsLogged(session);
-        SessionManagerValidator.checkUserIsAdmin(user);
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
         if (multipartFile == null || multipartFile.isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         List<Picture> pictures = new ArrayList<>();
         for (MultipartFile mf : multipartFile) {
+            String contentType = mf.getContentType();
+            // vasko
             String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss.SSS"));
-            String urlOfPicture =
-                    PACKAGE_NAME + DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
+            String urlOfPicture = DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
             Picture picture = new Picture();
             picture.setUrlOFPicture(urlOfPicture);
             pictures.add(picture);
-            FileManagerDAO fileManagerDAO = new FileManagerDAO(mf, urlOfPicture);
+            FileManagerDAO fileManagerDAO = new FileManagerDAO(mf, PACKAGE_NAME + urlOfPicture);
             fileManagerDAO.start();
         }
         List<Picture> picturesAfterInsertInDB = this.pictureDAO.uploadOfPictures(pictures);
@@ -60,13 +61,13 @@ public class PictureController extends AbstractController {
         if (pictureId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
-        SessionManagerValidator.checkUserIsAdmin(user);
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
         Picture picture = this.pictureDAO.findPictureById(pictureId);
         if (this.pictureDAO.deletePictureById(pictureId) == 0) {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
-        File fileForDelete = new File(picture.getUrlOFPicture());
+        File fileForDelete = new File(PACKAGE_NAME + picture.getUrlOFPicture());
         fileForDelete.delete();
         return new PictureDTO(picture);
     }

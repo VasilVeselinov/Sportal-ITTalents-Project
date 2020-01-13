@@ -1,4 +1,4 @@
-package sportal.model.DAO;
+package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -50,8 +50,11 @@ public class CommentDAO extends DAO implements IDAODeleteById {
         }
     }
 
-    public int editComment(Comment comment) throws SQLException {
-        return this.jdbcTemplate.update(UPDATE_COMMENT_TEXT_BY_ID, comment.getFullCommentText(), comment.getId());
+    public Comment editComment(Comment comment) throws SQLException {
+        if (this.jdbcTemplate.update(UPDATE_COMMENT_TEXT_BY_ID, comment.getFullCommentText(), comment.getId()) > 0){
+            return comment;
+        }
+        return null;
     }
 
     public Comment findCommentById(long commentId) throws SQLException {

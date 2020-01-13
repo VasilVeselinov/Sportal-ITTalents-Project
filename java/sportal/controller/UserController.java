@@ -3,9 +3,9 @@ package sportal.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.*;
-import sportal.model.DAO.UserDAO;
+import sportal.model.dao.UserDAO;
 import sportal.model.data_validators.BCryptValidator;
-import sportal.model.data_validators.SessionManagerValidator;
+import sportal.model.data_validators.SessionValidator;
 import sportal.model.data_validators.UserValidator;
 import sportal.model.dto.user.UserLoginFormDTO;
 import sportal.model.dto.user.UserRegistrationFormDTO;
@@ -21,8 +21,6 @@ public class UserController extends AbstractController {
 
     @Autowired
     private UserDAO userDAO;
-    @Autowired
-    private UserValidator validator;
 
     @PostMapping(value = "/users")
     public UserResponseDTO registrationUser(@RequestBody UserRegistrationFormDTO userRegFormDTO,
@@ -30,18 +28,15 @@ public class UserController extends AbstractController {
         if (userRegFormDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        UserRegistrationFormDTO validRegUser = this.validator.checkForTheValidDataForRegistration(userRegFormDTO);
+        UserRegistrationFormDTO validRegUser = UserValidator.checkForTheValidDataForRegistration(userRegFormDTO);
         User existsUser = this.userDAO.findUserByUserNameOrEmail(validRegUser);
         if (existsUser != null) {
             throw new ExistsObjectException(EXISTS);
         }
         User user = new User(validRegUser);
-        if (this.userDAO.add(user) > 0) {
-            session.setAttribute(LOGGED_USER_KEY_IN_SESSION, user);
-            return new UserResponseDTO(user);
-        } else {
-            throw new SomethingWentWrongException(SOMETHING_WENT_WRONG);
-        }
+        User regUser = this.userDAO.add(user);
+        session.setAttribute(LOGGED_USER_KEY_IN_SESSION, regUser);
+        return new UserResponseDTO(regUser);
     }
 
     @PostMapping(value = "/login")
@@ -50,32 +45,22 @@ public class UserController extends AbstractController {
         if (userLoginFormDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        UserLoginFormDTO validLogUser = this.validator.checkForTheValidDataForLogin(userLoginFormDTO);
+        UserLoginFormDTO validLogUser = UserValidator.checkForTheValidDataForLogin(userLoginFormDTO);
         User user = this.userDAO.findUserByUserName(validLogUser.getUserName());
-        if (user == null) {
-            throw new WrongCredentialsException(WRONG_CREDENTIALS);
-        }
-        if (!BCryptValidator.checkPassword(validLogUser.getUserPassword(), user.getUserPassword())) {
-            throw new WrongCredentialsException(WRONG_CREDENTIALS);
-        }
-        session.setAttribute(LOGGED_USER_KEY_IN_SESSION, user);
-        return new UserResponseDTO(user);
+        User logUser = UserValidator.checkCredentialsOfUserFromDB(user, validLogUser);
+        session.setAttribute(LOGGED_USER_KEY_IN_SESSION, logUser);
+        return new UserResponseDTO(logUser);
     }
 
     @PutMapping(value = "/users/change_password")
     public UserResponseDTO changePasswordOfUser(@RequestBody UserChangePasswordDTO userChangePasswordDTO,
                                                 HttpSession session) throws SQLException {
-        User user = SessionManagerValidator.checkUserIsLogged(session);
-        if (!this.validator.checkForTheValidDataForUpdate(userChangePasswordDTO)) {
-            throw new FailedCredentialsException(FAILED_CREDENTIALS);
-        }
-        if (!BCryptValidator.checkPassword(userChangePasswordDTO.getUserPassword(), user.getUserPassword())) {
-            throw new FailedCredentialsException(FAILED_CREDENTIALS);
-        }
+        User user = SessionValidator.checkUserIsLogged(session);
+        UserValidator.checkCredentials(user, userChangePasswordDTO);
         User userWithNewPassword = new User(userChangePasswordDTO);
         userWithNewPassword.setId(user.getId());
         if (this.userDAO.changePassword(userWithNewPassword) > 0) {
-            return new UserResponseDTO(user);
+            return new UserResponseDTO(userWithNewPassword);
         } else {
             throw new SomethingWentWrongException(SOMETHING_WENT_WRONG);
         }
@@ -93,11 +78,14 @@ public class UserController extends AbstractController {
         if (userId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
-        SessionManagerValidator.checkUserIsAdmin(user);
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
         User existsUser = this.userDAO.findUserByUserId(userId);
         if (existsUser == null) {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
+        }
+        if (user.getId() == userId){
+            throw new AuthorizationException(NOT_ALLOWED_OPERATION);
         }
         this.userDAO.deleteById(userId);
         return new UserResponseDTO(existsUser);

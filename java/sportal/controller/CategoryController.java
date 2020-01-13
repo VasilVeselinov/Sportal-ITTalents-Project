@@ -3,9 +3,10 @@ package sportal.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.BadRequestException;
-import sportal.exception.NotExistsObjectExceptions;
-import sportal.model.DAO.CategoryDAO;
-import sportal.model.data_validators.SessionManagerValidator;
+import sportal.exception.ExistsObjectException;
+import sportal.model.dao.CategoryDAO;
+import sportal.model.data_validators.CategoryValidator;
+import sportal.model.data_validators.SessionValidator;
 import sportal.model.dto.category.CategoryEditDTO;
 import sportal.model.dto.category.CategoryResponseDTO;
 import sportal.model.pojo.Category;
@@ -24,30 +25,21 @@ public class CategoryController extends AbstractController {
     @PutMapping(value = "/categories")
     public CategoryResponseDTO editCategories(@RequestBody CategoryEditDTO categoryEditDTO,
                                               HttpSession session) throws SQLException, BadRequestException {
-        User user = SessionManagerValidator.checkUserIsLogged(session);
-        SessionManagerValidator.checkUserIsAdmin(user);
-        if (categoryEditDTO == null) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        if (categoryEditDTO.getOldCategory() == null ||
-                categoryEditDTO.getNewCategoryName() == null ||
-                categoryEditDTO.getNewCategoryName().isEmpty()) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        Category category = new Category(categoryEditDTO);
-        if (this.categoriesDAO.editById(category) > 0) {
-            return new CategoryResponseDTO(this.categoriesDAO.findById(category.getId()));
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
+        CategoryEditDTO validCategoryEditDTO = CategoryValidator.checkForValidData(categoryEditDTO);
+        Category category = new Category(validCategoryEditDTO);
+        Category editedCategory = this.categoriesDAO.editCategory(category);
+        if (editedCategory != null) {
+            return new CategoryResponseDTO(category);
         } else {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
     }
 
     @GetMapping(value = "/categories")
     public List<CategoryResponseDTO> allCategory() throws SQLException {
         List<Category> listWhitCategories = this.categoriesDAO.allCategories();
-        if (listWhitCategories == null) {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
-        }
         return CategoryResponseDTO.fromCategoryListToCategoryResponseDTO(listWhitCategories);
     }
 
@@ -57,11 +49,11 @@ public class CategoryController extends AbstractController {
         if (categoryId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionManagerValidator.checkUserIsLogged(session);
-        SessionManagerValidator.checkUserIsAdmin(user);
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
         Category category = this.categoriesDAO.findById(categoryId);
         if (category == null) {
-            throw new NotExistsObjectExceptions(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
         this.categoriesDAO.deleteById(categoryId);
         return categoryId;
