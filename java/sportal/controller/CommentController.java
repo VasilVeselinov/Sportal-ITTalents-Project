@@ -45,7 +45,7 @@ public class CommentController extends AbstractController {
 
     @PutMapping(value = "/comments")
     public CommentAfterEditDTO editComment(@RequestBody CommentEditDTO commentEditDTO,
-                                          HttpSession session) throws SQLException, BadRequestException {
+                                           HttpSession session) throws SQLException, BadRequestException {
         User user = SessionValidator.checkUserIsLogged(session);
         CommentEditDTO validComment = CommentValidator.checkForValidDataOfCommentEditDTO(commentEditDTO);
         Comment comment = new Comment(validComment);

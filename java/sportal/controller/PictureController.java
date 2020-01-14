@@ -14,10 +14,12 @@ import sportal.model.pojo.User;
 
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -27,13 +29,18 @@ public class PictureController extends AbstractController {
     private static final String FILE_EXPANSION = ".jpg";
     // date time formatter
     private static final String DATE_AND_TIME_OF_UPLOAD = "date_and_time_of_upload_";
+    private static final List<String> contentTypes = Arrays.asList(
+            "image/png", "image/jpeg", "image/gif", "application/octet-stream", "image/bmp", "image/cgm",
+            "image/svg+xml", "image/ief", "image/tiff", "image/vnd.djvu", "image/vnd.wap.wbmp", "image/x-cmu-raster",
+            "image/x-icon", "image/x-portable-anymap", "image/x-portable-bitmap", "image/x-portable-graymap",
+            "image/x-portable-pixmap", "image/x-rgb");
 
     @Autowired
     private PictureDAO pictureDAO;
 
     @PostMapping(value = "/pictures")
     public List<PictureDTO> uploadPictures(@RequestPart(value = "picture") List<MultipartFile> multipartFile,
-                                           HttpSession session) throws SQLException, BadRequestException {
+                                           HttpSession session) throws SQLException, BadRequestException, IOException {
         User user = SessionValidator.checkUserIsLogged(session);
         SessionValidator.checkUserIsAdmin(user);
         if (multipartFile == null || multipartFile.isEmpty()) {
@@ -41,15 +48,19 @@ public class PictureController extends AbstractController {
         }
         List<Picture> pictures = new ArrayList<>();
         for (MultipartFile mf : multipartFile) {
-            String contentType = mf.getContentType();
-            // vasko
-            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss.SSS"));
-            String urlOfPicture = DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
-            Picture picture = new Picture();
-            picture.setUrlOFPicture(urlOfPicture);
-            pictures.add(picture);
-            FileManagerDAO fileManagerDAO = new FileManagerDAO(mf, PACKAGE_NAME + urlOfPicture);
-            fileManagerDAO.start();
+            String fileContentType = mf.getContentType();
+            System.out.println(fileContentType);// vasko delete that
+            if (contentTypes.contains(fileContentType)) {
+                String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss.SSS"));
+                String urlOfPicture = DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
+                Picture picture = new Picture();
+                picture.setUrlOFPicture(urlOfPicture);
+                pictures.add(picture);
+                FileManagerDAO fileManagerDAO = new FileManagerDAO(mf, PACKAGE_NAME + urlOfPicture);
+                fileManagerDAO.start();
+            } else {
+                System.out.println("not image");// vasko what exception or empty ???
+            }
         }
         List<Picture> picturesAfterInsertInDB = this.pictureDAO.uploadOfPictures(pictures);
         return PictureDTO.fromPictureToPictureDTO(picturesAfterInsertInDB);

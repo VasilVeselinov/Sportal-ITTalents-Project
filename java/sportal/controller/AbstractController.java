@@ -144,7 +144,7 @@ public abstract class AbstractController {
     @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)
     public ExceptionObject handlerOfException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
+                WRONG_REQUEST,
                 HttpStatus.I_AM_A_TEAPOT.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()

@@ -22,7 +22,7 @@ public class Article {
     private long authorId;
     private String authorName;
 
-    public  Article (ArticleEditDTO articleEditDTO){
+    public Article(ArticleEditDTO articleEditDTO) {
         this.setId(articleEditDTO.getOldArticleId());
         this.setTitle(articleEditDTO.getNewTitle());
         this.setFullText(articleEditDTO.getNewFullText());

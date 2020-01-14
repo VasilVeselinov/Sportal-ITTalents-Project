@@ -40,7 +40,6 @@ public class UserValidator extends AbstractValidator {
         if (!BCryptValidator.checkPassword(userChangePasswordDTO.getUserPassword(), user.getUserPassword())) {
             throw new FailedCredentialsException(FAILED_CREDENTIALS);
         }
-
         user.setUserPassword(userChangePasswordDTO.getNewPassword());
         return user;
     }

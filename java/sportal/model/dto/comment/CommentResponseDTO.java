@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.model.dto.user.UserResponseDTO;
 import sportal.model.pojo.Comment;
 
 import java.time.LocalDateTime;
@@ -28,9 +27,9 @@ public class CommentResponseDTO {
         this.setId(comment.getId());
         this.setFullCommentText(comment.getFullCommentText());
         this.setDatePublished(comment.getDatePublished().toLocalDateTime());
-        if (comment.getUserName() == null){
+        if (comment.getUserName() == null) {
             this.setUserName("User is deleted!");
-        }else {
+        } else {
             this.setUserName(comment.getUserName());
         }
         this.setNumberOfLikes(comment.getNumberOfLikes());

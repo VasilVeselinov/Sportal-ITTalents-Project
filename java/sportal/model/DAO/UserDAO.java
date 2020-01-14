@@ -2,7 +2,6 @@ package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import sportal.model.dao.DAO;
 import sportal.model.dao.interfaceDAO.IDAODeleteById;
 import sportal.model.dto.user.UserRegistrationFormDTO;
 import sportal.model.pojo.User;

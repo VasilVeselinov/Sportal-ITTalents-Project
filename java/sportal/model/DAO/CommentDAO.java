@@ -31,12 +31,14 @@ public class CommentDAO extends DAO implements IDAODeleteById {
                     "LEFT JOIN users_like_comments AS ulc ON ulc.comment_id = c.id " +
                     "LEFT JOIN users_disliked_comments AS udc ON udc.comment_id = c.id " +
                     "GROUP BY c.id " +
-                    "HAVING c.article_id = ?;";
-    private static final String EXISTS_VOTED_COMMENT = "SELECT c.id " +
-            "FROM comments AS c " +
-            "JOIN users_like_comments AS uls ON uls.comment_id = c.id " +
-            "JOIN users_disliked_comments AS udc ON udc.comment_id = c.id " +
-            "WHERE (uls.comment_id = ? AND uls.user_id = ?) OR (udc.comment_id = ? AND udc.user_id = ?);";
+                    "HAVING c.article_id = ? " +
+                    "ORDER BY c.date_published DESC;";
+    private static final String EXISTS_VOTED_COMMENT =
+            "SELECT c.id " +
+                    "FROM comments AS c " +
+                    "JOIN users_like_comments AS uls ON uls.comment_id = c.id " +
+                    "JOIN users_disliked_comments AS udc ON udc.comment_id = c.id " +
+                    "WHERE (uls.comment_id = ? AND uls.user_id = ?) OR (udc.comment_id = ? AND udc.user_id = ?);";
 
     public Comment addCommentToArticle(Comment comment) throws SQLException {
         try (
@@ -56,7 +58,7 @@ public class CommentDAO extends DAO implements IDAODeleteById {
     }
 
     public Comment editComment(Comment comment) throws SQLException {
-        if (this.jdbcTemplate.update(UPDATE_COMMENT_TEXT_BY_ID, comment.getFullCommentText(), comment.getId()) > 0){
+        if (this.jdbcTemplate.update(UPDATE_COMMENT_TEXT_BY_ID, comment.getFullCommentText(), comment.getId()) > 0) {
             return comment;
         }
         return null;
@@ -98,7 +100,7 @@ public class CommentDAO extends DAO implements IDAODeleteById {
     }
 
     public boolean existsVoteForThatCommentFromThisUser(long commentId, long userId) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(EXISTS_VOTED_COMMENT,commentId,userId,commentId,userId);
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(EXISTS_VOTED_COMMENT, commentId, userId, commentId, userId);
         return rowSet.next();
     }
 }

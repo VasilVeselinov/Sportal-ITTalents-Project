@@ -82,7 +82,7 @@ public class UserController extends AbstractController {
         if (existsUser == null) {
             throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
-        if (user.getId() == userId){
+        if (user.getId() == userId) {
             throw new AuthorizationException(NOT_ALLOWED_OPERATION);
         }
         this.userDAO.deleteById(userId);

@@ -12,7 +12,7 @@ public class BCryptValidator {
         return (cryptPassword);
     }
 
-    public static boolean checkPassword(String userPassword, String dbUserPassword) {
+    static boolean checkPassword(String userPassword, String dbUserPassword) {
         return BCrypt.checkpw(userPassword, dbUserPassword);
     }
 }

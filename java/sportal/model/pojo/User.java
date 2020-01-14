@@ -18,19 +18,19 @@ public class User {
     private String userEmail;
     private Boolean isAdmin;
 
-    public User(UserRegistrationFormDTO userRegistrationFormDTO){
+    public User(UserRegistrationFormDTO userRegistrationFormDTO) {
         this.setUserName(userRegistrationFormDTO.getUserName());
         String cryptPassword = BCryptValidator.cryptPassword(userRegistrationFormDTO.getUserPassword());
         this.setUserPassword(cryptPassword);
         this.setUserEmail(userRegistrationFormDTO.getUserEmail());
         if (userRegistrationFormDTO.getIsAdmin() != null) {
             this.setIsAdmin(userRegistrationFormDTO.getIsAdmin());
-        }else {
+        } else {
             this.setIsAdmin(false);
         }
     }
 
-    public User(UserChangePasswordDTO userChangePasswordDTO){
+    public User(UserChangePasswordDTO userChangePasswordDTO) {
         String cryptPassword = BCryptValidator.cryptPassword(userChangePasswordDTO.getNewPassword());
         this.setUserPassword(cryptPassword);
     }

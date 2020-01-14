@@ -20,7 +20,7 @@ public class ArticleAfterCreateDTO {
     private long id;
     private String title;
     private String fullText;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createDateAndTime;
     private List<Category> categories;
     private List<PictureDTO> pictures;
@@ -29,7 +29,7 @@ public class ArticleAfterCreateDTO {
 
     public ArticleAfterCreateDTO(Article article, List<Category> categories,
                                  List<PictureDTO> pictures,
-                                 UserResponseDTO author){
+                                 UserResponseDTO author) {
         this.setId(article.getId());
         this.setTitle(article.getTitle());
         this.setFullText(article.getFullText());

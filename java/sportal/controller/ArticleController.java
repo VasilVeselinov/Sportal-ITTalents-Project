@@ -126,7 +126,7 @@ public class ArticleController extends AbstractController {
 
     @DeleteMapping(value = "/articles/{" + ARTICLE_ID + "}")
     public ArticleRespDTO deleteArticle(@PathVariable(name = ARTICLE_ID) long articleId,
-                       HttpSession session) throws SQLException, BadRequestException {
+                                        HttpSession session) throws SQLException, BadRequestException {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -137,6 +137,6 @@ public class ArticleController extends AbstractController {
             throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
         this.articlesDAO.deleteById(articleId);
-        return new  ArticleRespDTO(article);
+        return new ArticleRespDTO(article);
     }
 }

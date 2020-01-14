@@ -14,7 +14,8 @@ import java.util.List;
 public class ArticleDAO extends DAO implements IDAODeleteById {
 
     private static final String INSERT_ARTICLE =
-            "INSERT INTO articles (title ,full_text, date_published, views, author_id) VALUES (?, ?, ?, ?, ?);";
+            "INSERT INTO articles (title ,full_text, date_published, views, author_id) " +
+                    "VALUES (?, ?, ?, ?, ?);";
     private static final String TOP_FIVE_MOST_VIEWED_ARTICLE =
             "SELECT id, title, date_published " +
                     "FROM articles " +
@@ -23,7 +24,8 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
     private static final String UPDATE_ARTICLE = "UPDATE articles SET title = ?, full_text = ? WHERE id = ?;";
     private static final String UPDATE_VIEWS = "UPDATE articles SET views = views + 1 WHERE id = ?;";
     private static final String DELETE_SQL = "DELETE FROM articles WHERE id = ?;";
-    private static final String DELETE_ALL_CATEGORIES_BY_ARTICLE_ID = "DELETE FROM articles_categories WHERE article_id = ?;";
+    private static final String DELETE_ALL_CATEGORIES_BY_ARTICLE_ID =
+            "DELETE FROM articles_categories WHERE article_id = ?;";
     private static final String DELETE_ALL_PICTURES_BY_ARTICLE_ID = "DELETE FROM pictures WHERE article_id = ?;";
     private static final String SEARCH_ARTICLE_BY_ID =
             "SELECT a.id, a.title, a.full_text, a.date_published, a.views, a.author_id, u.user_name " +
@@ -31,6 +33,7 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
                     "LEFT JOIN users AS u ON a.author_id = u.id " +
                     "WHERE a.id = ?;";
     private static final int NUMBER_OF_LIMIT_FOR_SEARCH_BY_TITLE_OR_CATEGORY = 5;
+
     public Article addArticle(Article article) throws SQLException {
         try (
                 Connection connection = this.jdbcTemplate.getDataSource().getConnection();
@@ -81,7 +84,7 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
                         "LEFT JOIN categories AS c ON aa.category_id = c.id " +
                         "WHERE a.title LIKE '" + titleOrCategory + "%' " +
                         "OR c.category_name LIKE '" + titleOrCategory + "%' LIMIT " +
-                        NUMBER_OF_LIMIT_FOR_SEARCH_BY_TITLE_OR_CATEGORY +";";
+                        NUMBER_OF_LIMIT_FOR_SEARCH_BY_TITLE_OR_CATEGORY + ";";
         final SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_ARTICLE_BY_TITLE_OR_CATEGORY);
         final List<Article> listFromArticles = new ArrayList<>();
         while (rowSet.next()) {
@@ -140,7 +143,7 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
     }
 
     public Article editOfTitleAndFullText(Article article) throws SQLException {
-        if (this.jdbcTemplate.update(UPDATE_ARTICLE, article.getTitle(), article.getFullText(), article.getId()) > 0){
+        if (this.jdbcTemplate.update(UPDATE_ARTICLE, article.getTitle(), article.getFullText(), article.getId()) > 0) {
             return article;
         }
         return null;

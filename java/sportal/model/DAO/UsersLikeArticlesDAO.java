@@ -17,7 +17,9 @@ public class UsersLikeArticlesDAO extends DAO
                     "FROM users_like_articles " +
                     "WHERE article_id = ? AND user_id = ?";
     private static final String COUNT_LIKES =
-            "SELECT COUNT(user_id) AS number_likes FROM users_like_articles WHERE article_id = ?;";
+            "SELECT COUNT(user_id) AS number_likes " +
+                    "FROM users_like_articles " +
+                    "WHERE article_id = ?;";
     private static final String DELETE_LIKE = "DELETE FROM users_like_articles WHERE article_id = ? AND user_id = ?;";
     private static final String INSERT_LIKE = "INSERT INTO users_like_articles (article_id, user_id) VALUE (?, ?);";
 
@@ -28,7 +30,7 @@ public class UsersLikeArticlesDAO extends DAO
 
     @Override
     public int deleteFromThirdTable(long leftColumn, long rightColumn) throws SQLException {
-       return this.jdbcTemplate.update(DELETE_LIKE, leftColumn, rightColumn);
+        return this.jdbcTemplate.update(DELETE_LIKE, leftColumn, rightColumn);
     }
 
     public int totalLikesByArticleId(long id) throws SQLException {
