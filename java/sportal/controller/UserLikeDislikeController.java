@@ -6,12 +6,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sportal.exception.*;
-import sportal.model.dao.ArticleDAO;
-import sportal.model.dao.UsersDislikeCommentsDAO;
-import sportal.model.dao.UsersLikeArticlesDAO;
-import sportal.model.dao.UsersLikeCommentsDAO;
+import sportal.model.dao.*;
 import sportal.model.data_validators.SessionValidator;
 import sportal.model.pojo.Article;
+import sportal.model.pojo.Comment;
 import sportal.model.pojo.User;
 
 import javax.servlet.http.HttpSession;
@@ -28,6 +26,8 @@ public class UserLikeDislikeController extends AbstractController {
     private UsersDislikeCommentsDAO dislikeCommentsDAO;
     @Autowired
     private ArticleDAO articleDAO;
+    @Autowired
+    private CommentDAO commentDAO;
 
     @PostMapping(value = "/users/like_articles/{" + ARTICLE_ID + "}")
     public long likeOfArticle(@PathVariable(name = ARTICLE_ID) long articleId,
@@ -37,14 +37,14 @@ public class UserLikeDislikeController extends AbstractController {
         }
         User user = SessionValidator.checkUserIsLogged(session);
         Article article = this.articleDAO.articleById(articleId);
-        if (article == null){
+        if (article == null) {
             throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
         if (this.likeArticlesDAO.existsInThirdTable(articleId, user.getId())) {
-            throw new ExistsObjectException(WITHOUT_MORE_VOTE);
+            throw new BadRequestException(WITHOUT_MORE_VOTE);
         }
         if (this.likeArticlesDAO.addInThirdTable(articleId, user.getId()) > 0) {
-            return articleId;
+            return article.getId();
         } else {
             throw new SomethingWentWrongException(SOMETHING_WENT_WRONG);
         }
@@ -60,7 +60,7 @@ public class UserLikeDislikeController extends AbstractController {
         if (this.likeArticlesDAO.deleteFromThirdTable(articleId, user.getId()) > 0) {
             return articleId;
         } else {
-            throw new AuthorizationException(NOT_ALLOWED_OPERATION);
+            throw new BadRequestException(NOT_ALLOWED_OPERATION);
         }
     }
 
@@ -71,11 +71,12 @@ public class UserLikeDislikeController extends AbstractController {
             throw new BadRequestException(WRONG_REQUEST);
         }
         User user = SessionValidator.checkUserIsLogged(session);
-        if (this.likeCommentsDAO.existsInThirdTable(commentId, user.getId())) {
-            throw new ExistsObjectException(ALREADY_VOTED);
+        Comment comment = this.commentDAO.findCommentById(commentId);
+        if (comment == null) {
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
-        if (this.dislikeCommentsDAO.existsInThirdTable(commentId, user.getId())) {
-            throw new ExistsObjectException(ALREADY_VOTED);
+        if (this.commentDAO.existsVoteForThatCommentFromThisUser(commentId, user.getId())) {
+            throw new BadRequestException(ALREADY_VOTED);
         }
         if (this.likeCommentsDAO.addInThirdTable(commentId, user.getId()) > 0) {
             return commentId;
@@ -91,12 +92,12 @@ public class UserLikeDislikeController extends AbstractController {
             throw new BadRequestException(WRONG_REQUEST);
         }
         User user = SessionValidator.checkUserIsLogged(session);
-        // vasko check comment exists by id
-        if (this.dislikeCommentsDAO.existsInThirdTable(commentId, user.getId())) {
-            throw new ExistsObjectException(ALREADY_VOTED);
+        Comment comment = this.commentDAO.findCommentById(commentId);
+        if (comment == null) {
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
-        if (this.likeCommentsDAO.existsInThirdTable(commentId, user.getId())) {
-            throw new ExistsObjectException(ALREADY_VOTED);
+        if (this.commentDAO.existsVoteForThatCommentFromThisUser(commentId, user.getId())) {
+            throw new BadRequestException(ALREADY_VOTED);
         }
         if (this.dislikeCommentsDAO.addInThirdTable(commentId, user.getId()) > 0) {
             return commentId;
@@ -115,7 +116,7 @@ public class UserLikeDislikeController extends AbstractController {
         if (this.likeCommentsDAO.deleteFromThirdTable(commentId, user.getId()) > 0) {
             return commentId;
         } else {
-            throw new AuthorizationException(NOT_ALLOWED_OPERATION);
+            throw new BadRequestException(NOT_ALLOWED_OPERATION);
         }
     }
 
@@ -129,7 +130,7 @@ public class UserLikeDislikeController extends AbstractController {
         if (this.dislikeCommentsDAO.deleteFromThirdTable(commentId, user.getId()) > 0) {
             return commentId;
         } else {
-            throw new AuthorizationException(NOT_ALLOWED_OPERATION);
+            throw new BadRequestException(NOT_ALLOWED_OPERATION);
         }
     }
 }

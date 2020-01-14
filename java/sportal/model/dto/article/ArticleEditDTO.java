@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class ArticleEditDTO {
 
-    private ArticleBeforeEditDTO articleBeforeEditDTO;
+    private long oldArticleId;
     private String newTitle;
     private String newFullText;
 }

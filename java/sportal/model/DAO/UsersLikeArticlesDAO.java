@@ -2,9 +2,9 @@ package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import sportal.model.DAO.interfaceDAO.IDAODeleteFromThirdTable;
-import sportal.model.DAO.interfaceDAO.IDAOExistsInThirdTable;
-import sportal.model.DAO.interfaceDAO.IDAOManyToMany;
+import sportal.model.dao.interfaceDAO.IDAODeleteFromThirdTable;
+import sportal.model.dao.interfaceDAO.IDAOExistsInThirdTable;
+import sportal.model.dao.interfaceDAO.IDAOManyToMany;
 
 import java.sql.SQLException;
 

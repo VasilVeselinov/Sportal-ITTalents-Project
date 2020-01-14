@@ -1,4 +1,4 @@
-package sportal.model.DAO.interfaceDAO;
+package sportal.model.dao.interfaceDAO;
 
 import java.sql.SQLException;
 

@@ -14,7 +14,7 @@ public class Category {
     private String categoryName;
 
     public Category(CategoryEditDTO editDTO) {
-        this.setId(editDTO.getOldCategory().getId());
+        this.setId(editDTO.getOldCategoryId());
         this.setCategoryName(editDTO.getNewCategoryName());
     }
 }

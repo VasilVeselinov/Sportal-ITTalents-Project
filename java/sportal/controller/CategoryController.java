@@ -44,7 +44,7 @@ public class CategoryController extends AbstractController {
     }
 
     @DeleteMapping(value = "/categories/{" + CATEGORY_ID + "}")
-    public long deleteCategory(@PathVariable(name = CATEGORY_ID) long categoryId,
+    public CategoryResponseDTO deleteCategory(@PathVariable(name = CATEGORY_ID) long categoryId,
                                HttpSession session) throws SQLException, BadRequestException {
         if (categoryId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
@@ -56,6 +56,6 @@ public class CategoryController extends AbstractController {
             throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
         this.categoriesDAO.deleteById(categoryId);
-        return categoryId;
+        return new  CategoryResponseDTO (category);
     }
 }

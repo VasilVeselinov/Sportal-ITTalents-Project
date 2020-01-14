@@ -26,18 +26,7 @@ public class ArticleValidator extends AbstractValidator{
     }
 
     public static ArticleEditDTO validationBeforeEdit(ArticleEditDTO artEditDTO) throws BadRequestException {
-        if (artEditDTO == null) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        if (artEditDTO.getArticleBeforeEditDTO() == null || artEditDTO.getArticleBeforeEditDTO().getId() < 0) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        if (artEditDTO.getArticleBeforeEditDTO().getOldFullText() == null ||
-                artEditDTO.getArticleBeforeEditDTO().getOldFullText().isEmpty()) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        if (artEditDTO.getArticleBeforeEditDTO().getOldTitle() == null ||
-                artEditDTO.getArticleBeforeEditDTO().getOldTitle().isEmpty()) {
+        if (artEditDTO == null || artEditDTO.getOldArticleId() < 0) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         if (artEditDTO.getNewTitle() == null || artEditDTO.getNewTitle().isEmpty()) {
@@ -46,7 +35,6 @@ public class ArticleValidator extends AbstractValidator{
         if (artEditDTO.getNewFullText() == null || artEditDTO.getNewFullText().isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        System.out.println("valid");
         return artEditDTO;
     }
 }

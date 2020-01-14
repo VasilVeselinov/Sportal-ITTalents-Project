@@ -23,7 +23,7 @@ public class Article {
     private String authorName;
 
     public  Article (ArticleEditDTO articleEditDTO){
-        this.setId(articleEditDTO.getArticleBeforeEditDTO().getId());
+        this.setId(articleEditDTO.getOldArticleId());
         this.setTitle(articleEditDTO.getNewTitle());
         this.setFullText(articleEditDTO.getNewFullText());
         this.setCreateDateAndTime(Timestamp.valueOf(LocalDateTime.now()));

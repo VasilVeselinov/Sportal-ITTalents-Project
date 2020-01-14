@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.*;
 import sportal.model.dao.UserDAO;
-import sportal.model.data_validators.BCryptValidator;
 import sportal.model.data_validators.SessionValidator;
 import sportal.model.data_validators.UserValidator;
 import sportal.model.dto.user.UserLoginFormDTO;
@@ -56,11 +55,10 @@ public class UserController extends AbstractController {
     public UserResponseDTO changePasswordOfUser(@RequestBody UserChangePasswordDTO userChangePasswordDTO,
                                                 HttpSession session) throws SQLException {
         User user = SessionValidator.checkUserIsLogged(session);
-        UserValidator.checkCredentials(user, userChangePasswordDTO);
-        User userWithNewPassword = new User(userChangePasswordDTO);
-        userWithNewPassword.setId(user.getId());
-        if (this.userDAO.changePassword(userWithNewPassword) > 0) {
-            return new UserResponseDTO(userWithNewPassword);
+        User validUser = UserValidator.checkCredentials(user, userChangePasswordDTO);
+        if (this.userDAO.changePassword(validUser) > 0) {
+            session.setAttribute(LOGGED_USER_KEY_IN_SESSION, validUser);
+            return new UserResponseDTO(validUser);
         } else {
             throw new SomethingWentWrongException(SOMETHING_WENT_WRONG);
         }

@@ -13,7 +13,7 @@ public class CategoryValidator extends AbstractValidator {
             throw new BadRequestException(WRONG_REQUEST);
         }
         if (
-                categoryEditDTO.getOldCategory() == null ||
+                categoryEditDTO.getOldCategoryId() < 0 ||
                         categoryEditDTO.getNewCategoryName() == null ||
                         categoryEditDTO.getNewCategoryName().isEmpty()
         ) {

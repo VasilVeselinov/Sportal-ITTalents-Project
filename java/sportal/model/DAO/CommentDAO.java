@@ -2,7 +2,7 @@ package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import sportal.model.DAO.interfaceDAO.IDAODeleteById;
+import sportal.model.dao.interfaceDAO.IDAODeleteById;
 import sportal.model.pojo.Comment;
 
 import java.sql.*;
@@ -32,6 +32,11 @@ public class CommentDAO extends DAO implements IDAODeleteById {
                     "LEFT JOIN users_disliked_comments AS udc ON udc.comment_id = c.id " +
                     "GROUP BY c.id " +
                     "HAVING c.article_id = ?;";
+    private static final String EXISTS_VOTED_COMMENT = "SELECT c.id " +
+            "FROM comments AS c " +
+            "JOIN users_like_comments AS uls ON uls.comment_id = c.id " +
+            "JOIN users_disliked_comments AS udc ON udc.comment_id = c.id " +
+            "WHERE (uls.comment_id = ? AND uls.user_id = ?) OR (udc.comment_id = ? AND udc.user_id = ?);";
 
     public Comment addCommentToArticle(Comment comment) throws SQLException {
         try (
@@ -90,5 +95,10 @@ public class CommentDAO extends DAO implements IDAODeleteById {
     @Override
     public void deleteById(long id) throws SQLException {
         this.jdbcTemplate.update(DELETE_COMMENT_BY_ID, id);
+    }
+
+    public boolean existsVoteForThatCommentFromThisUser(long commentId, long userId) throws SQLException {
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(EXISTS_VOTED_COMMENT,commentId,userId,commentId,userId);
+        return rowSet.next();
     }
 }

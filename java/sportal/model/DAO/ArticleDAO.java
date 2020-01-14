@@ -3,8 +3,7 @@ package sportal.model.dao;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import sportal.exception.TransactionException;
-import sportal.model.DAO.interfaceDAO.IDAODeleteById;
-import sportal.model.dao.DAO;
+import sportal.model.dao.interfaceDAO.IDAODeleteById;
 import sportal.model.pojo.Article;
 
 import java.sql.*;
