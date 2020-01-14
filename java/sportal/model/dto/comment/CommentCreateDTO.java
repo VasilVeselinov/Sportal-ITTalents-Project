@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 public class CommentCreateDTO {
 
-    private long articleId;
     private String commentText;
+    private long articleId;
 }

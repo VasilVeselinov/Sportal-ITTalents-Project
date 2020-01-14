@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class CommentEditDTO {
 
-    private long id;
+    private long oldCommentId;
     private String fullCommentText;
     private String newTextOfComment;
 }

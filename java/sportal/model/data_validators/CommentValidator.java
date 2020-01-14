@@ -27,7 +27,7 @@ public class CommentValidator extends AbstractValidator {
     }
 
     public static CommentEditDTO checkForValidDataOfCommentEditDTO(CommentEditDTO commentEditDTO) throws BadRequestException {
-        if (commentEditDTO == null) {
+        if (commentEditDTO == null || commentEditDTO.getOldCommentId() < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         if (commentEditDTO.getFullCommentText() == null || commentEditDTO.getFullCommentText().isEmpty()){

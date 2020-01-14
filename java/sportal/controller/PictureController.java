@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 public class PictureController extends AbstractController {
 
-    private static final String PACKAGE_NAME = "C:\\Users\\ACER\\Desktop\\uploadPictures\\";
+    private static final String PACKAGE_NAME = "C:\\Users\\ACER\\Desktop\\uploadPictures\\"; // Vasko : please fix me
     private static final String FILE_EXPANSION = ".jpg";
     // date time formatter
     private static final String DATE_AND_TIME_OF_UPLOAD = "date_and_time_of_upload_";
@@ -45,6 +45,10 @@ public class PictureController extends AbstractController {
         SessionValidator.checkUserIsAdmin(user);
         if (multipartFile == null || multipartFile.isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
+        }
+        File fileCreateDirectory = new File(PACKAGE_NAME);
+        if (!fileCreateDirectory.exists()){
+            fileCreateDirectory.mkdir();
         }
         List<Picture> pictures = new ArrayList<>();
         for (MultipartFile mf : multipartFile) {

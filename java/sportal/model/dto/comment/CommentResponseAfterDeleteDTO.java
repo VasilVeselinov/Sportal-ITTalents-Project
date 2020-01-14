@@ -27,5 +27,4 @@ public class CommentResponseAfterDeleteDTO {
         this.setUserId(existsComment.getUserId());
         this.setArticleId(existsComment.getArticleId());
     }
-
 }

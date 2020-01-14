@@ -31,7 +31,7 @@ public class Comment {
     }
 
     public Comment(CommentEditDTO validComment) {
-        this.setId(validComment.getId());
+        this.setId(validComment.getOldCommentId());
         this.setFullCommentText(validComment.getNewTextOfComment());
     }
 }

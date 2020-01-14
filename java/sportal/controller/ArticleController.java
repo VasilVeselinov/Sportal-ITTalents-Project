@@ -68,12 +68,11 @@ public class ArticleController extends AbstractController {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        ArticleFullDataDTO viewArticle = new ArticleFullDataDTO();
         Article article = this.articlesDAO.articleById(articleId);
         if (article == null) {
             throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
-        viewArticle.setArticle(new ArticleWithViewsAndFullTextDTO(article));
+        ArticleFullDataDTO viewArticle = new ArticleFullDataDTO(article);
         List<Category> categories = this.articlesCategoriesDAO.allCategoriesByArticlesId(articleId);
         viewArticle.setCategories(CategoryResponseDTO.fromCategoryListToCategoryResponseDTO(categories));
         List<Picture> pictures = this.pictureDAO.allPicturesByArticleId(articleId);
