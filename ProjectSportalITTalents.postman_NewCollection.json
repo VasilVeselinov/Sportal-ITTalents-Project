@@ -1,0 +1,867 @@
+{
+	"info": {
+		"_postman_id": "e0d662e9-da21-435c-b827-40b138a1ef04",
+		"name": "ProjectSportalITTalents",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "registration-admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"Gosho88VV\",\n  \"userPassword\": \"zaRche#123\",\n  \"verificationPassword\": \"zaRche#123\",\n  \"userEmail\": \"zar@abv.bg\",\n  \"isAdmin\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/users",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "registration-user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"KORN_Slipknot\",\n  \"userPassword\": \"Plovd#iv2020\",\n  \"verificationPassword\": \"Plovd#iv2020\",\n  \"userEmail\": \"hillsOfRock@abv.bg\",\n  \"isAdmin\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/users",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login-admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"Gosho88VV\",\n  \"userPassword\": \"zaRche#123\",\n  \"verificationPassword\": \"zaRche#123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login-user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"KORN_Slipknot\",\n  \"userPassword\": \"Plovd#iv2020\",\n  \"verificationPassword\": \"Plovd#iv2020\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/logout",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userPassword\": \"Plovd#iv2020\",\r\n  \"newPassword\": \"Va#vVAr12!r\",\r\n  \"verificationPassword\": \"UserPassword123#\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/users/change_password",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"change_password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete user by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/users/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "user like dislike",
+			"item": [
+				{
+					"name": "user like article",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/users/like_articles/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"like_articles",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user dislike comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/users/dislike_comments/8",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"dislike_comments",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user like comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/users/like_comments/8",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"like_comments",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete like_comment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/users/like_comments/8",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"like_comments",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete like_article",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/users/like_articles/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"like_articles",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete dislike_comment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/users/dislike_comments/8",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"dislike_comments",
+								"8"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "pictures",
+			"item": [
+				{
+					"name": "upload picture list",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "picture",
+									"type": "file",
+									"src": "/C:/Users/ACER/Desktop/Image/p1.jfif"
+								},
+								{
+									"key": "picture",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								},
+								{
+									"key": "picture",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								},
+								{
+									"key": "picture",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								},
+								{
+									"key": "picture",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/pictures",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"pictures"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete picture by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/pictures/17",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"pictures",
+								"17"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "categories",
+			"item": [
+				{
+					"name": "all categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/categories",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "edit kategory",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"oldCategoryId\": 9,\r\n  \"newCategoryName\" : \"Word Football\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/categories",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete category by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/categories/9",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"categories",
+								"9"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "articles",
+			"item": [
+				{
+					"name": "admin create new article",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"This is field for title!\",\r\n    \"fullText\": \"This is field for full text of article.\",\r\n  \"categories\": [\r\n    {\r\n        \"id\": 9,\r\n        \"categoryName\": \"Athletics\"\r\n    },\r\n    {\r\n        \"id\": 6,\r\n        \"categoryName\": \"Basketball\"\r\n    }\r\n  ],\r\n  \"pictures\": [\r\n    {\r\n      \"id\": 12\r\n    },\r\n    {\r\n      \"id\": 11\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/articles",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search articles by title or category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/articles/search/b",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"articles",
+								"search",
+								"b"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "top  5 view articles to day",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/articles/top_5_view_articles",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"articles",
+								"top_5_view_articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "edit title and text of article",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"articleBeforeEditDTO\": {\n  \t\"id\" : 2,\n    \"oldTitle\": \"Old title of artilce.\",\n    \"oldFullText\": \"This is field for old full text of article.\"\n  },\n  \"newTitle\": \"New title of artilce.\",\n  \"newFullText\": \"New this is field for old full text of article.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/articles",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete article",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/articles/10",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"articles",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "articles by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/articles/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"articles",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all articles by category id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/articles/the_category/6",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"articles",
+								"the_category",
+								"6"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "comments",
+			"item": [
+				{
+					"name": "user create comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"articleId\" : 2,\n  \"commentText\": \"That java is the best!Sportal comment!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/comments",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change text of comment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 3,\n    \"fullCommentText\": \"That java is the best!Sportal comment!\",\n    \"newTextOfComment\": \"Sportal comment!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/comments",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete comment by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/comments/3",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"comments",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "admin delete comment by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/comments/admin/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"comments",
+								"admin",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all comments by article id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/comments/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"comments",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
