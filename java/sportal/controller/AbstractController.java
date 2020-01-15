@@ -30,31 +30,6 @@ public abstract class AbstractController {
     static final String CATEGORY_ID = "category_id";
     static final String COMMENT_ID = "comment_id";
     static final String PICTURE_ID = "picture_id";
-    static final String TITLE_OR_CATEGORY = "title_or_category";
-
-    @ExceptionHandler(WrongCredentialsException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ExceptionObject handlerOfWrongCredentialsException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
-                HttpStatus.UNAUTHORIZED.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
-        return exceptionObject;
-    }
-
-    @ExceptionHandler(FailedCredentialsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionObject handlerOfFailedCredentialsException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
-        return exceptionObject;
-    }
 
     @ExceptionHandler(ExistsObjectException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -84,7 +59,7 @@ public abstract class AbstractController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionObject handlerOfTransactionException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
+                SOMETHING_WENT_WRONG + e.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()
@@ -108,7 +83,7 @@ public abstract class AbstractController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionObject handlerOfSomethingWentWrongException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
+                SOMETHING_WENT_WRONG + e.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()
@@ -120,7 +95,7 @@ public abstract class AbstractController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionObject handlerOfIOException(IOException e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
+                SOMETHING_WENT_WRONG + e.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()
@@ -132,7 +107,7 @@ public abstract class AbstractController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionObject handlerOfSQLException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
+                SOMETHING_WENT_WRONG + e.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()
@@ -144,7 +119,7 @@ public abstract class AbstractController {
     @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)
     public ExceptionObject handlerOfException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                WRONG_REQUEST,
+                SOMETHING_WENT_WRONG + WRONG_REQUEST + e.getMessage(),
                 HttpStatus.I_AM_A_TEAPOT.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()

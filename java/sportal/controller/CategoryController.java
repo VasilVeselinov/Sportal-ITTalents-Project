@@ -7,7 +7,7 @@ import sportal.exception.ExistsObjectException;
 import sportal.model.dao.CategoryDAO;
 import sportal.model.data_validators.CategoryValidator;
 import sportal.model.data_validators.SessionValidator;
-import sportal.model.dto.category.CategoryEditDTO;
+import sportal.model.dto.category.CategoryRequestDTO;
 import sportal.model.dto.category.CategoryResponseDTO;
 import sportal.model.pojo.Category;
 import sportal.model.pojo.User;
@@ -23,12 +23,12 @@ public class CategoryController extends AbstractController {
     private CategoryDAO categoriesDAO;
 
     @PutMapping(value = "/categories")
-    public CategoryResponseDTO editCategories(@RequestBody CategoryEditDTO categoryEditDTO,
+    public CategoryResponseDTO editCategories(@RequestBody CategoryRequestDTO categoryRequestDTO,
                                               HttpSession session) throws SQLException, BadRequestException {
         User user = SessionValidator.checkUserIsLogged(session);
         SessionValidator.checkUserIsAdmin(user);
-        CategoryEditDTO validCategoryEditDTO = CategoryValidator.checkForValidData(categoryEditDTO);
-        Category category = new Category(validCategoryEditDTO);
+        CategoryRequestDTO validCategoryRequestDTO = CategoryValidator.checkForValidData(categoryRequestDTO);
+        Category category = new Category(validCategoryRequestDTO);
         Category editedCategory = this.categoriesDAO.editCategory(category);
         if (editedCategory != null) {
             return new CategoryResponseDTO(category);

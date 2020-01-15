@@ -2,9 +2,10 @@ package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import sportal.exception.TransactionException;
 import sportal.model.dao.interfaceDAO.IDAODeleteById;
 import sportal.model.pojo.Article;
+import sportal.model.pojo.Category;
+import sportal.model.pojo.Picture;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,32 +14,46 @@ import java.util.List;
 @Component
 public class ArticleDAO extends DAO implements IDAODeleteById {
 
-    private static final String INSERT_ARTICLE =
+    private static final String ADD_NEW_ARTICLE =
             "INSERT INTO articles (title ,full_text, date_published, views, author_id) " +
                     "VALUES (?, ?, ?, ?, ?);";
+    private static final String SET_ARTICLE_ID_INTO_PICTURES_TABLE =
+            "UPDATE pictures SET article_id = ? WHERE id = ?;";
+    private static final String ADD_CATEGORIES_TO_ARTICLE =
+            "INSERT INTO articles_categories (category_id, article_id) VALUES (?, ?);";
     private static final String TOP_FIVE_MOST_VIEWED_ARTICLE =
             "SELECT id, title, date_published " +
                     "FROM articles " +
                     "WHERE DATE(date_published) = CURRENT_DATE() " +
                     "ORDER BY views DESC LIMIT 5;";
-    private static final String UPDATE_ARTICLE = "UPDATE articles SET title = ?, full_text = ? WHERE id = ?;";
-    private static final String UPDATE_VIEWS = "UPDATE articles SET views = views + 1 WHERE id = ?;";
-    private static final String DELETE_SQL = "DELETE FROM articles WHERE id = ?;";
-    private static final String DELETE_ALL_CATEGORIES_BY_ARTICLE_ID =
-            "DELETE FROM articles_categories WHERE article_id = ?;";
-    private static final String DELETE_ALL_PICTURES_BY_ARTICLE_ID = "DELETE FROM pictures WHERE article_id = ?;";
+    private static final String UPDATE_ARTICLE_TITLE_AND_TEXT =
+            "UPDATE articles SET title = ?, full_text = ? WHERE id = ?;";
+    private static final String UPDATE_VIEWS_BY_ARTICLE_ID = "UPDATE articles SET views = views + 1 WHERE id = ?;";
+    private static final String DELETE_ARTICLE = "DELETE FROM articles WHERE id = ?;";
     private static final String SEARCH_ARTICLE_BY_ID =
-            "SELECT a.id, a.title, a.full_text, a.date_published, a.views, a.author_id, u.user_name " +
+            "SELECT a.id, a.title, a.full_text, a.date_published, a.views, a.author_id, " +
+                    "u.user_name, COUNT(ula.user_id) AS number_of_likes " +
                     "FROM articles AS a " +
                     "LEFT JOIN users AS u ON a.author_id = u.id " +
+                    "LEFT JOIN users_like_articles AS ula ON ula.article_id = a.id " +
                     "WHERE a.id = ?;";
-    private static final int NUMBER_OF_LIMIT_FOR_SEARCH_BY_TITLE_OR_CATEGORY = 5;
+    private static final int LIMIT_FOR_OUTPUT_FOR_SEARCH = 5;
+    private static final String FIND_ARTICLE_BY_TITLE_OR_CATEGORY =
+            "SELECT a.id, a.title, a.date_published " +
+                    "FROM articles AS a " +
+                    "LEFT JOIN articles_categories AS aa ON a.id = aa.article_id " +
+                    "LEFT JOIN categories AS c ON aa.category_id = c.id " +
+                    "WHERE a.title LIKE ? " +
+                    "OR c.category_name LIKE ? LIMIT " + LIMIT_FOR_OUTPUT_FOR_SEARCH + ";";
 
-    public Article addArticle(Article article) throws SQLException {
+    public Article addArticle(Article article, List<Picture> pictures, List<Category> categories) throws SQLException {
+        Connection connection = this.jdbcTemplate.getDataSource().getConnection();
         try (
-                Connection connection = this.jdbcTemplate.getDataSource().getConnection();
-                PreparedStatement ps = connection.prepareStatement(INSERT_ARTICLE, Statement.RETURN_GENERATED_KEYS)
+                PreparedStatement ps = connection.prepareStatement(ADD_NEW_ARTICLE, Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement psForPicture = connection.prepareStatement(SET_ARTICLE_ID_INTO_PICTURES_TABLE);
+                PreparedStatement psForCategory = connection.prepareStatement(ADD_CATEGORIES_TO_ARTICLE)
         ) {
+            connection.setAutoCommit(false);
             ps.setString(1, article.getTitle());
             ps.setString(2, article.getFullText());
             ps.setTimestamp(3, article.getCreateDateAndTime());
@@ -48,12 +63,32 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
             ResultSet resultSet = ps.getGeneratedKeys();
             resultSet.next();
             article.setId(resultSet.getLong(1));
-            return article;
+            for (Picture p : pictures) {
+                psForPicture.setLong(2, p.getId());
+                psForPicture.setLong(1, article.getId());
+                psForPicture.executeUpdate();
+            }
+            for (Category category : categories) {
+                psForCategory.setLong(1, category.getId());
+                psForCategory.setLong(2, article.getId());
+                psForCategory.executeUpdate();
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+                throw new SQLException(e.getMessage());
+            } catch (SQLException ex) {
+                throw new SQLException(UNSUCCESSFUL_CONNECTION_ROLLBACK + ex.getMessage());
+            }
+        } finally {
+            connection.setAutoCommit(true);
         }
+        return article;
     }
 
     public void addViewOfByArticleId(long articleID) throws SQLException {
-        this.jdbcTemplate.update(UPDATE_VIEWS, articleID);
+        this.jdbcTemplate.update(UPDATE_VIEWS_BY_ARTICLE_ID, articleID);
     }
 
     public Article articleById(long articleId) throws SQLException {
@@ -72,21 +107,15 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
         article.setCreateDateAndTime(rowSet.getTimestamp("date_published"));
         article.setViews(rowSet.getInt("views") + 1);
         article.setAuthorId(rowSet.getLong("author_id"));
+        article.setNumberOfLikes(rowSet.getInt("number_of_likes"));
         article.setAuthorName(rowSet.getString("user_name"));
         return article;
     }
 
     public List<Article> allArticlesByTitleOrCategory(String titleOrCategory) throws SQLException {
-        String FIND_ARTICLE_BY_TITLE_OR_CATEGORY =
-                "SELECT a.id, a.title, a.date_published " +
-                        "FROM articles AS a " +
-                        "LEFT JOIN articles_categories AS aa ON a.id = aa.article_id " +
-                        "LEFT JOIN categories AS c ON aa.category_id = c.id " +
-                        "WHERE a.title LIKE '" + titleOrCategory + "%' " +
-                        "OR c.category_name LIKE '" + titleOrCategory + "%' LIMIT " +
-                        NUMBER_OF_LIMIT_FOR_SEARCH_BY_TITLE_OR_CATEGORY + ";";
-        final SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_ARTICLE_BY_TITLE_OR_CATEGORY);
-        final List<Article> listFromArticles = new ArrayList<>();
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(
+                FIND_ARTICLE_BY_TITLE_OR_CATEGORY, "%" + titleOrCategory + "%", "%" + titleOrCategory + "%");
+        List<Article> listFromArticles = new ArrayList<>();
         while (rowSet.next()) {
             listFromArticles.add(this.createArticleForRespByRowSet(rowSet));
         }
@@ -112,38 +141,12 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
 
     @Override
     public void deleteById(long id) throws SQLException {
-        Connection connection = this.jdbcTemplate.getDataSource().getConnection();
-        try (
-                PreparedStatement psForSetFKFalse = connection.prepareStatement(SET_FK_FALSE);
-                PreparedStatement psForArticle = connection.prepareStatement(DELETE_SQL);
-                PreparedStatement psForCategories = connection.prepareStatement(DELETE_ALL_CATEGORIES_BY_ARTICLE_ID);
-                PreparedStatement psForPictures = connection.prepareStatement(DELETE_ALL_PICTURES_BY_ARTICLE_ID);
-                PreparedStatement psForSetFKTrue = connection.prepareStatement(SET_FK_TRUE)
-        ) {
-            connection.setAutoCommit(false);
-            psForSetFKFalse.executeUpdate();
-            psForArticle.setLong(1, id);
-            psForArticle.executeUpdate();
-            psForCategories.setLong(1, id);
-            psForCategories.executeUpdate();
-            psForPictures.setLong(1, id);
-            psForPictures.executeUpdate();
-            psForSetFKTrue.executeUpdate();
-            connection.commit();
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-                throw new TransactionException(UNSUCCESSFUL_TRANSACTION);
-            } catch (SQLException ex) {
-                throw new SQLException(UNSUCCESSFUL_CONNECTION_ROLLBACK);
-            }
-        } finally {
-            connection.setAutoCommit(true);
-        }
+        this.jdbcTemplate.update(DELETE_ARTICLE, id);
     }
 
     public Article editOfTitleAndFullText(Article article) throws SQLException {
-        if (this.jdbcTemplate.update(UPDATE_ARTICLE, article.getTitle(), article.getFullText(), article.getId()) > 0) {
+        if (this.jdbcTemplate.update(UPDATE_ARTICLE_TITLE_AND_TEXT,
+                article.getTitle(), article.getFullText(), article.getId()) > 0) {
             return article;
         }
         return null;

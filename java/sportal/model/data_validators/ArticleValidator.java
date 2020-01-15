@@ -6,14 +6,18 @@ import sportal.model.dto.article.ArticleEditDTO;
 
 import static sportal.controller.AbstractController.WRONG_REQUEST;
 
-public class ArticleValidator extends AbstractValidator{
+public class ArticleValidator extends AbstractValidator {
 
-
-    public static ArticleCreateDTO checkArticleForValidData(ArticleCreateDTO articleCreateDTO) throws BadRequestException {
+    public static ArticleCreateDTO checkArticleForValidData(
+            ArticleCreateDTO articleCreateDTO) throws BadRequestException {
         if (articleCreateDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        if (articleCreateDTO.getTitle() == null || articleCreateDTO.getTitle().isEmpty()) {
+        if (
+                articleCreateDTO.getTitle() == null ||
+                        articleCreateDTO.getTitle().isEmpty() ||
+                        articleCreateDTO.getTitle().length() > MAX_NUMBER_FOR_TITLE_SIZE
+        ) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         if (articleCreateDTO.getFullText() == null || articleCreateDTO.getFullText().isEmpty()) {

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sportal.model.dto.category.CategoryResponseDTO;
 import sportal.model.dto.picture.PictureDTO;
 import sportal.model.dto.user.UserResponseDTO;
 import sportal.model.pojo.Article;
-import sportal.model.pojo.Category;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,12 +22,12 @@ public class ArticleAfterCreateDTO {
     private String fullText;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createDateAndTime;
-    private List<Category> categories;
+    private List<CategoryResponseDTO> categories;
     private List<PictureDTO> pictures;
     private int views;
     private UserResponseDTO author;
 
-    public ArticleAfterCreateDTO(Article article, List<Category> categories,
+    public ArticleAfterCreateDTO(Article article, List<CategoryResponseDTO> categories,
                                  List<PictureDTO> pictures,
                                  UserResponseDTO author) {
         this.setId(article.getId());

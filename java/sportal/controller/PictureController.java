@@ -14,7 +14,6 @@ import sportal.model.pojo.User;
 
 import javax.servlet.http.HttpSession;
 import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,11 +24,12 @@ import java.util.List;
 @RestController
 public class PictureController extends AbstractController {
 
-    private static final String PACKAGE_NAME = "C:\\Users\\ACER\\Desktop\\uploadPictures\\"; // Vasko : please fix me
+    private static final String PACKAGE_NAME =
+            "C:\\Users\\ACER\\Desktop\\uploadPictures\\"; // Vasko : please fix me if you change directory
     private static final String FILE_EXPANSION = ".jpg";
     // date time formatter
     private static final String DATE_AND_TIME_OF_UPLOAD = "date_and_time_of_upload_";
-    private static final List<String> contentTypes = Arrays.asList(
+    private static final List<String> CONTENT_TYPES_LIST = Arrays.asList(
             "image/png", "image/jpeg", "image/gif", "application/octet-stream", "image/bmp", "image/cgm",
             "image/svg+xml", "image/ief", "image/tiff", "image/vnd.djvu", "image/vnd.wap.wbmp", "image/x-cmu-raster",
             "image/x-icon", "image/x-portable-anymap", "image/x-portable-bitmap", "image/x-portable-graymap",
@@ -40,21 +40,20 @@ public class PictureController extends AbstractController {
 
     @PostMapping(value = "/pictures")
     public List<PictureDTO> uploadPictures(@RequestPart(value = "picture") List<MultipartFile> multipartFile,
-                                           HttpSession session) throws SQLException, BadRequestException, IOException {
+                                           HttpSession session) throws SQLException, BadRequestException {
         User user = SessionValidator.checkUserIsLogged(session);
         SessionValidator.checkUserIsAdmin(user);
         if (multipartFile == null || multipartFile.isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         File fileCreateDirectory = new File(PACKAGE_NAME);
-        if (!fileCreateDirectory.exists()){
+        if (!fileCreateDirectory.exists()) {
             fileCreateDirectory.mkdir();
         }
         List<Picture> pictures = new ArrayList<>();
         for (MultipartFile mf : multipartFile) {
             String fileContentType = mf.getContentType();
-            System.out.println(fileContentType);// vasko delete that
-            if (contentTypes.contains(fileContentType)) {
+            if (CONTENT_TYPES_LIST.contains(fileContentType)) {
                 String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss.SSS"));
                 String urlOfPicture = DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
                 Picture picture = new Picture();
@@ -63,7 +62,7 @@ public class PictureController extends AbstractController {
                 FileManagerDAO fileManagerDAO = new FileManagerDAO(mf, PACKAGE_NAME + urlOfPicture);
                 fileManagerDAO.start();
             } else {
-                System.out.println("not image");// vasko what exception or empty ???
+                throw new BadRequestException(WRONG_REQUEST);
             }
         }
         List<Picture> picturesAfterInsertInDB = this.pictureDAO.uploadOfPictures(pictures);

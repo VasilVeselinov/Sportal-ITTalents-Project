@@ -4,11 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.dao.ArticleDAO;
-import sportal.model.dao.ArticlesCategoriesDAO;
-import sportal.model.dao.PictureDAO;
-import sportal.model.dao.UsersLikeArticlesDAO;
+import sportal.model.dao.*;
 import sportal.model.data_validators.ArticleValidator;
+import sportal.model.data_validators.CategoryValidator;
+import sportal.model.data_validators.PictureValidator;
 import sportal.model.data_validators.SessionValidator;
 import sportal.model.dto.article.*;
 import sportal.model.dto.category.CategoryResponseDTO;
@@ -29,9 +28,9 @@ public class ArticleController extends AbstractController {
     @Autowired
     private PictureDAO pictureDAO;
     @Autowired
-    private ArticlesCategoriesDAO articlesCategoriesDAO;
+    private CategoryDAO categoryDAO;
     @Autowired
-    private UsersLikeArticlesDAO likeArticlesDAO;
+    private ArticlesCategoriesDAO articlesCategoriesDAO;
 
     @PostMapping(value = "/articles")
     public ArticleAfterCreateDTO addArticle(@RequestBody ArticleCreateDTO articleCreateDTO,
@@ -39,21 +38,24 @@ public class ArticleController extends AbstractController {
         User user = SessionValidator.checkUserIsLogged(session);
         SessionValidator.checkUserIsAdmin(user);
         ArticleCreateDTO validArticle = ArticleValidator.checkArticleForValidData(articleCreateDTO);
+        List<Category> existsCategory = this.categoryDAO.allCategories();
+        List<Category> validCategory = CategoryValidator.conformityCheck(existsCategory, articleCreateDTO.getCategories());
+        List<Picture> existsPictures = this.pictureDAO.AllPicturesWhereArticleIdIsNull();
+        List<Picture> validPictures = PictureValidator.conformityCheck(existsPictures, articleCreateDTO.getPictures());
         Article article = new Article(validArticle);
         article.setAuthorId(user.getId());
-        article = this.articlesDAO.addArticle(article);
-        List<Picture> pictureList = Picture.fromPictureDTOToPicture(validArticle.getPictures());
-        this.pictureDAO.addArticleIdToAllPictures(pictureList, article.getId());
+        article = this.articlesDAO.addArticle(article, validPictures, validCategory);
         List<Picture> listFromPicturesAfterSetArticleId = this.pictureDAO.allPicturesByArticleId(article.getId());
-        List<PictureDTO> pictureDTOList = PictureDTO.fromPictureToPictureDTO(listFromPicturesAfterSetArticleId);
-        this.articlesCategoriesDAO.addListFromCategoriesToArticleId(validArticle.getCategories(), article.getId());
+        List<PictureDTO> picturesDTO = PictureDTO.fromPictureToPictureDTO(listFromPicturesAfterSetArticleId);
+        List<Category> categories = this.articlesCategoriesDAO.allCategoriesByArticlesId(article.getId());
+        List<CategoryResponseDTO> categoriesDTO = CategoryResponseDTO.fromCategoryListToCategoryResponseDTO(categories);
         UserResponseDTO userResponseDTO = new UserResponseDTO(user);
-        return new ArticleAfterCreateDTO(article, validArticle.getCategories(), pictureDTOList, userResponseDTO);
+        return new ArticleAfterCreateDTO(article, categoriesDTO, picturesDTO, userResponseDTO);
     }
 
-    @GetMapping(value = "/articles/search/{" + TITLE_OR_CATEGORY + "}")
+    @GetMapping(value = "/articles/search")
     public List<ArticleRespDTO> searchOfArticlesByTitleOfCategoryName(
-            @PathVariable(TITLE_OR_CATEGORY) String titleOrCategory) throws SQLException {
+            @RequestParam(name = "text", required = false) String titleOrCategory) throws SQLException {
         List<Article> listFromArticles = this.articlesDAO.allArticlesByTitleOrCategory(titleOrCategory);
         List<ArticleRespDTO> listFromReturnArticle = new ArrayList<>();
         for (Article a : listFromArticles) {
@@ -63,7 +65,7 @@ public class ArticleController extends AbstractController {
     }
 
     @GetMapping(value = "/articles/{" + ARTICLE_ID + "}")
-    public ArticleFullDataDTO articleBySpecificTitle(
+    public ArticleFullDataDTO articleById(
             @PathVariable(ARTICLE_ID) long articleId) throws SQLException, BadRequestException {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
@@ -77,7 +79,6 @@ public class ArticleController extends AbstractController {
         viewArticle.setCategories(CategoryResponseDTO.fromCategoryListToCategoryResponseDTO(categories));
         List<Picture> pictures = this.pictureDAO.allPicturesByArticleId(articleId);
         viewArticle.setPictures(PictureDTO.fromPictureToPictureDTO(pictures));
-        viewArticle.setNumberOfLikes(this.likeArticlesDAO.totalLikesByArticleId(articleId));
         if (article.getAuthorName() == null) {
             viewArticle.setAuthorName(COPYRIGHT);
         } else {

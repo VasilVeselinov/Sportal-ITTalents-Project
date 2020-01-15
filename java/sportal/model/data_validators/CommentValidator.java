@@ -13,7 +13,8 @@ import static sportal.controller.AbstractController.WRONG_REQUEST;
 @Component
 public class CommentValidator extends AbstractValidator {
 
-    public static CommentCreateDTO checkForValidDataOfCommentCreateDTO(CommentCreateDTO commentCreateDTO) throws BadRequestException {
+    public static CommentCreateDTO checkForValidDataOfCommentCreateDTO(
+            CommentCreateDTO commentCreateDTO) throws BadRequestException {
         if (commentCreateDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -26,14 +27,15 @@ public class CommentValidator extends AbstractValidator {
         return commentCreateDTO;
     }
 
-    public static CommentEditDTO checkForValidDataOfCommentEditDTO(CommentEditDTO commentEditDTO) throws BadRequestException {
+    public static CommentEditDTO checkForValidDataOfCommentEditDTO(
+            CommentEditDTO commentEditDTO) throws BadRequestException {
         if (commentEditDTO == null || commentEditDTO.getOldCommentId() < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        if (commentEditDTO.getFullCommentText() == null || commentEditDTO.getFullCommentText().isEmpty()){
+        if (commentEditDTO.getFullCommentText() == null || commentEditDTO.getFullCommentText().isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        if (commentEditDTO.getNewTextOfComment()== null || commentEditDTO.getNewTextOfComment().isEmpty()){
+        if (commentEditDTO.getNewTextOfComment() == null || commentEditDTO.getNewTextOfComment().isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         return commentEditDTO;

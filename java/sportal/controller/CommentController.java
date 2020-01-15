@@ -47,10 +47,11 @@ public class CommentController extends AbstractController {
     public CommentAfterEditDTO editComment(@RequestBody CommentEditDTO commentEditDTO,
                                            HttpSession session) throws SQLException, BadRequestException {
         User user = SessionValidator.checkUserIsLogged(session);
-        CommentEditDTO validComment = CommentValidator.checkForValidDataOfCommentEditDTO(commentEditDTO);
-        Comment comment = new Comment(validComment);
+        CommentEditDTO validCommentDTO = CommentValidator.checkForValidDataOfCommentEditDTO(commentEditDTO);
+        Comment comment = new Comment(validCommentDTO);
         Comment existsComment = this.commentDAO.findCommentById(comment.getId());
         Comment validExistsComment = CommentValidator.validationOfExistsComment(existsComment, user);
+        validExistsComment.setFullCommentText(comment.getFullCommentText());
         Comment editComment = this.commentDAO.editComment(validExistsComment);
         if (editComment != null) {
             return new CommentAfterEditDTO(editComment);

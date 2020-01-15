@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `SportalProjectSchema`.`pictures` (
     FOREIGN KEY (`article_id`)
     REFERENCES `SportalProjectSchema`.`articles` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -112,12 +112,12 @@ CREATE TABLE IF NOT EXISTS `SportalProjectSchema`.`articles_categories` (
     FOREIGN KEY (`article_id`)
     REFERENCES `SportalProjectSchema`.`articles` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION,
+    ON UPDATE CASCADE,
   CONSTRAINT `category_id_FK`
     FOREIGN KEY (`category_id`)
     REFERENCES `SportalProjectSchema`.`categories` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 

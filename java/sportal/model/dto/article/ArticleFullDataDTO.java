@@ -34,5 +34,6 @@ public class ArticleFullDataDTO {
         this.setCreateDateAndTime(article.getCreateDateAndTime().toLocalDateTime());
         this.setViews(article.getViews());
         this.setAuthorName(article.getAuthorName());
+        this.setNumberOfLikes(article.getNumberOfLikes());
     }
 }

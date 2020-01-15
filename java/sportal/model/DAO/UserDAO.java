@@ -16,6 +16,15 @@ public class UserDAO extends DAO implements IDAODeleteById {
     private static final String UPDATE_PASSWORD = "UPDATE users SET user_password = ? WHERE id = ?;";
     private static final String FIND_USER_BY_USER_ID =
             "SELECT id, user_name, user_password, user_email, is_admin FROM users WHERE id = ?;";
+    private static final String FIND_USER_BY_USER_NAME_OR_EMAIL =
+            "SELECT id, user_name, user_password, user_email, is_admin " +
+                    "FROM users " +
+                    "WHERE user_name = ? " +
+                    "OR user_email = ?;";
+    private static final String FIND_USER_BY_USER_NAME =
+            "SELECT id, user_name, user_password, user_email, is_admin " +
+                    "FROM users" +
+                    " WHERE user_name = ?;";
 
     public User add(User user) throws SQLException {
         try (
@@ -35,13 +44,7 @@ public class UserDAO extends DAO implements IDAODeleteById {
     }
 
     public User findUserByUserNameOrEmail(UserRegistrationFormDTO user) throws SQLException {
-        final String FIND_USER_BY_USER_NAME_OR_EMAIL =
-                "SELECT id, user_name, user_password, user_email, is_admin " +
-                        "FROM users " +
-                        "WHERE user_name LIKE '" + user.getUserName() + "'" +
-                        " OR user_email LIKE '" + user.getUserEmail() + "';";
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(
-                FIND_USER_BY_USER_NAME_OR_EMAIL);
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_USER_BY_USER_NAME_OR_EMAIL, user.getUserName(), user.getUserEmail());
         if (rowSet.next()) {
             return this.createUserByRowSet(rowSet);
         }
@@ -67,11 +70,7 @@ public class UserDAO extends DAO implements IDAODeleteById {
     }
 
     public User findUserByUserName(String userName) throws SQLException {
-        final String FIND_USER_BY_USER_NAME =
-                "SELECT id, user_name, user_password, user_email, is_admin " +
-                        "FROM users" +
-                        " WHERE user_name LIKE '" + userName + "';";
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_USER_BY_USER_NAME);
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_USER_BY_USER_NAME, userName);
         if (rowSet.next()) {
             return this.createUserByRowSet(rowSet);
         }

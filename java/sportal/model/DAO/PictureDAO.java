@@ -2,7 +2,6 @@ package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import sportal.exception.TransactionException;
 import sportal.model.pojo.Picture;
 
 import java.sql.*;
@@ -15,11 +14,17 @@ public class PictureDAO extends DAO {
     private static final String UPLOAD_PICTURE = "INSERT INTO pictures (picture_url) VALUES (?);";
     private static final String DELETE_PICTURE_BY_ID = "DELETE FROM pictures WHERE id = ?;";
     private static final String FIND_PICTURE_BY_ID =
-            "SELECT picture_url FROM pictures WHERE id = ?;";
-    private static final String UPDATE_ARTICLE_ID_INTO_PICTURES_TABLE =
-            "UPDATE pictures SET article_id = ? WHERE id = ?;";
+            "SELECT id, picture_url " +
+                    "FROM pictures " +
+                    "WHERE id = ?;";
     private static final String ALL_PICTURES_BY_ARTICLE_ID =
-            "SELECT id, picture_url FROM pictures WHERE article_Id = ?;";
+            "SELECT id, picture_url " +
+                    "FROM pictures " +
+                    "WHERE article_Id = ?;";
+    private static final String ALL_PICTURES_WHERE_ARTICLE_ID_IS_NULL =
+            "SELECT id, picture_url " +
+                    "FROM pictures " +
+                    "WHERE article_Id IS NULL;";
 
     public List<Picture> uploadOfPictures(List<Picture> pictures) throws SQLException {
         List<Picture> pictureList = new ArrayList<>();
@@ -38,7 +43,6 @@ public class PictureDAO extends DAO {
         } catch (SQLException e) {
             try {
                 connection.rollback();
-                throw new TransactionException(UNSUCCESSFUL_TRANSACTION + e.getMessage());
             } catch (SQLException ex) {
                 throw new SQLException(UNSUCCESSFUL_CONNECTION_ROLLBACK + ex.getMessage());
             }
@@ -61,43 +65,27 @@ public class PictureDAO extends DAO {
         return listWithPictures;
     }
 
+    public Picture findPictureById(long pictureId) throws SQLException {
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_PICTURE_BY_ID, pictureId);
+        if (rowSet.next()) {
+            return this.createPictureByRowSet(rowSet);
+        }
+        return null;
+    }
+
+    public List<Picture> AllPicturesWhereArticleIdIsNull() {
+        List<Picture> pictureList = new ArrayList<>();
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ALL_PICTURES_WHERE_ARTICLE_ID_IS_NULL);
+        while (rowSet.next()) {
+            pictureList.add(this.createPictureByRowSet(rowSet));
+        }
+        return pictureList;
+    }
+
     private Picture createPictureByRowSet(SqlRowSet rowSet) {
         Picture picture = new Picture();
         picture.setId(rowSet.getLong("id"));
         picture.setUrlOFPicture(rowSet.getString("picture_url"));
         return picture;
-    }
-
-    public Picture findPictureById(long pictureId) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_PICTURE_BY_ID, pictureId);
-        if (rowSet.next()) {
-            Picture picture = new Picture();
-            picture.setId(pictureId);
-            picture.setUrlOFPicture(rowSet.getString("picture_url"));
-            return picture;
-        }
-        return null;
-    }
-
-    public void addArticleIdToAllPictures(List<Picture> pictures, long articleId) throws SQLException {
-        Connection connection = this.jdbcTemplate.getDataSource().getConnection();
-        try (PreparedStatement statement = connection.prepareStatement(UPDATE_ARTICLE_ID_INTO_PICTURES_TABLE)) {
-            connection.setAutoCommit(false);
-            for (Picture p : pictures) {
-                statement.setLong(2, p.getId());
-                statement.setLong(1, articleId);
-                statement.executeUpdate();
-            }
-            connection.commit();
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-                throw new TransactionException(UNSUCCESSFUL_TRANSACTION);
-            } catch (SQLException ex) {
-                throw new SQLException(UNSUCCESSFUL_CONNECTION_ROLLBACK);
-            }
-        } finally {
-            connection.setAutoCommit(true);
-        }
     }
 }

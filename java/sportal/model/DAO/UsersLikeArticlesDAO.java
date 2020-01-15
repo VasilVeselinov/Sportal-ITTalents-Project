@@ -3,47 +3,36 @@ package sportal.model.dao;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import sportal.model.dao.interfaceDAO.IDAODeleteFromThirdTable;
-import sportal.model.dao.interfaceDAO.IDAOExistsInThirdTable;
 import sportal.model.dao.interfaceDAO.IDAOManyToMany;
 
 import java.sql.SQLException;
 
 @Component
 public class UsersLikeArticlesDAO extends DAO
-        implements IDAOManyToMany, IDAODeleteFromThirdTable, IDAOExistsInThirdTable {
+        implements IDAOManyToMany, IDAODeleteFromThirdTable {
 
-    private static final String CHECK_EXISTS_LIKE =
+    private static final String CHECK_EXISTS_LIKE_BY_ARTICLE_ID_AND_USER_ID =
             "SELECT article_id, user_id " +
                     "FROM users_like_articles " +
                     "WHERE article_id = ? AND user_id = ?";
-    private static final String COUNT_LIKES =
-            "SELECT COUNT(user_id) AS number_likes " +
-                    "FROM users_like_articles " +
-                    "WHERE article_id = ?;";
-    private static final String DELETE_LIKE = "DELETE FROM users_like_articles WHERE article_id = ? AND user_id = ?;";
-    private static final String INSERT_LIKE = "INSERT INTO users_like_articles (article_id, user_id) VALUE (?, ?);";
+    private static final String DELETE_LIKE_BY_ARTICLE_ID_AND_USER_ID =
+            "DELETE FROM users_like_articles WHERE article_id = ? AND user_id = ?;";
+    private static final String ADD_LIKE_BY_ARTICLE_ID_AND_USER_ID =
+            "INSERT INTO users_like_articles (article_id, user_id) VALUE (?, ?);";
 
     @Override
     public int addInThirdTable(long leftColumn, long rightColumn) throws SQLException {
-        return this.jdbcTemplate.update(INSERT_LIKE, leftColumn, rightColumn);
+        return this.jdbcTemplate.update(ADD_LIKE_BY_ARTICLE_ID_AND_USER_ID, leftColumn, rightColumn);
     }
 
     @Override
     public int deleteFromThirdTable(long leftColumn, long rightColumn) throws SQLException {
-        return this.jdbcTemplate.update(DELETE_LIKE, leftColumn, rightColumn);
+        return this.jdbcTemplate.update(DELETE_LIKE_BY_ARTICLE_ID_AND_USER_ID, leftColumn, rightColumn);
     }
 
-    public int totalLikesByArticleId(long id) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(COUNT_LIKES, id);
-        if (rowSet.next()) {
-            return rowSet.getInt("number_likes");
-        }
-        return 0;
-    }
-
-    @Override
-    public boolean existsInThirdTable(long leftColumn, long rightColumn) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(CHECK_EXISTS_LIKE, leftColumn, rightColumn);
+    public boolean existsLikeByArticleIdAndUserId(long articleId, long userId) throws SQLException {
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(
+                CHECK_EXISTS_LIKE_BY_ARTICLE_ID_AND_USER_ID, articleId, userId);
         return rowSet.next();
     }
 }

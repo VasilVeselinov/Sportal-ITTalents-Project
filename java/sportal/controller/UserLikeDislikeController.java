@@ -40,7 +40,7 @@ public class UserLikeDislikeController extends AbstractController {
         if (article == null) {
             throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
-        if (this.likeArticlesDAO.existsInThirdTable(articleId, user.getId())) {
+        if (this.likeArticlesDAO.existsLikeByArticleIdAndUserId(articleId, user.getId())) {
             throw new BadRequestException(WITHOUT_MORE_VOTE);
         }
         if (this.likeArticlesDAO.addInThirdTable(articleId, user.getId()) > 0) {
