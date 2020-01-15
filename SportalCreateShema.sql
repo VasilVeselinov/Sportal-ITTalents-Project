@@ -85,8 +85,8 @@ CREATE TABLE IF NOT EXISTS `SportalProjectSchema`.`comments` (
   CONSTRAINT `comment_article_id_FK`
     FOREIGN KEY (`article_id`)
     REFERENCES `SportalProjectSchema`.`articles` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -131,13 +131,13 @@ CREATE TABLE IF NOT EXISTS `SportalProjectSchema`.`users_like_articles` (
   CONSTRAINT `like_article_id_FK`
     FOREIGN KEY (`article_id`)
     REFERENCES `SportalProjectSchema`.`articles` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `like_user_id_FK`
     FOREIGN KEY (`user_id`)
     REFERENCES `SportalProjectSchema`.`users` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -151,13 +151,13 @@ CREATE TABLE IF NOT EXISTS `SportalProjectSchema`.`users_like_comments` (
   CONSTRAINT `like_comment_id_FK`
     FOREIGN KEY (`comment_id`)
     REFERENCES `SportalProjectSchema`.`comments` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `user_like_id_FK`
     FOREIGN KEY (`user_id`)
     REFERENCES `SportalProjectSchema`.`users` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -171,16 +171,25 @@ CREATE TABLE IF NOT EXISTS `SportalProjectSchema`.`users_disliked_comments` (
   CONSTRAINT `user_d_comment_FK`
     FOREIGN KEY (`user_id`)
     REFERENCES `SportalProjectSchema`.`users` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `comment_d_user_FK`
     FOREIGN KEY (`comment_id`)
     REFERENCES `SportalProjectSchema`.`comments` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- -----------------------------------------------------
+-- ADD CONSTRAINTS UNIQUE
+-- -----------------------------------------------------
+ALTER TABLE users ADD CONSTRAINT UNIQUE (user_name);
+ALTER TABLE users ADD CONSTRAINT UNIQUE (user_email);
+ALTER TABLE articles ADD CONSTRAINT UNIQUE (title);
+ALTER TABLE categories ADD CONSTRAINT UNIQUE (category_name);
+ALTER TABLE pictures ADD CONSTRAINT UNIQUE (picture_url);
