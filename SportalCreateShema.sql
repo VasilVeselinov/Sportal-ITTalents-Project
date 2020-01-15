@@ -184,12 +184,3 @@ ENGINE = InnoDB;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
--- -----------------------------------------------------
--- ADD CONSTRAINTS UNIQUE
--- -----------------------------------------------------
-ALTER TABLE users ADD CONSTRAINT UNIQUE (user_name);
-ALTER TABLE users ADD CONSTRAINT UNIQUE (user_email);
-ALTER TABLE articles ADD CONSTRAINT UNIQUE (title);
-ALTER TABLE categories ADD CONSTRAINT UNIQUE (category_name);
-ALTER TABLE pictures ADD CONSTRAINT UNIQUE (picture_url);
