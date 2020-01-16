@@ -15,7 +15,7 @@ public class Picture {
 
     private long id;
     private String urlOFPicture;
-    private long articleID;
+    private long articleId;
 
     public Picture(PictureDTO pictureDTO) {
         this.setId(pictureDTO.getId());

@@ -21,7 +21,7 @@ public class SessionValidator extends AbstractValidator {
 
     public static void checkUserIsAdmin(User user) {
         if (!user.getIsAdmin()) {
-            throw new AuthorizationException(WRONG_INFORMATION);
+            throw new AuthorizationException(NOT_ALLOWED_OPERATION);
         }
     }
 }

@@ -1,8 +1,11 @@
 package sportal.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import sportal.exception.*;
 
 import java.io.IOException;
@@ -19,8 +22,8 @@ public abstract class AbstractController {
     static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String EXISTS = "That object exists!";
     static final String ALREADY_VOTED = "You have already voted on this comment!";
-    static final String NOT_EXISTS_OBJECT = "Not found!";
-    static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
+    public static final String NOT_EXISTS_OBJECT = "Not found!";
+    public static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
     static final String COPYRIGHT = "Sportal holds the copyright of this article.";
     static final String WITHOUT_MORE_VOTE = "Without more likes from you on this article!";
 
@@ -55,18 +58,6 @@ public abstract class AbstractController {
         return exceptionObject;
     }
 
-    @ExceptionHandler(TransactionException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ExceptionObject handlerOfTransactionException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG + e.getMessage(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
-        return exceptionObject;
-    }
-
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionObject handlerOfBadRequestException(Exception e) {
@@ -79,15 +70,67 @@ public abstract class AbstractController {
         return exceptionObject;
     }
 
-    @ExceptionHandler(SomethingWentWrongException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ExceptionObject handlerOfSomethingWentWrongException(Exception e) {
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionObject handlerOfJsonParseException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG + e.getMessage(),
+                WRONG_REQUEST,
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(),
+                e.getClass().getName()
+        );
+        return exceptionObject;
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    public ExceptionObject handlerOfHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        ExceptionObject exceptionObject = new ExceptionObject(
+                WRONG_REQUEST,
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                LocalDateTime.now(),
+                e.getClass().getName()
+        );
+        return exceptionObject;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionObject handlerOfMethodArgumentTypeMismatchException(Exception e) {
+        ExceptionObject exceptionObject = new ExceptionObject(
+                WRONG_REQUEST,
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(),
+                e.getClass().getName()
+        );
+        return exceptionObject;
+    }
+
+    @ExceptionHandler(TransactionException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ExceptionObject handlerOfTransactionException(Exception e) {
+        ExceptionObject exceptionObject = new ExceptionObject(
+                SOMETHING_WENT_WRONG,
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()
         );
+        System.out.println(e.getMessage());
+        System.out.println(LocalDateTime.now());
+        return exceptionObject;
+    }
+
+    @ExceptionHandler(SomethingWentWrongException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ExceptionObject handlerOfSomethingWentWrongException(Exception e) {
+        ExceptionObject exceptionObject = new ExceptionObject(
+                SOMETHING_WENT_WRONG,
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                LocalDateTime.now(),
+                e.getClass().getName()
+        );
+        System.out.println(e.getMessage());
+        System.out.println(LocalDateTime.now());
         return exceptionObject;
     }
 
@@ -95,11 +138,13 @@ public abstract class AbstractController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionObject handlerOfIOException(IOException e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG + e.getMessage(),
+                SOMETHING_WENT_WRONG,
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()
         );
+        System.out.println(e.getMessage());
+        System.out.println(LocalDateTime.now());
         return exceptionObject;
     }
 
@@ -107,23 +152,41 @@ public abstract class AbstractController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionObject handlerOfSQLException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG + e.getMessage(),
+                SOMETHING_WENT_WRONG,
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()
         );
+        System.out.println(e.getMessage());
+        System.out.println(LocalDateTime.now());
         return exceptionObject;
     }
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)
+    @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)  // vasko:
     public ExceptionObject handlerOfException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG + WRONG_REQUEST + e.getMessage(),
+                SOMETHING_WENT_WRONG,
                 HttpStatus.I_AM_A_TEAPOT.value(),
                 LocalDateTime.now(),
                 e.getClass().getName()
         );
+        System.out.println(e.getMessage());
+        System.out.println(LocalDateTime.now());
+        return exceptionObject;
+    }
+
+    @ExceptionHandler(Throwable.class)
+    @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)  // vasko: 
+    public ExceptionObject handlerOfThrowable(Throwable e) {
+        ExceptionObject exceptionObject = new ExceptionObject(
+                SOMETHING_WENT_WRONG,
+                HttpStatus.I_AM_A_TEAPOT.value(),
+                LocalDateTime.now(),
+                e.getClass().getName()
+        );
+        System.out.println(e.getMessage());
+        System.out.println(LocalDateTime.now());
         return exceptionObject;
     }
 }

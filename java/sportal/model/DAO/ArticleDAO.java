@@ -2,6 +2,7 @@ package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import sportal.exception.TransactionException;
 import sportal.model.dao.interfaceDAO.IDAODeleteById;
 import sportal.model.pojo.Article;
 import sportal.model.pojo.Category;
@@ -22,7 +23,7 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
     private static final String ADD_CATEGORIES_TO_ARTICLE =
             "INSERT INTO articles_categories (category_id, article_id) VALUES (?, ?);";
     private static final String TOP_FIVE_MOST_VIEWED_ARTICLE =
-            "SELECT id, title, date_published " +
+            "SELECT id, title, date_published, views " +
                     "FROM articles " +
                     "WHERE DATE(date_published) = CURRENT_DATE() " +
                     "ORDER BY views DESC LIMIT 5;";
@@ -30,21 +31,22 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
             "UPDATE articles SET title = ?, full_text = ? WHERE id = ?;";
     private static final String UPDATE_VIEWS_BY_ARTICLE_ID = "UPDATE articles SET views = views + 1 WHERE id = ?;";
     private static final String DELETE_ARTICLE = "DELETE FROM articles WHERE id = ?;";
-    private static final String SEARCH_ARTICLE_BY_ID =
+    private static final String FIND_ARTICLE_BY_ID =
             "SELECT a.id, a.title, a.full_text, a.date_published, a.views, a.author_id, " +
                     "u.user_name, COUNT(ula.user_id) AS number_of_likes " +
                     "FROM articles AS a " +
                     "LEFT JOIN users AS u ON a.author_id = u.id " +
                     "LEFT JOIN users_like_articles AS ula ON ula.article_id = a.id " +
                     "WHERE a.id = ?;";
-    private static final int LIMIT_FOR_OUTPUT_FOR_SEARCH = 5;
-    private static final String FIND_ARTICLE_BY_TITLE_OR_CATEGORY =
-            "SELECT a.id, a.title, a.date_published " +
+    private static final int LIMIT_FOR_OUTPUT_FOR_SEARCH = 10;
+    private static final String SEARCH_ARTICLE_BY_TITLE_OR_CATEGORY =
+            "SELECT DISTINCT(a.id), a.title, a.date_published, a.views " +
                     "FROM articles AS a " +
                     "LEFT JOIN articles_categories AS aa ON a.id = aa.article_id " +
                     "LEFT JOIN categories AS c ON aa.category_id = c.id " +
                     "WHERE a.title LIKE ? " +
-                    "OR c.category_name LIKE ? LIMIT " + LIMIT_FOR_OUTPUT_FOR_SEARCH + ";";
+                    "OR c.category_name LIKE ? " +
+                    "ORDER BY a.date_published DESC LIMIT " + LIMIT_FOR_OUTPUT_FOR_SEARCH + ";";
 
     public Article addArticle(Article article, List<Picture> pictures, List<Category> categories) throws SQLException {
         Connection connection = this.jdbcTemplate.getDataSource().getConnection();
@@ -77,7 +79,7 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
         } catch (SQLException e) {
             try {
                 connection.rollback();
-                throw new SQLException(e.getMessage());
+                throw new TransactionException(e.getMessage());
             } catch (SQLException ex) {
                 throw new SQLException(UNSUCCESSFUL_CONNECTION_ROLLBACK + ex.getMessage());
             }
@@ -92,7 +94,7 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
     }
 
     public Article articleById(long articleId) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(SEARCH_ARTICLE_BY_ID, articleId);
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_ARTICLE_BY_ID, articleId);
         if (rowSet.next()) {
             return this.createArticleByRowSet(rowSet);
         }
@@ -114,7 +116,7 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
 
     public List<Article> allArticlesByTitleOrCategory(String titleOrCategory) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(
-                FIND_ARTICLE_BY_TITLE_OR_CATEGORY, "%" + titleOrCategory + "%", "%" + titleOrCategory + "%");
+                SEARCH_ARTICLE_BY_TITLE_OR_CATEGORY, "%" + titleOrCategory + "%", "%" + titleOrCategory + "%");
         List<Article> listFromArticles = new ArrayList<>();
         while (rowSet.next()) {
             listFromArticles.add(this.createArticleForRespByRowSet(rowSet));
@@ -127,6 +129,7 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
         article.setId(rowSet.getLong("id"));
         article.setTitle(rowSet.getString("title"));
         article.setCreateDateAndTime(rowSet.getTimestamp("date_published"));
+        article.setViews(rowSet.getInt("views"));
         return article;
     }
 

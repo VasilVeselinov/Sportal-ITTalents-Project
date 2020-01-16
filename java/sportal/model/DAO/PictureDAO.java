@@ -2,6 +2,8 @@ package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import sportal.exception.TransactionException;
+import sportal.model.pojo.Article;
 import sportal.model.pojo.Picture;
 
 import java.sql.*;
@@ -14,17 +16,19 @@ public class PictureDAO extends DAO {
     private static final String UPLOAD_PICTURE = "INSERT INTO pictures (picture_url) VALUES (?);";
     private static final String DELETE_PICTURE_BY_ID = "DELETE FROM pictures WHERE id = ?;";
     private static final String FIND_PICTURE_BY_ID =
-            "SELECT id, picture_url " +
+            "SELECT id, picture_url, article_id  " +
                     "FROM pictures " +
                     "WHERE id = ?;";
     private static final String ALL_PICTURES_BY_ARTICLE_ID =
-            "SELECT id, picture_url " +
+            "SELECT id, picture_url, article_id " +
                     "FROM pictures " +
-                    "WHERE article_Id = ?;";
+                    "WHERE article_id = ?;";
     private static final String ALL_PICTURES_WHERE_ARTICLE_ID_IS_NULL =
-            "SELECT id, picture_url " +
+            "SELECT id, picture_url, article_id " +
                     "FROM pictures " +
-                    "WHERE article_Id IS NULL;";
+                    "WHERE article_id IS NULL;";
+    private static final String SET_ARTICLE_ID_INTO_PICTURES_TABLE =
+            "UPDATE pictures SET article_id = ? WHERE id = ?;";
 
     public List<Picture> uploadOfPictures(List<Picture> pictures) throws SQLException {
         List<Picture> pictureList = new ArrayList<>();
@@ -43,6 +47,7 @@ public class PictureDAO extends DAO {
         } catch (SQLException e) {
             try {
                 connection.rollback();
+                throw new TransactionException(e.getMessage());
             } catch (SQLException ex) {
                 throw new SQLException(UNSUCCESSFUL_CONNECTION_ROLLBACK + ex.getMessage());
             }
@@ -86,6 +91,11 @@ public class PictureDAO extends DAO {
         Picture picture = new Picture();
         picture.setId(rowSet.getLong("id"));
         picture.setUrlOFPicture(rowSet.getString("picture_url"));
+        picture.setArticleId(rowSet.getLong("article_id"));
         return picture;
+    }
+
+    public void addPictureToArticle(Picture picture, Article article) {
+        this.jdbcTemplate.update(SET_ARTICLE_ID_INTO_PICTURES_TABLE, article.getId(), picture.getId());
     }
 }

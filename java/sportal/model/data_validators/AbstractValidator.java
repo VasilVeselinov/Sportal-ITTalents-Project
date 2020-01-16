@@ -1,6 +1,6 @@
 package sportal.model.data_validators;
 
-class AbstractValidator {
+public class AbstractValidator {
 
     static final String YOU_HAVE_EMPTY_FIELDS = "You have empty fields!";
     static final String NOT_EQUAL_PASSWORD = "Your password must be the same as verification password!";
@@ -21,6 +21,6 @@ class AbstractValidator {
     static final String WRONG_CREDENTIALS = "Your username or password is wrong!";
     static final String WRONG_INFORMATION = "Wrong information about the user or empty fields!";
     static final int MAX_NUMBER_FOR_TITLE_SIZE = 100;
-    static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST = "Some of the pictures do not exist or do not free!";
+    public static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST = "Some of the pictures do not exist or do not free!";
     static final String SOME_OF_THE_CATEGORIES_DO_NOT_EXIST = "Some of the categories do not exist!";
 }

@@ -21,9 +21,9 @@ VALUES ('BG sport')
 -- public void addArticleFromAdmin(Article article, User user); tested
 INSERT INTO articles (title, full_text, date_published, views, author_id) 
 VALUES ('Olimpics 2020' , 'In Pekin. During Summer. Bulgaria classifieds.', now(), 0, 1)
-     , ('Grisho has new girlfriend' , 'Grisho has not single anymore. His new lady is redhead. They have adopted a little turtle as a pet. Check pictures.', DATE(now()), 0, 2)
+     , ('Grisho has new girlfriend' , 'Grisho has not single anymore. His new lady is redhead. They have adopted a little turtle as a pet. Check pictures.', now(), 0, 2)
      , ('Levski vs Ludogorec' , 'WEFA finals tonight! Ludogorets are expected to win.', now(), 0, 2)
-     , ('Ice skating finals' , 'Glorious final in Arena Armeec. Tikets available on tickets.bg.', DATE(now()), 0, 2)
+     , ('Ice skating finals' , 'Glorious final in Arena Armeec. Tikets available on tickets.bg.', now(), 0, 2)
      , ('Tour de Bulgaria 2020' , 'Bike lovers will have the chance to compete across the country! The trace will include 3 main phases - mountains, fields, sea. Apply now!', now(), 0, 1);
 
 -- public void categoryArticle(int categoryID, int articleID); tested

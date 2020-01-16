@@ -3,12 +3,13 @@ package sportal.model.data_validators;
 import org.springframework.stereotype.Component;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
+import sportal.exception.ExistsObjectException;
 import sportal.model.dto.comment.CommentCreateDTO;
 import sportal.model.dto.comment.CommentEditDTO;
 import sportal.model.pojo.Comment;
 import sportal.model.pojo.User;
 
-import static sportal.controller.AbstractController.WRONG_REQUEST;
+import static sportal.controller.AbstractController.*;
 
 @Component
 public class CommentValidator extends AbstractValidator {
@@ -41,9 +42,9 @@ public class CommentValidator extends AbstractValidator {
         return commentEditDTO;
     }
 
-    public static Comment validationOfExistsComment(Comment existsComment, User user) throws BadRequestException {
+    public static Comment validationOfExistsComment(Comment existsComment, User user) {
         if (existsComment == null) {
-            throw new BadRequestException(WRONG_REQUEST);
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
         if (user.getId() != existsComment.getUserId()) {
             throw new AuthorizationException(WRONG_INFORMATION);

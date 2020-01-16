@@ -2,14 +2,14 @@ package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import sportal.model.dao.interfaceDAO.IDAODeleteFromThirdTable;
+import sportal.model.dao.interfaceDAO.IDAODeleteFromSupportedTable;
 import sportal.model.dao.interfaceDAO.IDAOManyToMany;
 
 import java.sql.SQLException;
 
 @Component
 public class UsersLikeArticlesDAO extends DAO
-        implements IDAOManyToMany, IDAODeleteFromThirdTable {
+        implements IDAOManyToMany, IDAODeleteFromSupportedTable {
 
     private static final String CHECK_EXISTS_LIKE_BY_ARTICLE_ID_AND_USER_ID =
             "SELECT article_id, user_id " +
@@ -26,7 +26,7 @@ public class UsersLikeArticlesDAO extends DAO
     }
 
     @Override
-    public int deleteFromThirdTable(long leftColumn, long rightColumn) throws SQLException {
+    public int delete(long leftColumn, long rightColumn) throws SQLException {
         return this.jdbcTemplate.update(DELETE_LIKE_BY_ARTICLE_ID_AND_USER_ID, leftColumn, rightColumn);
     }
 

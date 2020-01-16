@@ -57,7 +57,7 @@ public class UserLikeDislikeController extends AbstractController {
             throw new BadRequestException(WRONG_REQUEST);
         }
         User user = SessionValidator.checkUserIsLogged(session);
-        if (this.likeArticlesDAO.deleteFromThirdTable(articleId, user.getId()) > 0) {
+        if (this.likeArticlesDAO.delete(articleId, user.getId()) > 0) {
             return articleId;
         } else {
             throw new BadRequestException(NOT_ALLOWED_OPERATION);
@@ -113,7 +113,7 @@ public class UserLikeDislikeController extends AbstractController {
             throw new BadRequestException(WRONG_REQUEST);
         }
         User user = SessionValidator.checkUserIsLogged(session);
-        if (this.likeCommentsDAO.deleteFromThirdTable(commentId, user.getId()) > 0) {
+        if (this.likeCommentsDAO.delete(commentId, user.getId()) > 0) {
             return commentId;
         } else {
             throw new BadRequestException(NOT_ALLOWED_OPERATION);
@@ -127,7 +127,7 @@ public class UserLikeDislikeController extends AbstractController {
             throw new BadRequestException(WRONG_REQUEST);
         }
         User user = SessionValidator.checkUserIsLogged(session);
-        if (this.dislikeCommentsDAO.deleteFromThirdTable(commentId, user.getId()) > 0) {
+        if (this.dislikeCommentsDAO.delete(commentId, user.getId()) > 0) {
             return commentId;
         } else {
             throw new BadRequestException(NOT_ALLOWED_OPERATION);

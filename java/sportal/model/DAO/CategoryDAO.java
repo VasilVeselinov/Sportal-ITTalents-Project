@@ -14,8 +14,11 @@ public class CategoryDAO extends DAO implements IDAODeleteById {
 
     private static final String DELETE_CATEGORY = "DELETE FROM categories WHERE id = ?;";
     private static final String UPDATE_CATEGORY_NAME = "UPDATE categories SET category_name = ? WHERE id = ?;";
-    private static final String FIND_CATEGORY_NAME_BY_ID = "SELECT category_name FROM categories WHERE id = ?;";
-    private static final String ALL_CATEGORIES_SQL = "SELECT id, category_name FROM categories;";
+    private static final String FIND_CATEGORY_BY_ID = "SELECT id, category_name FROM categories WHERE id = ?;";
+    private static final String ALL_CATEGORIES_SQL =
+            "SELECT id, category_name " +
+                    "FROM categories " +
+                    "ORDER BY id;";
 
     public List<Category> allCategories() throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ALL_CATEGORIES_SQL);
@@ -41,12 +44,9 @@ public class CategoryDAO extends DAO implements IDAODeleteById {
     }
 
     public Category findById(long id) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_CATEGORY_NAME_BY_ID, id);
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_CATEGORY_BY_ID, id);
         if (rowSet.next()) {
-            Category category = new Category();
-            category.setId(id);
-            category.setCategoryName(rowSet.getString("category_name"));
-            return category;
+            return this.createCategoryByRowSet(rowSet);
         }
         return null;
     }

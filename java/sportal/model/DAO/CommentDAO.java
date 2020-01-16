@@ -30,14 +30,14 @@ public class CommentDAO extends DAO implements IDAODeleteById {
                     "LEFT JOIN users AS u ON c.user_id = u.id " +
                     "LEFT JOIN users_like_comments AS ulc ON ulc.comment_id = c.id " +
                     "LEFT JOIN users_disliked_comments AS udc ON udc.comment_id = c.id " +
-                    "GROUP BY ulc.comment_id, udc.comment_id " +
+                    "GROUP BY c.id " +
                     "HAVING c.article_id = ? " +
                     "ORDER BY c.date_published DESC;";
     private static final String EXISTS_VOTED_COMMENT =
             "SELECT c.id " +
                     "FROM comments AS c " +
-                    "JOIN users_like_comments AS uls ON uls.comment_id = c.id " +
-                    "JOIN users_disliked_comments AS udc ON udc.comment_id = c.id " +
+                    "LEFT JOIN users_like_comments AS uls ON uls.comment_id = c.id " +
+                    "LEFT JOIN users_disliked_comments AS udc ON udc.comment_id = c.id " +
                     "WHERE (uls.comment_id = ? AND uls.user_id = ?) OR (udc.comment_id = ? AND udc.user_id = ?);";
 
     public Comment addCommentToArticle(Comment comment) throws SQLException {

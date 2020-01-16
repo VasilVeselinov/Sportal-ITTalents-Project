@@ -20,11 +20,13 @@ public class ArticleRespDTO {
     private String title;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createDateAndTime;
+    private int views;
 
    public ArticleRespDTO(Article article){
        this.setId(article.getId());
        this.setTitle(article.getTitle());
        this.setCreateDateAndTime(article.getCreateDateAndTime().toLocalDateTime());
+       this.setViews(article.getViews());
    }
 
     public static List<ArticleRespDTO> fromArticleToArticleRespDTO(List<Article> articles) {

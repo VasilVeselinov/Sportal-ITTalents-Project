@@ -16,6 +16,9 @@ public class CategoryValidator extends AbstractValidator {
         if (categoryRequestDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
+        if (categoryRequestDTO.getCategoryName() == null || categoryRequestDTO.getCategoryName().isEmpty()) {
+            throw new BadRequestException(WRONG_REQUEST);
+        }
         if (categoryRequestDTO.getCategoryId() < 0) {
             throw new BadRequestException(WRONG_REQUEST);
         }

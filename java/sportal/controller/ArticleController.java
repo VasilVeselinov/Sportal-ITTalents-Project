@@ -58,20 +58,20 @@ public class ArticleController extends AbstractController {
             @RequestParam(name = "text", required = false) String titleOrCategory) throws SQLException {
         List<Article> listFromArticles = this.articlesDAO.allArticlesByTitleOrCategory(titleOrCategory);
         List<ArticleRespDTO> listFromReturnArticle = new ArrayList<>();
-        for (Article a : listFromArticles) {
-            listFromReturnArticle.add(new ArticleRespDTO(a));
+        for (Article article : listFromArticles) {
+            listFromReturnArticle.add(new ArticleRespDTO(article));
         }
         return listFromReturnArticle;
     }
 
     @GetMapping(value = "/articles/{" + ARTICLE_ID + "}")
     public ArticleFullDataDTO articleById(
-            @PathVariable(ARTICLE_ID) long articleId) throws SQLException, BadRequestException {
+            @PathVariable(name = ARTICLE_ID) long articleId) throws SQLException, BadRequestException {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         Article article = this.articlesDAO.articleById(articleId);
-        if (article == null) {
+        if (article.getId() == 0) {
             throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
         ArticleFullDataDTO viewArticle = new ArticleFullDataDTO(article);
@@ -102,8 +102,8 @@ public class ArticleController extends AbstractController {
     public List<ArticleRespDTO> topFiveViewedArticlesToday() throws SQLException {
         List<Article> listFromArticles = this.articlesDAO.topFiveMostViewedArticlesForToday();
         List<ArticleRespDTO> listFromReturnArticle = new ArrayList<>();
-        for (Article a : listFromArticles) {
-            listFromReturnArticle.add(new ArticleRespDTO(a));
+        for (Article article : listFromArticles) {
+            listFromReturnArticle.add(new ArticleRespDTO(article));
         }
         return listFromReturnArticle;
     }
