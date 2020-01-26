@@ -9,25 +9,27 @@ import sportal.model.pojo.User;
 public class UserValidator extends AbstractValidator {
 
     public static User checkCredentials(User user, UserChangePasswordDTO userChangePasswordDTO) {
-        if (userChangePasswordDTO.getUserPassword().isEmpty()) {
-            throw new AuthorizationException(FAILED_CREDENTIALS);
+        if (userChangePasswordDTO.getUserPassword() == null || userChangePasswordDTO.getUserPassword().isEmpty()) {
+            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
         }
-        if (
-                        userChangePasswordDTO.getNewPassword().isEmpty() ||
-                        userChangePasswordDTO.getVerificationPassword().isEmpty()
-        ) {
-            throw new AuthorizationException(FAILED_CREDENTIALS);
+        if (userChangePasswordDTO.getNewPassword() == null || userChangePasswordDTO.getNewPassword().isEmpty()) {
+            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
+        }
+        if (userChangePasswordDTO.getVerificationPassword() == null ||
+                userChangePasswordDTO.getVerificationPassword().isEmpty()) {
+            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
         }
         if (!userChangePasswordDTO.getNewPassword().equals(userChangePasswordDTO.getVerificationPassword())) {
-            throw new AuthorizationException(FAILED_CREDENTIALS);
+            throw new AuthorizationException(NOT_EQUAL_PASSWORD);
         }
-        if (!userChangePasswordDTO.getUserPassword().matches(SPECIAL_CHARACTER_PATTERN_FOR_PASSWORD)) {
-            throw new AuthorizationException(FAILED_CREDENTIALS);
+        if (!userChangePasswordDTO.getNewPassword().matches(SPECIAL_CHARACTER_PATTERN_FOR_PASSWORD)) {
+            throw new AuthorizationException(NOT_STRONG_PASSWORD);
         }
         if (!BCryptValidator.checkPassword(userChangePasswordDTO.getUserPassword(), user.getUserPassword())) {
             throw new AuthorizationException(FAILED_CREDENTIALS);
         }
-        user.setUserPassword(userChangePasswordDTO.getNewPassword());
+        String cryptPassword = BCryptValidator.cryptPassword(userChangePasswordDTO.getNewPassword());
+        user.setUserPassword(cryptPassword);
         return user;
     }
 
@@ -57,6 +59,8 @@ public class UserValidator extends AbstractValidator {
         if (!user.getUserPassword().matches(SPECIAL_CHARACTER_PATTERN_FOR_PASSWORD)) {
             throw new AuthorizationException(NOT_STRONG_PASSWORD);
         }
+        String cryptPassword = BCryptValidator.cryptPassword(user.getUserPassword());
+        user.setUserPassword(cryptPassword);
         return user;
     }
 

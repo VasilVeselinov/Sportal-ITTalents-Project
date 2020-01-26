@@ -36,18 +36,4 @@ public class Article {
         this.setCreateDateAndTime(Timestamp.valueOf(LocalDateTime.now()));
         this.setViews(0);
     }
-
-    @Override
-    public String toString() {
-        return "Article{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", fullText='" + fullText + '\'' +
-                ", createDateAndTime=" + createDateAndTime +
-                ", views=" + views +
-                ", numberOfLikes=" + numberOfLikes +
-                ", authorId=" + authorId +
-                ", authorName='" + authorName + '\'' +
-                '}';
-    }
 }

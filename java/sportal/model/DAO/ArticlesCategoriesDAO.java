@@ -18,7 +18,8 @@ public class ArticlesCategoriesDAO extends DAO {
                     "FROM articles AS a " +
                     "JOIN articles_categories AS ac ON a.id = ac.article_id " +
                     "JOIN categories AS c ON c.id = ac.category_id " +
-                    "WHERE category_id = ? LIMIT " + LIMIT_FOR_OUTPUT_FOR_SEARCH_BY_CATEGORY_ID + ";";
+                    "WHERE category_id = ? " +
+                    "ORDER BY a.date_published DESC LIMIT " + LIMIT_FOR_OUTPUT_FOR_SEARCH_BY_CATEGORY_ID + ";";
     private static final String ALL_CATEGORIES_BY_ARTICLE_ID =
             "SELECT c.id, c.category_name " +
                     "FROM categories AS c " +

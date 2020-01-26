@@ -19,8 +19,7 @@ public abstract class AbstractController {
 
     // responses
     public static final String WRONG_REQUEST = "Invalid request!";
-    static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
-    static final String EXISTS = "That object exists!";
+    public static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String ALREADY_VOTED = "You have already voted on this comment!";
     public static final String NOT_EXISTS_OBJECT = "Not found!";
     public static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";

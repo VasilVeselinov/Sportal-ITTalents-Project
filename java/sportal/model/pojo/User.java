@@ -3,15 +3,19 @@ package sportal.model.pojo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.model.data_validators.BCryptValidator;
-import sportal.model.dto.user.UserChangePasswordDTO;
 import sportal.model.dto.user.UserRegistrationFormDTO;
+
+import javax.persistence.*;
 
 @NoArgsConstructor
 @Getter
 @Setter
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String userName;
     private String userPassword;
@@ -20,18 +24,12 @@ public class User {
 
     public User(UserRegistrationFormDTO userRegistrationFormDTO) {
         this.setUserName(userRegistrationFormDTO.getUserName());
-        String cryptPassword = BCryptValidator.cryptPassword(userRegistrationFormDTO.getUserPassword());
-        this.setUserPassword(cryptPassword);
+        this.setUserPassword(userRegistrationFormDTO.getUserPassword());
         this.setUserEmail(userRegistrationFormDTO.getUserEmail());
         if (userRegistrationFormDTO.getIsAdmin() != null) {
             this.setIsAdmin(userRegistrationFormDTO.getIsAdmin());
         } else {
             this.setIsAdmin(false);
         }
-    }
-
-    public User(UserChangePasswordDTO userChangePasswordDTO) {
-        String cryptPassword = BCryptValidator.cryptPassword(userChangePasswordDTO.getNewPassword());
-        this.setUserPassword(cryptPassword);
     }
 }

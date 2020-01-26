@@ -3,7 +3,6 @@ package sportal.model.dao;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import sportal.model.dao.interfaceDAO.IDAODeleteById;
-import sportal.model.dto.user.UserRegistrationFormDTO;
 import sportal.model.pojo.User;
 
 import java.sql.*;
@@ -43,14 +42,6 @@ public class UserDAO extends DAO implements IDAODeleteById {
         }
     }
 
-    public User findUserByUserNameOrEmail(UserRegistrationFormDTO user) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_USER_BY_USER_NAME_OR_EMAIL, user.getUserName(), user.getUserEmail());
-        if (rowSet.next()) {
-            return this.createUserByRowSet(rowSet);
-        }
-        return null;
-    }
-
     private User createUserByRowSet(SqlRowSet rowSet) {
         User user = new User();
         user.setId(rowSet.getLong("id"));
@@ -67,18 +58,6 @@ public class UserDAO extends DAO implements IDAODeleteById {
             return this.createUserByRowSet(rowSet);
         }
         return null;
-    }
-
-    public User findUserByUserName(String userName) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_USER_BY_USER_NAME, userName);
-        if (rowSet.next()) {
-            return this.createUserByRowSet(rowSet);
-        }
-        return null;
-    }
-
-    public int changePassword(User user) throws SQLException {
-        return this.jdbcTemplate.update(UPDATE_PASSWORD, user.getUserPassword(), user.getId());
     }
 
     @Override

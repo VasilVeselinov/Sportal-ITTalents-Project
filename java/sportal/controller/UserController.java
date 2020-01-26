@@ -11,57 +11,39 @@ import sportal.model.dto.user.UserRegistrationFormDTO;
 import sportal.model.dto.user.UserResponseDTO;
 import sportal.model.dto.user.UserChangePasswordDTO;
 import sportal.model.pojo.User;
+import sportal.model.service.UserService;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 
 @RestController
+//@RequestMapping("/users") // for all mapping start URL
 public class UserController extends AbstractController {
 
     @Autowired
     private UserDAO userDAO;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(value = "/users")
     public UserResponseDTO registrationUser(@RequestBody UserRegistrationFormDTO userRegFormDTO,
-                                            HttpSession session) throws SQLException, BadRequestException {
-        if (userRegFormDTO == null) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        UserRegistrationFormDTO validRegUser = UserValidator.checkForTheValidDataForRegistration(userRegFormDTO);
-        User existsUser = this.userDAO.findUserByUserNameOrEmail(validRegUser);
-        if (existsUser != null) {
-            throw new ExistsObjectException(EXISTS);
-        }
-        User user = new User(validRegUser);
-        User regUser = this.userDAO.add(user);
-        session.setAttribute(LOGGED_USER_KEY_IN_SESSION, regUser);
-        return new UserResponseDTO(regUser);
+                                            HttpSession session) throws BadRequestException {
+        UserResponseDTO userResponseDTO = this.userService.registration(userRegFormDTO, session);
+        return userResponseDTO;
     }
 
     @PostMapping(value = "/login")
     public UserResponseDTO loginUser(@RequestBody UserLoginFormDTO userLoginFormDTO,
-                                     HttpSession session) throws SQLException, BadRequestException {
-        if (userLoginFormDTO == null) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        UserLoginFormDTO validLogUser = UserValidator.checkForTheValidDataForLogin(userLoginFormDTO);
-        User user = this.userDAO.findUserByUserName(validLogUser.getUserName());
-        User logUser = UserValidator.checkCredentialsOfUserFromDB(user, validLogUser);
-        session.setAttribute(LOGGED_USER_KEY_IN_SESSION, logUser);
-        return new UserResponseDTO(logUser);
+                                     HttpSession session) throws BadRequestException {
+        UserResponseDTO userResponseDTO = this.userService.login(userLoginFormDTO, session);
+        return userResponseDTO;
     }
 
     @PutMapping(value = "/users/change_password")
     public UserResponseDTO changePasswordOfUser(@RequestBody UserChangePasswordDTO userChangePasswordDTO,
                                                 HttpSession session) throws SQLException {
-        User user = SessionValidator.checkUserIsLogged(session);
-        User validUser = UserValidator.checkCredentials(user, userChangePasswordDTO);
-        if (this.userDAO.changePassword(validUser) > 0) {
-            session.setAttribute(LOGGED_USER_KEY_IN_SESSION, validUser);
-            return new UserResponseDTO(validUser);
-        } else {
-            throw new SomethingWentWrongException(SOMETHING_WENT_WRONG);
-        }
+        UserResponseDTO userResponseDTO = this.userService.changePassword(userChangePasswordDTO, session);
+        return userResponseDTO;
     }
 
     @PostMapping(value = "/logout")
