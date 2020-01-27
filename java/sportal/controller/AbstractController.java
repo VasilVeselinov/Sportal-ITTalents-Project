@@ -19,7 +19,7 @@ public abstract class AbstractController {
 
     // responses
     public static final String WRONG_REQUEST = "Invalid request!";
-    public static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
+    static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String ALREADY_VOTED = "You have already voted on this comment!";
     public static final String NOT_EXISTS_OBJECT = "Not found!";
     public static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
@@ -164,20 +164,6 @@ public abstract class AbstractController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)  // vasko:
     public ExceptionObject handlerOfException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG,
-                HttpStatus.I_AM_A_TEAPOT.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
-        System.out.println(e.getMessage());
-        System.out.println(LocalDateTime.now());
-        return exceptionObject;
-    }
-
-    @ExceptionHandler(Throwable.class)
-    @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)  // vasko: 
-    public ExceptionObject handlerOfThrowable(Throwable e) {
         ExceptionObject exceptionObject = new ExceptionObject(
                 SOMETHING_WENT_WRONG,
                 HttpStatus.I_AM_A_TEAPOT.value(),

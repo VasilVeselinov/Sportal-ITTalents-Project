@@ -4,116 +4,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
-import sportal.exception.ExistsObjectException;
-import sportal.model.dao.ArticleDAO;
-import sportal.model.dao.FileManagerDAO;
-import sportal.model.dao.PictureDAO;
-import sportal.model.data_validators.SessionValidator;
 import sportal.model.dto.picture.PictureDTO;
-import sportal.model.pojo.Article;
 import sportal.model.pojo.Picture;
-import sportal.model.pojo.User;
+import sportal.model.service.PictureService;
 
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static sportal.model.data_validators.AbstractValidator.SOME_OF_THE_PICTURES_DO_NOT_EXIST;
 
 @RestController
+@RequestMapping("/pictures")
 public class PictureController extends AbstractController {
 
-    private static final String PACKAGE_NAME =
-            "C:\\Users\\ACER\\Desktop\\uploadPictures\\"; // Vasko : please fix me, if you change directory
-    private static final String FILE_EXPANSION = ".jpg";
-    // date time formatter
-    private static final String DATE_AND_TIME_OF_UPLOAD = "date_and_time_of_upload_";
-    private static final List<String> CONTENT_TYPES_LIST = Arrays.asList(
-            "image/png", "image/jpeg", "image/gif", "application/octet-stream", "image/bmp", "image/cgm",
-            "image/svg+xml", "image/ief", "image/tiff", "image/vnd.djvu", "image/vnd.wap.wbmp", "image/x-cmu-raster",
-            "image/x-icon", "image/x-portable-anymap", "image/x-portable-bitmap", "image/x-portable-graymap",
-            "image/x-portable-pixmap", "image/x-rgb");
-    private AtomicInteger numberOfPicture = new AtomicInteger(0);
-
     @Autowired
-    private PictureDAO pictureDAO;
-    @Autowired
-    private ArticleDAO articlesDAO;
+    private PictureService pictureService;
 
-    @PostMapping(value = "/pictures")
-    public List<PictureDTO> uploadPictures(@RequestPart(value = "picture") List<MultipartFile> multipartFile,
-                                           HttpSession session) throws SQLException, BadRequestException {
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
-        if (multipartFile == null || multipartFile.isEmpty()) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        File fileCreateDirectory = new File(PACKAGE_NAME);
-        if (!fileCreateDirectory.exists()) {
-            fileCreateDirectory.mkdir();
-        }
-        List<Picture> pictures = new ArrayList<>();
-        for (MultipartFile mf : multipartFile) {
-            String fileContentType = mf.getContentType();
-            if (CONTENT_TYPES_LIST.contains(fileContentType)) {
-                String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss.SSS"));
-                String urlOfPicture =
-                        numberOfPicture.incrementAndGet() + DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
-                Picture picture = new Picture();
-                picture.setUrlOFPicture(urlOfPicture);
-                pictures.add(picture);
-                FileManagerDAO fileManagerDAO = new FileManagerDAO(mf, PACKAGE_NAME + urlOfPicture);
-                fileManagerDAO.start();
-            } else {
-                throw new BadRequestException(WRONG_REQUEST);
-            }
-        }
-        List<Picture> picturesAfterInsertInDB = this.pictureDAO.uploadOfPictures(pictures);
+    @PostMapping(value = "/upload")
+    public List<PictureDTO> uploadPictures(@RequestPart(value = "picture") List<MultipartFile> multipartFiles,
+                                           HttpSession session) throws BadRequestException {
+        List<Picture> picturesAfterInsertInDB = this.pictureService.upload(multipartFiles, session);
         return PictureDTO.fromPictureToPictureDTO(picturesAfterInsertInDB);
     }
 
-    @DeleteMapping(value = "/pictures/{" + PICTURE_ID + "}")
+    @DeleteMapping(value = "/delete/{" + PICTURE_ID + "}")
     public PictureDTO deletePicture(@PathVariable(name = PICTURE_ID) long pictureId,
-                                    HttpSession session) throws SQLException, BadRequestException {
-        if (pictureId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
-        Picture picture = this.pictureDAO.findPictureById(pictureId);
-        if (this.pictureDAO.deletePictureById(pictureId) == 0) {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
-        }
-        File fileForDelete = new File(PACKAGE_NAME + picture.getUrlOFPicture());
-        fileForDelete.delete();
+                                    HttpSession session) throws BadRequestException {
+        Picture picture = this.pictureService.delete(pictureId, session);
         return new PictureDTO(picture);
     }
 
-    @PutMapping(value = "/pictures/{" + PICTURE_ID + "}/{" + ARTICLE_ID + "}")
-    public PictureDTO addPictureIdToArticleId(
+    @PutMapping(value = "/add_into_article/{" + PICTURE_ID + "}/{" + ARTICLE_ID + "}")
+    public PictureDTO addArticleIdByPictureId(
             @PathVariable(name = PICTURE_ID) long pictureId,
             @PathVariable(name = ARTICLE_ID) long articleId,
-            HttpSession session)throws SQLException, BadRequestException{
-        if (pictureId < 0 || articleId < 0){
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
-        Picture picture = this.pictureDAO.findPictureById(pictureId);
-        if (picture == null || picture.getArticleId() != 0){
-            throw new ExistsObjectException(SOME_OF_THE_PICTURES_DO_NOT_EXIST);
-        }
-        Article article = this.articlesDAO.articleById(articleId);
-        if (article.getId() == 0) {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
-        }
-        this.pictureDAO.addPictureToArticle(picture, article);
+            HttpSession session) throws BadRequestException {
+        Picture picture = this.pictureService.addPictureToTheArticleById(pictureId, articleId, session);
         return new PictureDTO(picture);
     }
 }

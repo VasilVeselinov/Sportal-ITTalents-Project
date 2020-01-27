@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import sportal.model.dto.category.CategoryResponseDTO;
-import sportal.model.dto.picture.PictureDTO;
+import sportal.model.dto.picture.PictureToTheArticleDTO;
 import sportal.model.dto.user.UserResponseDTO;
 import sportal.model.pojo.Article;
 
@@ -23,12 +23,12 @@ public class ArticleAfterCreateDTO {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createDateAndTime;
     private List<CategoryResponseDTO> categories;
-    private List<PictureDTO> pictures;
+    private List<PictureToTheArticleDTO> pictures;
     private int views;
     private UserResponseDTO author;
 
     public ArticleAfterCreateDTO(Article article, List<CategoryResponseDTO> categories,
-                                 List<PictureDTO> pictures,
+                                 List<PictureToTheArticleDTO> pictures,
                                  UserResponseDTO author) {
         this.setId(article.getId());
         this.setTitle(article.getTitle());

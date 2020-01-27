@@ -11,7 +11,7 @@ import sportal.model.data_validators.PictureValidator;
 import sportal.model.data_validators.SessionValidator;
 import sportal.model.dto.article.*;
 import sportal.model.dto.category.CategoryResponseDTO;
-import sportal.model.dto.picture.PictureDTO;
+import sportal.model.dto.picture.PictureToTheArticleDTO;
 import sportal.model.dto.user.UserResponseDTO;
 import sportal.model.pojo.*;
 
@@ -46,7 +46,8 @@ public class ArticleController extends AbstractController {
         article.setAuthorId(user.getId());
         article = this.articlesDAO.addArticle(article, validPictures, validCategory);
         List<Picture> listFromPicturesAfterSetArticleId = this.pictureDAO.allPicturesByArticleId(article.getId());
-        List<PictureDTO> picturesDTO = PictureDTO.fromPictureToPictureDTO(listFromPicturesAfterSetArticleId);
+        List<PictureToTheArticleDTO> picturesDTO =
+                PictureToTheArticleDTO.fromPictureToPictureToTheArticleDTO(listFromPicturesAfterSetArticleId);
         List<Category> categories = this.articlesCategoriesDAO.allCategoriesByArticlesId(article.getId());
         List<CategoryResponseDTO> categoriesDTO = CategoryResponseDTO.fromCategoryListToCategoryResponseDTO(categories);
         UserResponseDTO userResponseDTO = new UserResponseDTO(user);
@@ -78,7 +79,7 @@ public class ArticleController extends AbstractController {
         List<Category> categories = this.articlesCategoriesDAO.allCategoriesByArticlesId(articleId);
         viewArticle.setCategories(CategoryResponseDTO.fromCategoryListToCategoryResponseDTO(categories));
         List<Picture> pictures = this.pictureDAO.allPicturesByArticleId(articleId);
-        viewArticle.setPictures(PictureDTO.fromPictureToPictureDTO(pictures));
+        viewArticle.setPictures(PictureToTheArticleDTO.fromPictureToPictureToTheArticleDTO(pictures));
         if (article.getAuthorName() == null) {
             viewArticle.setAuthorName(COPYRIGHT);
         } else {

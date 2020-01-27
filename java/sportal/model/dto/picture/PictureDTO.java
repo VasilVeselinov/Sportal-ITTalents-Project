@@ -15,10 +15,12 @@ public class PictureDTO {
 
     private long id;
     private String urlOFPicture;
+    private Long articleId;
 
     public PictureDTO(Picture picture) {
         this.setId(picture.getId());
         this.setUrlOFPicture(picture.getUrlOFPicture());
+        this.setArticleId(picture.getArticleId());
     }
 
     public static List<PictureDTO> fromPictureToPictureDTO(List<Picture> pictures) {

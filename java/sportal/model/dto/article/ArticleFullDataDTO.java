@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import sportal.model.dto.category.CategoryResponseDTO;
-import sportal.model.dto.picture.PictureDTO;
+import sportal.model.dto.picture.PictureToTheArticleDTO;
 import sportal.model.pojo.Article;
 
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ public class ArticleFullDataDTO {
     private LocalDateTime createDateAndTime;
     private int views;
     private List<CategoryResponseDTO> categories;
-    private List<PictureDTO> pictures;
+    private List<PictureToTheArticleDTO> pictures;
     private int numberOfLikes;
     private String authorName;
 

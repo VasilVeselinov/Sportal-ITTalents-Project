@@ -2,6 +2,7 @@ package sportal.model.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.data_validators.SessionValidator;
@@ -14,6 +15,8 @@ import sportal.model.pojo.User;
 import sportal.model.repository.UserRepository;
 
 import javax.servlet.http.HttpSession;
+
+import java.util.Optional;
 
 import static sportal.controller.AbstractController.*;
 
@@ -57,5 +60,22 @@ public class UserService {
         User userAfterChangePassword = this.userRepository.save(validUser);
         session.setAttribute(LOGGED_USER_KEY_IN_SESSION, userAfterChangePassword);
         return new UserResponseDTO(userAfterChangePassword);
+    }
+
+    public UserResponseDTO adminRemoveUserByUserId(long userId, HttpSession session) throws BadRequestException {
+        if (userId < 1) {
+            throw new BadRequestException(WRONG_REQUEST);
+        }
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
+        Optional<User> existsUser = this.userRepository.findById(userId);
+        if (!existsUser.isPresent()) {
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
+        }
+        if (user.getId() == userId) {
+            throw new AuthorizationException(NOT_ALLOWED_OPERATION);
+        }
+        this.userRepository.deleteById(userId);
+        return new UserResponseDTO(existsUser.get());
     }
 }

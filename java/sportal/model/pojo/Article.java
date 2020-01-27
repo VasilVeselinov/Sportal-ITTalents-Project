@@ -6,14 +6,19 @@ import lombok.Setter;
 import sportal.model.dto.article.ArticleCreateDTO;
 import sportal.model.dto.article.ArticleEditDTO;
 
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
 @Setter
+@Entity
+@Table(name = "articles")
 public class Article {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String title;
     private String fullText;
