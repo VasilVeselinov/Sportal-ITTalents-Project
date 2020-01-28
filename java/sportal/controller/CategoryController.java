@@ -3,59 +3,49 @@ package sportal.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.BadRequestException;
-import sportal.exception.ExistsObjectException;
-import sportal.model.dao.CategoryDAO;
-import sportal.model.data_validators.CategoryValidator;
-import sportal.model.data_validators.SessionValidator;
 import sportal.model.dto.category.CategoryRequestDTO;
 import sportal.model.dto.category.CategoryResponseDTO;
-import sportal.model.pojo.Category;
-import sportal.model.pojo.User;
+import sportal.model.dto.category.CategoryWhitArticleIdDTO;
+import sportal.model.service.CategoryService;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.List;
 
 @RestController
+@RequestMapping("/categories")
 public class CategoryController extends AbstractController {
 
     @Autowired
-    private CategoryDAO categoriesDAO;
+    private CategoryService categoryService;
 
-    @PutMapping(value = "/categories")
+    @PostMapping(value = "/add_new")
+    public CategoryResponseDTO addNewCategory(@RequestBody CategoryRequestDTO categoryRequestDTO,
+                                              HttpSession session) throws BadRequestException {
+        return this.categoryService.addNewCategory(categoryRequestDTO, session);
+    }
+
+    @PutMapping(value = "/edit")
     public CategoryResponseDTO editCategories(@RequestBody CategoryRequestDTO categoryRequestDTO,
-                                              HttpSession session) throws SQLException, BadRequestException {
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
-        CategoryRequestDTO validCategoryRequestDTO = CategoryValidator.checkForValidData(categoryRequestDTO);
-        Category category = new Category(validCategoryRequestDTO);
-        Category editedCategory = this.categoriesDAO.editCategory(category);
-        if (editedCategory != null) {
-            return new CategoryResponseDTO(category);
-        } else {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
-        }
+                                              HttpSession session) throws BadRequestException {
+        return this.categoryService.edit(categoryRequestDTO, session);
     }
 
-    @GetMapping(value = "/categories")
-    public List<CategoryResponseDTO> allCategory() throws SQLException {
-        List<Category> listWhitCategories = this.categoriesDAO.allCategories();
-        return CategoryResponseDTO.fromCategoryListToCategoryResponseDTO(listWhitCategories);
+    @GetMapping(value = "/all")
+    public List<CategoryResponseDTO> allCategory() {
+        return this.categoryService.allCategories();
     }
 
-    @DeleteMapping(value = "/categories/{" + CATEGORY_ID + "}")
+    @DeleteMapping(value = "/delete/{" + CATEGORY_ID + "}")
     public CategoryResponseDTO deleteCategory(@PathVariable(name = CATEGORY_ID) long categoryId,
-                                              HttpSession session) throws SQLException, BadRequestException {
-        if (categoryId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
-        Category category = this.categoriesDAO.findById(categoryId);
-        if (category == null) {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
-        }
-        this.categoriesDAO.deleteById(categoryId);
-        return new CategoryResponseDTO(category);
+                                              HttpSession session) throws BadRequestException {
+        return this.categoryService.delete(categoryId, session);
+    }
+
+    @PutMapping(value = "/add_into_article/{" + CATEGORY_ID + "}/{" + ARTICLE_ID + "}")
+    public CategoryWhitArticleIdDTO addArticleIdAndCategoryId(
+            @PathVariable(name = CATEGORY_ID) long categoryId, @PathVariable(name = ARTICLE_ID) long articleId,
+            HttpSession session) throws BadRequestException, SQLException {
+        return this.categoryService.addCategoryByArticleId(categoryId,articleId, session);
     }
 }

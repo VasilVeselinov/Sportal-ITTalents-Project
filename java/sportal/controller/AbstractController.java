@@ -14,14 +14,11 @@ import java.time.LocalDateTime;
 
 public abstract class AbstractController {
 
-    // key session
-    public static final String LOGGED_USER_KEY_IN_SESSION = "loggedUser";
-
     // responses
     public static final String WRONG_REQUEST = "Invalid request!";
     static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String ALREADY_VOTED = "You have already voted on this comment!";
-    public static final String NOT_EXISTS_OBJECT = "Not found!";
+    public static final String NOT_EXISTS_OBJECT = "Object not found!";
     public static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
     static final String COPYRIGHT = "Sportal holds the copyright of this article.";
     static final String WITHOUT_MORE_VOTE = "Without more likes from you on this article!";
@@ -36,73 +33,55 @@ public abstract class AbstractController {
     @ExceptionHandler(ExistsObjectException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionObject handlerOfExistsObjectException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
+        return new ExceptionObject(
+                e.getMessage(), HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(), e.getClass().getName()
         );
-        return exceptionObject;
     }
 
     @ExceptionHandler(AuthorizationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ExceptionObject handlerOfAuthorizationException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
-                HttpStatus.UNAUTHORIZED.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
+        return new ExceptionObject(
+                e.getMessage(), HttpStatus.UNAUTHORIZED.value(),
+                LocalDateTime.now(), e.getClass().getName()
         );
-        return exceptionObject;
     }
 
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionObject handlerOfBadRequestException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                e.getMessage(),
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
+        return new ExceptionObject(
+                e.getMessage(), HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(), e.getClass().getName()
         );
-        return exceptionObject;
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionObject handlerOfJsonParseException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                WRONG_REQUEST,
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
+        return new ExceptionObject(
+                WRONG_REQUEST, HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(), e.getClass().getName()
         );
-        return exceptionObject;
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ExceptionObject handlerOfHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                WRONG_REQUEST,
-                HttpStatus.METHOD_NOT_ALLOWED.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
+        return new ExceptionObject(
+                WRONG_REQUEST, HttpStatus.METHOD_NOT_ALLOWED.value(),
+                LocalDateTime.now(), e.getClass().getName()
         );
-        return exceptionObject;
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionObject handlerOfMethodArgumentTypeMismatchException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                WRONG_REQUEST,
-                HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
+        return new ExceptionObject(
+                WRONG_REQUEST, HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(), e.getClass().getName()
         );
-        return exceptionObject;
     }
 
     @ExceptionHandler(TransactionException.class)

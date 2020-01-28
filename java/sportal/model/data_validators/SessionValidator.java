@@ -5,8 +5,6 @@ import sportal.model.pojo.User;
 
 import javax.servlet.http.HttpSession;
 
-import static sportal.controller.AbstractController.*;
-
 public class SessionValidator extends AbstractValidator {
 
    private static final String LOGIN_MESSAGES = "You must to log in!";

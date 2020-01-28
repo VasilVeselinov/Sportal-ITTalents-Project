@@ -24,6 +24,14 @@ public class AbstractValidator {
     static final String WRONG_CREDENTIALS = "Your username or password is wrong!";
     static final String WRONG_INFORMATION = "Wrong information about the user or empty fields!";
     static final int MAX_NUMBER_FOR_TITLE_SIZE = 100;
-    public static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST = "Some of the pictures do not exist or do not free!";
+    static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST = "Some of the pictures do not exist or do not free!";
+    public static final String THE_PICTURES_DO_NOT_EXIST = "The pictures do not exist!";
     static final String SOME_OF_THE_CATEGORIES_DO_NOT_EXIST = "Some of the categories do not exist!";
+    static final String CATEGORY_ALREADY_IS_TO_THIS_ARTICLE = "This category already is to this article!";
+    public static final String THIS_ARTICLE_IS_NOT_EXISTS = "This article is not exists!";
+    static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
+    public static final String WRONG_REQUEST = "Invalid request!";
+
+    // key session
+    public static final String LOGGED_USER_KEY_IN_SESSION = "loggedUser";
 }

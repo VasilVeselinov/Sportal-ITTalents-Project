@@ -28,8 +28,7 @@ public class PictureController extends AbstractController {
     @DeleteMapping(value = "/delete/{" + PICTURE_ID + "}")
     public PictureDTO deletePicture(@PathVariable(name = PICTURE_ID) long pictureId,
                                     HttpSession session) throws BadRequestException {
-        Picture picture = this.pictureService.delete(pictureId, session);
-        return new PictureDTO(picture);
+        return this.pictureService.delete(pictureId, session);
     }
 
     @PutMapping(value = "/add_into_article/{" + PICTURE_ID + "}/{" + ARTICLE_ID + "}")
@@ -37,7 +36,6 @@ public class PictureController extends AbstractController {
             @PathVariable(name = PICTURE_ID) long pictureId,
             @PathVariable(name = ARTICLE_ID) long articleId,
             HttpSession session) throws BadRequestException {
-        Picture picture = this.pictureService.addPictureToTheArticleById(pictureId, articleId, session);
-        return new PictureDTO(picture);
+        return this.pictureService.addPictureToTheArticleById(pictureId, articleId, session);
     }
 }

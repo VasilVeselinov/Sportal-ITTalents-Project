@@ -1,10 +1,12 @@
 package sportal.model.data_validators;
 
 import sportal.exception.BadRequestException;
+import sportal.exception.ExistsObjectException;
 import sportal.model.dto.article.ArticleCreateDTO;
 import sportal.model.dto.article.ArticleEditDTO;
+import sportal.model.pojo.ExistsObject;
 
-import static sportal.controller.AbstractController.WRONG_REQUEST;
+import java.util.List;
 
 public class ArticleValidator extends AbstractValidator {
 
@@ -40,5 +42,22 @@ public class ArticleValidator extends AbstractValidator {
             throw new BadRequestException(WRONG_REQUEST);
         }
         return artEditDTO;
+    }
+
+    public static void validation(List<ExistsObject> objectList, long articleId, long categoryId) {
+        boolean hasLeftId = false;
+        for (ExistsObject object : objectList) {
+            if (object.getLeftId() != null && object.getLeftId() == articleId && !hasLeftId) {
+                hasLeftId = true;
+            }
+            if (            object.getLeftColumnId() != null &&
+                    object.getLeftColumnId() == articleId &&
+                    object.getRightColumnId() == categoryId) {
+                throw new ExistsObjectException(CATEGORY_ALREADY_IS_TO_THIS_ARTICLE);
+            }
+        }
+        if (!hasLeftId) {
+            throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
+        }
     }
 }

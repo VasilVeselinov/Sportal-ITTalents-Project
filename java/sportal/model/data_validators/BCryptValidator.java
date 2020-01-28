@@ -2,13 +2,13 @@ package sportal.model.data_validators;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
-public class BCryptValidator {
+class BCryptValidator {
 
     private static final int salt = 7;
 
-    public static String cryptPassword(String dbUserPassword) {
+    static String cryptPassword(String userPassword) {
         String salt = BCrypt.gensalt(BCryptValidator.salt);
-        String cryptPassword = BCrypt.hashpw(dbUserPassword, salt);
+        String cryptPassword = BCrypt.hashpw(userPassword, salt);
         return (cryptPassword);
     }
 

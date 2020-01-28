@@ -7,8 +7,6 @@ import sportal.model.pojo.Category;
 
 import java.util.List;
 
-import static sportal.controller.AbstractController.WRONG_REQUEST;
-
 public class CategoryValidator extends AbstractValidator {
 
     public static CategoryRequestDTO checkForValidData(
@@ -19,7 +17,7 @@ public class CategoryValidator extends AbstractValidator {
         if (categoryRequestDTO.getCategoryName() == null || categoryRequestDTO.getCategoryName().isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        if (categoryRequestDTO.getCategoryId() < 0) {
+        if (categoryRequestDTO.getId() < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         return categoryRequestDTO;
@@ -30,7 +28,7 @@ public class CategoryValidator extends AbstractValidator {
         int countValidCategory = 0;
         for (CategoryRequestDTO categoryDTO : categories) {
             for (Category category : existsCategories) {
-                if (categoryDTO.getCategoryId() == category.getId()) {
+                if (categoryDTO.getId() == category.getId()) {
                     countValidCategory++;
                 }
             }
@@ -39,5 +37,16 @@ public class CategoryValidator extends AbstractValidator {
             throw new ExistsObjectException(SOME_OF_THE_CATEGORIES_DO_NOT_EXIST);
         }
         return Category.fromCategoryRequestDTOToCategory(categories);
+    }
+
+    public static CategoryRequestDTO checkForValidNewCategory(
+            CategoryRequestDTO categoryRequestDTO) throws BadRequestException {
+        if (categoryRequestDTO == null) {
+            throw new BadRequestException(WRONG_REQUEST);
+        }
+        if (categoryRequestDTO.getCategoryName().isEmpty() || categoryRequestDTO.getCategoryName() == null) {
+            throw new BadRequestException(WRONG_REQUEST);
+        }
+        return categoryRequestDTO;
     }
 }

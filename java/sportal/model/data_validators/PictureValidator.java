@@ -11,8 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static sportal.controller.AbstractController.WRONG_REQUEST;
+import java.util.Optional;
 
 public class PictureValidator extends AbstractValidator{
 
@@ -55,5 +54,12 @@ public class PictureValidator extends AbstractValidator{
             }
         }
         return pictures;
+    }
+
+    public static Picture checkForValidPicture(Optional<Picture> optionalPicture) {
+        if (!optionalPicture.isPresent() || optionalPicture.get().getArticleId() != null) {
+            throw new ExistsObjectException(SOME_OF_THE_PICTURES_DO_NOT_EXIST);
+        }
+        return optionalPicture.get();
     }
 }

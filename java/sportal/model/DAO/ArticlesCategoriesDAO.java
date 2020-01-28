@@ -4,6 +4,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import sportal.model.pojo.Article;
 import sportal.model.pojo.Category;
+import sportal.model.pojo.ExistsObject;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,6 +27,14 @@ public class ArticlesCategoriesDAO extends DAO {
                     "JOIN articles_categories AS ac ON c.id = ac.category_id " +
                     "JOIN articles AS a ON a.id = ac.article_id " +
                     "WHERE article_id = ?;";
+    private static final String ADD_CATEGORY_BY_ARTICLE_ID =
+            "INSERT INTO articles_categories (article_id, category_id) " +
+                    "VALUE (?, ?);";
+    private static final String FIND_COMBINATION =
+            "SELECT ac.article_id, ac.category_id, a.id AS a_id " +
+                    "FROM articles_categories AS ac " +
+                    "RIGHT JOIN articles AS a ON ac.article_id = a.id " +
+                    "WHERE a.id = ?;";
 
     public List<Article> allArticlesByCategoryId(long categoryID) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ALL_TITLE_OF_ARTICLE_BY_CATEGORY_ID, categoryID);
@@ -59,5 +68,22 @@ public class ArticlesCategoriesDAO extends DAO {
         category.setId(rowSet.getLong("id"));
         category.setCategoryName(rowSet.getString("category_name"));
         return category;
+    }
+
+    public void addCategoryIdAndArticleId(long articleId, long categoryId) throws SQLException {
+        this.jdbcTemplate.update(ADD_CATEGORY_BY_ARTICLE_ID, articleId, categoryId);
+    }
+
+    public List<ExistsObject> existsCombinationAndArticleId(long articleId) throws SQLException {
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_COMBINATION, articleId);
+        List<ExistsObject> objects = new ArrayList<>();
+        while (rowSet.next()){
+            ExistsObject existsObj = new ExistsObject();
+             existsObj.setLeftColumnId(rowSet.getLong("article_id"));
+            existsObj.setRightColumnId(rowSet.getLong("category_id"));
+            existsObj.setLeftId(rowSet.getLong("a_id"));
+            objects.add(existsObj);
+        }
+        return objects;
     }
 }

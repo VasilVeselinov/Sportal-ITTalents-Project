@@ -8,6 +8,7 @@ import sportal.exception.ExistsObjectException;
 import sportal.model.dao.FileManagerDAO;
 import sportal.model.data_validators.PictureValidator;
 import sportal.model.data_validators.SessionValidator;
+import sportal.model.dto.picture.PictureDTO;
 import sportal.model.pojo.Picture;
 import sportal.model.pojo.User;
 import sportal.model.repository.ArticleRepository;
@@ -20,9 +21,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-import static sportal.controller.AbstractController.NOT_EXISTS_OBJECT;
-import static sportal.controller.AbstractController.WRONG_REQUEST;
-import static sportal.model.data_validators.AbstractValidator.SOME_OF_THE_PICTURES_DO_NOT_EXIST;
+import static sportal.model.data_validators.AbstractValidator.WRONG_REQUEST;
+import static sportal.model.data_validators.AbstractValidator.THE_PICTURES_DO_NOT_EXIST;
+import static sportal.model.data_validators.AbstractValidator.THIS_ARTICLE_IS_NOT_EXISTS;
 
 @Service
 public class PictureService {
@@ -47,11 +48,10 @@ public class PictureService {
         List<Picture> pictures = PictureValidator.checkForValidContentType(multipartFiles);
         FileManagerDAO fileManagerDAO = new FileManagerDAO(multipartFiles, PACKAGE_NAME, pictures);
         fileManagerDAO.start();
-        List<Picture> picturesAfterInsertInDB = this.pictureRepository.saveAll(pictures);
-        return picturesAfterInsertInDB;
+        return this.pictureRepository.saveAll(pictures);
     }
 
-    public Picture delete(long pictureId, HttpSession session) throws BadRequestException {
+    public PictureDTO delete(long pictureId, HttpSession session) throws BadRequestException {
         if (pictureId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -59,31 +59,28 @@ public class PictureService {
         SessionValidator.checkUserIsAdmin(user);
         Optional<Picture> picture = this.pictureRepository.findById(pictureId);
         if (!picture.isPresent()) {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(THE_PICTURES_DO_NOT_EXIST);
         }
         this.pictureRepository.deleteById(pictureId);
         File fileForDelete = new File(PACKAGE_NAME + picture.get().getUrlOFPicture());
         fileForDelete.delete();
-        return picture.get();
+        return new PictureDTO(picture.get());
     }
 
-    public Picture addPictureToTheArticleById(long pictureId, long articleId,
-                                              HttpSession session) throws BadRequestException {
+    public PictureDTO addPictureToTheArticleById(long pictureId, long articleId,
+                                                 HttpSession session) throws BadRequestException {
         if (pictureId < 0 || articleId < 0) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         User user = SessionValidator.checkUserIsLogged(session);
         SessionValidator.checkUserIsAdmin(user);
         Optional<Picture> optionalPicture = this.pictureRepository.findById(pictureId);
-        if (!optionalPicture.isPresent() || optionalPicture.get().getArticleId() != null) {
-            throw new ExistsObjectException(SOME_OF_THE_PICTURES_DO_NOT_EXIST);
-        }
+        Picture validPicture = PictureValidator.checkForValidPicture(optionalPicture);
         if (!this.articleRepository.existsById(articleId)) {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
         }
-        Picture picture = optionalPicture.get();
-        picture.setArticleId(articleId);
-        Picture updatedPicture = this.pictureRepository.save(picture);
-        return updatedPicture;
+        validPicture.setArticleId(articleId);
+        Picture updatedPicture = this.pictureRepository.save(validPicture);
+        return new PictureDTO(updatedPicture);
     }
 }

@@ -19,6 +19,8 @@ import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 import static sportal.controller.AbstractController.*;
+import static sportal.model.data_validators.AbstractValidator.LOGGED_USER_KEY_IN_SESSION;
+import static sportal.model.data_validators.AbstractValidator.WRONG_REQUEST;
 
 @Service
 public class UserService {
