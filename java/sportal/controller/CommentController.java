@@ -3,14 +3,8 @@ package sportal.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.BadRequestException;
-import sportal.exception.ExistsObjectException;
-import sportal.exception.SomethingWentWrongException;
-import sportal.model.dao.CommentDAO;
-import sportal.model.data_validators.CommentValidator;
-import sportal.model.data_validators.SessionValidator;
 import sportal.model.dto.comment.*;
-import sportal.model.pojo.Comment;
-import sportal.model.pojo.User;
+import sportal.model.service.CommentService;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
@@ -20,73 +14,42 @@ import java.util.List;
 public class CommentController extends AbstractController {
 
     @Autowired
-    private CommentDAO commentDAO;
+    private CommentService commentService;
 
     @PostMapping(value = "/comments")
     public CommentResponseDTO addCommentToArticle(@RequestBody CommentCreateDTO commentCreateDTO,
-                                                  HttpSession session) throws SQLException, BadRequestException {
-        User user = SessionValidator.checkUserIsLogged(session);
-        CommentCreateDTO validComment = CommentValidator.checkForValidDataOfCommentCreateDTO(commentCreateDTO);
-        Comment comment = new Comment(validComment, user.getId(), validComment.getArticleId());
-        comment = this.commentDAO.addCommentToArticle(comment);
-        comment.setUserName(user.getUserName());
-        return new CommentResponseDTO(comment);
-    }
-
-    @GetMapping(value = "/comments/{" + ARTICLE_ID + "}")
-    public List<CommentResponseDTO> getAllCommentToArticle(
-            @PathVariable(ARTICLE_ID) long articleId) throws SQLException, BadRequestException {
-        if (articleId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        List<Comment> comments = this.commentDAO.allCommentsByArticleId(articleId);
-        return CommentResponseDTO.fromCommentToCommentResponseDTO(comments);
+                                                  HttpSession session) throws BadRequestException {
+        return this.commentService.addComment(commentCreateDTO,session);
     }
 
     @PutMapping(value = "/comments")
-    public CommentAfterEditDTO editComment(@RequestBody CommentEditDTO commentEditDTO,
-                                           HttpSession session) throws SQLException, BadRequestException {
-        User user = SessionValidator.checkUserIsLogged(session);
-        CommentEditDTO validCommentDTO = CommentValidator.checkForValidDataOfCommentEditDTO(commentEditDTO);
-        Comment comment = new Comment(validCommentDTO);
-        Comment existsComment = this.commentDAO.findCommentById(comment.getId());
-        Comment validExistsComment = CommentValidator.validationOfExistsComment(existsComment, user);
-        validExistsComment.setFullCommentText(comment.getFullCommentText());
-        Comment editComment = this.commentDAO.editComment(validExistsComment);
-        if (editComment != null) {
-            return new CommentAfterEditDTO(editComment);
-        } else {
-            throw new SomethingWentWrongException(SOMETHING_WENT_WRONG);
-        }
+    public CommentRespDTO editComment(@RequestBody CommentEditDTO commentEditDTO,
+                                           HttpSession session) throws BadRequestException {
+        return this.commentService.edit(commentEditDTO, session);
     }
 
     @DeleteMapping(value = "/comments/{" + COMMENT_ID + "}")
-    public CommentResponseAfterDeleteDTO deleteComment(@PathVariable(name = COMMENT_ID) long commentId,
-                                                       HttpSession session) throws SQLException, BadRequestException {
-        if (commentId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User user = SessionValidator.checkUserIsLogged(session);
-        Comment existsComment = this.commentDAO.findCommentById(commentId);
-        Comment validExistsComment = CommentValidator.validationOfExistsComment(existsComment, user);
-        this.commentDAO.deleteById(commentId);
-        return new CommentResponseAfterDeleteDTO(validExistsComment);
+    public CommentRespDTO removeComment(@PathVariable(name = COMMENT_ID) long commentId,
+                                        HttpSession session) throws BadRequestException {
+        return this.commentService.deleteFromUser(commentId, session);
     }
 
     @DeleteMapping(value = "/comments/admin/{" + COMMENT_ID + "}")
-    public CommentResponseAfterDeleteDTO deleteCommentFromAdmin(
+    public CommentRespDTO removeCommentFromAdmin(
             @PathVariable(name = COMMENT_ID) long commentId,
-            HttpSession session) throws SQLException, BadRequestException {
-        if (commentId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
-        Comment existsComment = this.commentDAO.findCommentById(commentId);
-        if (existsComment == null) {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
-        }
-        this.commentDAO.deleteById(commentId);
-        return new CommentResponseAfterDeleteDTO(existsComment);
+            HttpSession session) throws BadRequestException {
+        return this.commentService.deleteFromAdmin(commentId, session);
+    }
+
+    @GetMapping(value = "/all_comments/{" + ARTICLE_ID + "}")
+    public List<CommentResponseDTO> getAllCommentToArticle(
+            @PathVariable(ARTICLE_ID) long articleId) throws SQLException, BadRequestException {
+        return this.commentService.getAllCommentsByArticleId(articleId);
+    }
+
+    @GetMapping(value = "/comments/{" + COMMENT_ID + "}")
+    public CommentResponseDTO getComment(
+            @PathVariable(COMMENT_ID) long commentId) throws SQLException, BadRequestException {
+        return this.commentService.getCommentsById(commentId);
     }
 }

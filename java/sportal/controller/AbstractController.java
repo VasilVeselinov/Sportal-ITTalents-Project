@@ -18,8 +18,8 @@ public abstract class AbstractController {
     public static final String WRONG_REQUEST = "Invalid request!";
     static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String ALREADY_VOTED = "You have already voted on this comment!";
-    public static final String NOT_EXISTS_OBJECT = "Object not found!";
-    public static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
+    static final String NOT_EXISTS_OBJECT = "Object not found!";
+    static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
     static final String COPYRIGHT = "Sportal holds the copyright of this article.";
     static final String WITHOUT_MORE_VOTE = "Without more likes from you on this article!";
 

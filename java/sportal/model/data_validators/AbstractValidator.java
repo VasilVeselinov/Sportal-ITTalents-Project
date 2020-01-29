@@ -29,8 +29,9 @@ public class AbstractValidator {
     static final String SOME_OF_THE_CATEGORIES_DO_NOT_EXIST = "Some of the categories do not exist!";
     static final String CATEGORY_ALREADY_IS_TO_THIS_ARTICLE = "This category already is to this article!";
     public static final String THIS_ARTICLE_IS_NOT_EXISTS = "This article is not exists!";
-    static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
+    public static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
     public static final String WRONG_REQUEST = "Invalid request!";
+    public static final String NOT_EXISTS_OBJECT = "Object not found!";
 
     // key session
     public static final String LOGGED_USER_KEY_IN_SESSION = "loggedUser";

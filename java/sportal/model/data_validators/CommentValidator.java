@@ -9,7 +9,7 @@ import sportal.model.dto.comment.CommentEditDTO;
 import sportal.model.pojo.Comment;
 import sportal.model.pojo.User;
 
-import static sportal.controller.AbstractController.*;
+import java.util.Optional;
 
 @Component
 public class CommentValidator extends AbstractValidator {
@@ -42,13 +42,13 @@ public class CommentValidator extends AbstractValidator {
         return commentEditDTO;
     }
 
-    public static Comment validationOfExistsComment(Comment existsComment, User user) {
-        if (existsComment == null) {
+    public static Comment validationOfExistsComment(Optional<Comment> existsComment, User user) {
+        if (!existsComment.isPresent()) {
             throw new ExistsObjectException(NOT_EXISTS_OBJECT);
         }
-        if (user.getId() != existsComment.getUserId()) {
+        if (user.getId() != existsComment.get().getUserId()) {
             throw new AuthorizationException(WRONG_INFORMATION);
         }
-        return existsComment;
+        return existsComment.get();
     }
 }
