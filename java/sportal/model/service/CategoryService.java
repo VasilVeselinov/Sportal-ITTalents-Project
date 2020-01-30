@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import static sportal.model.data_validators.AbstractValidator.NOT_ALLOWED_OPERATION;
 import static sportal.model.data_validators.AbstractValidator.WRONG_REQUEST;
 
 @Service
@@ -95,5 +96,22 @@ public class CategoryService {
         ArticleValidator.validation(objectList, articleId, category.get().getId());
         this.articlesCategoriesDAO.addCategoryIdAndArticleId(articleId, category.get().getId());
         return new CategoryWhitArticleIdDTO(category.get(), articleId);
+    }
+
+    public long removeCategoryFromArticle(long categoryId, long articleId,
+                                          HttpSession session) throws BadRequestException {
+        if (categoryId < 1) {
+            throw new BadRequestException(WRONG_REQUEST);
+        }
+        if (articleId < 1) {
+            throw new BadRequestException(WRONG_REQUEST);
+        }
+        User user = SessionValidator.checkUserIsLogged(session);
+        SessionValidator.checkUserIsAdmin(user);
+        if (this.articlesCategoriesDAO.delete(categoryId, articleId) > 0) {
+            return categoryId;
+        } else {
+            throw new BadRequestException(NOT_ALLOWED_OPERATION);
+        }
     }
 }

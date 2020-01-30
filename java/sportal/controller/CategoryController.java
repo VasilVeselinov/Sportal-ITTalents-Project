@@ -46,6 +46,13 @@ public class CategoryController extends AbstractController {
     public CategoryWhitArticleIdDTO addArticleIdAndCategoryId(
             @PathVariable(name = CATEGORY_ID) long categoryId, @PathVariable(name = ARTICLE_ID) long articleId,
             HttpSession session) throws BadRequestException, SQLException {
-        return this.categoryService.addCategoryByArticleId(categoryId,articleId, session);
+        return this.categoryService.addCategoryByArticleId(categoryId, articleId, session);
+    }
+
+    @DeleteMapping(value = "/delete_category_from_article/{" + CATEGORY_ID + "}/{" + ARTICLE_ID + "}")
+    public long removeCategoryFromArticle(
+            @PathVariable(name = CATEGORY_ID) long categoryId, @PathVariable(name = ARTICLE_ID) long articleId,
+            HttpSession session) throws BadRequestException {
+        return this.categoryService.removeCategoryFromArticle(categoryId, articleId, session);
     }
 }

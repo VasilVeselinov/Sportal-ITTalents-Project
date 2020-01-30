@@ -10,14 +10,4 @@ public abstract class DAO {
     @Autowired
     JdbcTemplate jdbcTemplate;
     static final String UNSUCCESSFUL_CONNECTION_ROLLBACK = "Unsuccessful connection rollback!";
-
-    void setFKFalse() {
-        String setFKSQL = "SET FOREIGN_KEY_CHECKS=0;";
-        this.jdbcTemplate.update(setFKSQL);
-    }
-
-    void setFKTrue() {
-        String setFKSQL = "SET FOREIGN_KEY_CHECKS=1;";
-        this.jdbcTemplate.update(setFKSQL);
-    }
 }

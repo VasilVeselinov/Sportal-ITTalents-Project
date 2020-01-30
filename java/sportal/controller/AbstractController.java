@@ -16,12 +16,9 @@ public abstract class AbstractController {
 
     // responses
     public static final String WRONG_REQUEST = "Invalid request!";
-    static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
-    static final String ALREADY_VOTED = "You have already voted on this comment!";
+    private static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String NOT_EXISTS_OBJECT = "Object not found!";
-    static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
     static final String COPYRIGHT = "Sportal holds the copyright of this article.";
-    static final String WITHOUT_MORE_VOTE = "Without more likes from you on this article!";
 
     // parameters
     static final String USER_ID = "user_id";
@@ -87,20 +84,6 @@ public abstract class AbstractController {
     @ExceptionHandler(TransactionException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionObject handlerOfTransactionException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG,
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
-        System.out.println(e.getMessage());
-        System.out.println(LocalDateTime.now());
-        return exceptionObject;
-    }
-
-    @ExceptionHandler(SomethingWentWrongException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ExceptionObject handlerOfSomethingWentWrongException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
                 SOMETHING_WENT_WRONG,
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

@@ -2,6 +2,7 @@ package sportal.model.dao;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import sportal.model.dao.interfaceDAO.IDAODeleteFromSupportedTable;
 import sportal.model.pojo.Article;
 import sportal.model.pojo.Category;
 import sportal.model.pojo.ExistsObject;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ArticlesCategoriesDAO extends DAO {
+public class ArticlesCategoriesDAO extends DAO implements IDAODeleteFromSupportedTable {
 
     private static final int LIMIT_FOR_OUTPUT_FOR_SEARCH_BY_CATEGORY_ID = 5;
     private static final String ALL_TITLE_OF_ARTICLE_BY_CATEGORY_ID =
@@ -30,11 +31,13 @@ public class ArticlesCategoriesDAO extends DAO {
     private static final String ADD_CATEGORY_BY_ARTICLE_ID =
             "INSERT INTO articles_categories (article_id, category_id) " +
                     "VALUE (?, ?);";
-    private static final String FIND_COMBINATION =
+    private static final String FIND_COMBINATION_AND_ARTICLE =
             "SELECT ac.article_id, ac.category_id, a.id AS a_id " +
                     "FROM articles_categories AS ac " +
                     "RIGHT JOIN articles AS a ON ac.article_id = a.id " +
                     "WHERE a.id = ?;";
+    private static final String DELETE_CATEGORY_FROM_ARTICLE =
+            "DELETE FROM articles_categories WHERE article_id = ? AND category_id = ?;";
 
     public List<Article> allArticlesByCategoryId(long categoryID) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ALL_TITLE_OF_ARTICLE_BY_CATEGORY_ID, categoryID);
@@ -75,15 +78,20 @@ public class ArticlesCategoriesDAO extends DAO {
     }
 
     public List<ExistsObject> existsCombinationAndArticleId(long articleId) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_COMBINATION, articleId);
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_COMBINATION_AND_ARTICLE, articleId);
         List<ExistsObject> objects = new ArrayList<>();
-        while (rowSet.next()){
+        while (rowSet.next()) {
             ExistsObject existsObj = new ExistsObject();
-             existsObj.setLeftColumnId(rowSet.getLong("article_id"));
+            existsObj.setLeftColumnId(rowSet.getLong("article_id"));
             existsObj.setRightColumnId(rowSet.getLong("category_id"));
             existsObj.setLeftId(rowSet.getLong("a_id"));
             objects.add(existsObj);
         }
         return objects;
+    }
+
+    @Override
+    public int delete(long leftColumn, long rightColumn) {
+        return this.jdbcTemplate.update(DELETE_CATEGORY_FROM_ARTICLE, leftColumn, rightColumn);
     }
 }

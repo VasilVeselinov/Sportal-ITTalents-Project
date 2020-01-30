@@ -27,7 +27,7 @@ public class AbstractValidator {
     static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST = "Some of the pictures do not exist or do not free!";
     public static final String THE_PICTURES_DO_NOT_EXIST = "The pictures do not exist!";
     static final String SOME_OF_THE_CATEGORIES_DO_NOT_EXIST = "Some of the categories do not exist!";
-    static final String CATEGORY_ALREADY_IS_TO_THIS_ARTICLE = "This category already is to this article!";
+    static final String ALREADY_COMBINATION = "Exists this combination!";
     public static final String THIS_ARTICLE_IS_NOT_EXISTS = "This article is not exists!";
     public static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
     public static final String WRONG_REQUEST = "Invalid request!";

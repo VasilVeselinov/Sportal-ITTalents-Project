@@ -44,16 +44,14 @@ public class ArticleValidator extends AbstractValidator {
         return artEditDTO;
     }
 
-    public static void validation(List<ExistsObject> objectList, long articleId, long categoryId) {
+    public static void validation(List<ExistsObject> objectList, long articleId, long otherId) {
         boolean hasLeftId = false;
         for (ExistsObject object : objectList) {
-            if (object.getLeftId() != null && object.getLeftId() == articleId && !hasLeftId) {
+            if (!hasLeftId && object.getLeftId() != null && object.getLeftId() == articleId) {
                 hasLeftId = true;
             }
-            if (            object.getLeftColumnId() != null &&
-                    object.getLeftColumnId() == articleId &&
-                    object.getRightColumnId() == categoryId) {
-                throw new ExistsObjectException(CATEGORY_ALREADY_IS_TO_THIS_ARTICLE);
+            if (object.getLeftColumnId() != null && object.getRightColumnId() == otherId) {
+                throw new ExistsObjectException(ALREADY_COMBINATION);
             }
         }
         if (!hasLeftId) {

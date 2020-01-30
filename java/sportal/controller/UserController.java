@@ -21,22 +21,19 @@ public class UserController extends AbstractController {
     @PostMapping(value = "/registration")
     public UserResponseDTO registrationUser(@RequestBody UserRegistrationFormDTO userRegFormDTO,
                                             HttpSession session) throws BadRequestException {
-        UserResponseDTO userResponseDTO = this.userService.registration(userRegFormDTO, session);
-        return userResponseDTO;
+        return this.userService.registration(userRegFormDTO, session);
     }
 
     @PostMapping(value = "/login")
     public UserResponseDTO loginUser(@RequestBody UserLoginFormDTO userLoginFormDTO,
                                      HttpSession session) throws BadRequestException {
-        UserResponseDTO userResponseDTO = this.userService.login(userLoginFormDTO, session);
-        return userResponseDTO;
+        return this.userService.login(userLoginFormDTO, session);
     }
 
     @PutMapping(value = "/change_password")
     public UserResponseDTO changePasswordOfUser(@RequestBody UserChangePasswordDTO userChangePasswordDTO,
                                                 HttpSession session) {
-        UserResponseDTO userResponseDTO = this.userService.changePassword(userChangePasswordDTO, session);
-        return userResponseDTO;
+        return this.userService.changePassword(userChangePasswordDTO, session);
     }
 
     @PostMapping(value = "/logout")
@@ -49,7 +46,6 @@ public class UserController extends AbstractController {
     @DeleteMapping(value = "/remove/{" + USER_ID + "}")
     public UserResponseDTO removeUser(@PathVariable(name = USER_ID) long userId,
                                       HttpSession session) throws BadRequestException {
-        UserResponseDTO userResponseDTO = this.userService.adminRemoveUserByUserId(userId, session);
-        return userResponseDTO;
+        return this.userService.adminRemoveUserByUserId(userId, session);
     }
 }
