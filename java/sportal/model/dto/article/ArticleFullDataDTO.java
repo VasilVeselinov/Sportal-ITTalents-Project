@@ -22,9 +22,9 @@ public class ArticleFullDataDTO {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createDateAndTime;
     private int views;
+    private int numberOfLikes;
     private List<CategoryResponseDTO> categories;
     private List<PictureToTheArticleDTO> pictures;
-    private int numberOfLikes;
     private String authorName;
 
     public ArticleFullDataDTO(Article article) {

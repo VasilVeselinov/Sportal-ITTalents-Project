@@ -16,7 +16,7 @@ public class ArticlesCategoriesDAO extends DAO implements IDAODeleteFromSupporte
 
     private static final int LIMIT_FOR_OUTPUT_FOR_SEARCH_BY_CATEGORY_ID = 5;
     private static final String ALL_TITLE_OF_ARTICLE_BY_CATEGORY_ID =
-            "SELECT a.id, a.title, a.date_published " +
+            "SELECT a.id, a.title, a.date_published, a.views " +
                     "FROM articles AS a " +
                     "JOIN articles_categories AS ac ON a.id = ac.article_id " +
                     "JOIN categories AS c ON c.id = ac.category_id " +
@@ -54,6 +54,7 @@ public class ArticlesCategoriesDAO extends DAO implements IDAODeleteFromSupporte
         article.setId(rowSet.getInt("id"));
         article.setTitle(rowSet.getString("title"));
         article.setCreateDateAndTime(rowSet.getTimestamp("date_published"));
+        article.setViews(rowSet.getInt("views"));
         return article;
     }
 

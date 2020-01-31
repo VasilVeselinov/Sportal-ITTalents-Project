@@ -1,12 +1,16 @@
 package sportal.model.data_validators;
 
+import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.dto.article.ArticleCreateDTO;
 import sportal.model.dto.article.ArticleEditDTO;
+import sportal.model.pojo.Article;
 import sportal.model.pojo.ExistsObject;
+import sportal.model.pojo.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ArticleValidator extends AbstractValidator {
 
@@ -32,7 +36,7 @@ public class ArticleValidator extends AbstractValidator {
     }
 
     public static ArticleEditDTO validationBeforeEdit(ArticleEditDTO artEditDTO) throws BadRequestException {
-        if (artEditDTO == null || artEditDTO.getOldArticleId() < 0) {
+        if (artEditDTO == null || artEditDTO.getOldArticleId() < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         if (artEditDTO.getNewTitle() == null || artEditDTO.getNewTitle().isEmpty()) {
@@ -57,5 +61,15 @@ public class ArticleValidator extends AbstractValidator {
         if (!hasLeftId) {
             throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
         }
+    }
+
+    public static void conformityCheck(Optional<Article> existsArticle, User user) throws BadRequestException {
+        if (!existsArticle.isPresent()){
+            throw new BadRequestException(THIS_ARTICLE_IS_NOT_EXISTS);
+        }
+        if (existsArticle.get().getAuthorId() != user.getId()){
+            throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
+        }
+
     }
 }

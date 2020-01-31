@@ -22,10 +22,13 @@ public class Article {
     private long id;
     private String title;
     private String fullText;
+    @Column(name = "date_published")
     private Timestamp createDateAndTime;
     private int views;
+    @Transient
     private int numberOfLikes;
     private long authorId;
+    @Transient
     private String authorName;
 
     public Article(ArticleEditDTO articleEditDTO) {

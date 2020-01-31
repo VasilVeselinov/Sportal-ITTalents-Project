@@ -18,7 +18,6 @@ public abstract class AbstractController {
     public static final String WRONG_REQUEST = "Invalid request!";
     private static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String NOT_EXISTS_OBJECT = "Object not found!";
-    static final String COPYRIGHT = "Sportal holds the copyright of this article.";
 
     // parameters
     static final String USER_ID = "user_id";

@@ -93,7 +93,7 @@ public class ArticleDAO extends DAO implements IDAODeleteById {
         this.jdbcTemplate.update(UPDATE_VIEWS_BY_ARTICLE_ID, articleID);
     }
 
-    public Article articleById(long articleId) throws SQLException {
+    public Article findById(long articleId) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_ARTICLE_BY_ID, articleId);
         if (rowSet.next()) {
             return this.createArticleByRowSet(rowSet);
