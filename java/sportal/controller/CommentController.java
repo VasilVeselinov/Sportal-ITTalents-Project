@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.BadRequestException;
 import sportal.model.dto.comment.*;
+import sportal.model.pojo.User;
 import sportal.model.service.CommentService;
 
 import javax.servlet.http.HttpSession;
@@ -19,26 +20,30 @@ public class CommentController extends AbstractController {
     @PostMapping(value = "/comments")
     public CommentResponseDTO addCommentToArticle(@RequestBody CommentCreateDTO commentCreateDTO,
                                                   HttpSession session) throws BadRequestException {
-        return this.commentService.addComment(commentCreateDTO,session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.commentService.addComment(commentCreateDTO,user);
     }
 
     @PutMapping(value = "/comments")
     public CommentRespDTO editComment(@RequestBody CommentEditDTO commentEditDTO,
                                            HttpSession session) throws BadRequestException {
-        return this.commentService.edit(commentEditDTO, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.commentService.edit(commentEditDTO, user);
     }
 
     @DeleteMapping(value = "/comments/{" + COMMENT_ID + "}")
     public CommentRespDTO removeComment(@PathVariable(name = COMMENT_ID) long commentId,
                                         HttpSession session) throws BadRequestException {
-        return this.commentService.deleteFromUser(commentId, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.commentService.deleteFromUser(commentId, user);
     }
 
     @DeleteMapping(value = "/comments/admin/{" + COMMENT_ID + "}")
     public CommentRespDTO removeCommentFromAdmin(
             @PathVariable(name = COMMENT_ID) long commentId,
             HttpSession session) throws BadRequestException {
-        return this.commentService.deleteFromAdmin(commentId, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.commentService.deleteFromAdmin(commentId, user);
     }
 
     @GetMapping(value = "/all_comments/{" + ARTICLE_ID + "}")

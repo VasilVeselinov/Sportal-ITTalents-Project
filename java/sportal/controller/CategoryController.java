@@ -6,6 +6,7 @@ import sportal.exception.BadRequestException;
 import sportal.model.dto.category.CategoryRequestDTO;
 import sportal.model.dto.category.CategoryResponseDTO;
 import sportal.model.dto.category.CategoryWhitArticleIdDTO;
+import sportal.model.pojo.User;
 import sportal.model.service.CategoryService;
 
 import javax.servlet.http.HttpSession;
@@ -22,13 +23,15 @@ public class CategoryController extends AbstractController {
     @PostMapping(value = "/add_new")
     public CategoryResponseDTO addNewCategory(@RequestBody CategoryRequestDTO categoryRequestDTO,
                                               HttpSession session) throws BadRequestException {
-        return this.categoryService.addNewCategory(categoryRequestDTO, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.categoryService.addNewCategory(categoryRequestDTO, user);
     }
 
     @PutMapping(value = "/edit")
     public CategoryResponseDTO editCategories(@RequestBody CategoryRequestDTO categoryRequestDTO,
                                               HttpSession session) throws BadRequestException {
-        return this.categoryService.edit(categoryRequestDTO, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.categoryService.edit(categoryRequestDTO, user);
     }
 
     @GetMapping(value = "/all")
@@ -39,20 +42,23 @@ public class CategoryController extends AbstractController {
     @DeleteMapping(value = "/delete/{" + CATEGORY_ID + "}")
     public CategoryResponseDTO deleteCategory(@PathVariable(name = CATEGORY_ID) long categoryId,
                                               HttpSession session) throws BadRequestException {
-        return this.categoryService.delete(categoryId, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.categoryService.delete(categoryId, user);
     }
 
     @PutMapping(value = "/add_into_article/{" + CATEGORY_ID + "}/{" + ARTICLE_ID + "}")
     public CategoryWhitArticleIdDTO addArticleIdAndCategoryId(
             @PathVariable(name = CATEGORY_ID) long categoryId, @PathVariable(name = ARTICLE_ID) long articleId,
             HttpSession session) throws BadRequestException, SQLException {
-        return this.categoryService.addCategoryByArticleId(categoryId, articleId, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.categoryService.addCategoryByArticleId(categoryId, articleId, user);
     }
 
     @DeleteMapping(value = "/delete_category_from_article/{" + CATEGORY_ID + "}/{" + ARTICLE_ID + "}")
     public long removeCategoryFromArticle(
             @PathVariable(name = CATEGORY_ID) long categoryId, @PathVariable(name = ARTICLE_ID) long articleId,
             HttpSession session) throws BadRequestException {
-        return this.categoryService.removeCategoryFromArticle(categoryId, articleId, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.categoryService.removeCategoryFromArticle(categoryId, articleId, user);
     }
 }

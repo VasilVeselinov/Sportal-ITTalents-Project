@@ -7,14 +7,12 @@ import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.dao.FileManagerDAO;
 import sportal.model.data_validators.PictureValidator;
-import sportal.model.data_validators.SessionValidator;
+import sportal.model.data_validators.UserValidator;
 import sportal.model.dto.picture.PictureDTO;
 import sportal.model.pojo.Picture;
 import sportal.model.pojo.User;
-import sportal.model.repository.ArticleRepository;
 import sportal.model.repository.PictureRepository;
 
-import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
 import java.io.File;
@@ -32,12 +30,12 @@ public class PictureService {
     @Autowired
     private PictureRepository pictureRepository;
     @Autowired
-    private ArticleRepository articleRepository;
+    private ArticleService articleService;
 
     @Transactional
-    public List<Picture> upload(List<MultipartFile> multipartFiles, HttpSession session) throws BadRequestException {
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
+    public List<Picture> upload(List<MultipartFile> multipartFiles, User user) throws BadRequestException {
+        User logUser = UserValidator.checkUserIsLogged(user);
+        UserValidator.checkUserIsAdmin(logUser);
         if (multipartFiles == null || multipartFiles.isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -51,12 +49,12 @@ public class PictureService {
         return this.pictureRepository.saveAll(pictures);
     }
 
-    public PictureDTO delete(long pictureId, HttpSession session) throws BadRequestException {
+    public PictureDTO delete(long pictureId, User user) throws BadRequestException {
         if (pictureId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
+        User logUser = UserValidator.checkUserIsLogged(user);
+        UserValidator.checkUserIsAdmin(logUser);
         Optional<Picture> picture = this.pictureRepository.findById(pictureId);
         if (!picture.isPresent()) {
             throw new ExistsObjectException(THE_PICTURES_DO_NOT_EXIST);
@@ -68,19 +66,27 @@ public class PictureService {
     }
 
     public PictureDTO addPictureToTheArticleById(long pictureId, long articleId,
-                                                 HttpSession session) throws BadRequestException {
+                                                 User user) throws BadRequestException {
         if (pictureId < 0 || articleId < 0) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
+        User logUser = UserValidator.checkUserIsLogged(user);
+        UserValidator.checkUserIsAdmin(logUser);
         Optional<Picture> optionalPicture = this.pictureRepository.findById(pictureId);
         Picture validPicture = PictureValidator.checkForValidPicture(optionalPicture);
-        if (!this.articleRepository.existsById(articleId)) {
+        if (!this.articleService.existsById(articleId)) {
             throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
         }
         validPicture.setArticleId(articleId);
         Picture updatedPicture = this.pictureRepository.save(validPicture);
         return new PictureDTO(updatedPicture);
+    }
+
+    List<Picture> findAllByArticleIdIsNull() {
+        return this.pictureRepository.findAllByArticleIdIsNull();
+    }
+
+    List<Picture> findAllByArticleId(long articleId) {
+        return  this.pictureRepository.findAllByArticleId(articleId);
     }
 }

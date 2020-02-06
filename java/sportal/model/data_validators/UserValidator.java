@@ -1,6 +1,7 @@
 package sportal.model.data_validators;
 
 import sportal.exception.AuthorizationException;
+import sportal.exception.BadRequestException;
 import sportal.model.dto.user.UserLoginFormDTO;
 import sportal.model.dto.user.UserRegistrationFormDTO;
 import sportal.model.dto.user.UserChangePasswordDTO;
@@ -80,7 +81,11 @@ public class UserValidator extends AbstractValidator {
         return userEmail.matches(SPECIAL_CHARACTER_PATTERN_FOR_EMAIL);
     }
 
-    public static UserLoginFormDTO checkForTheValidDataForLogin(UserLoginFormDTO userLoginFormDTO) {
+    public static UserLoginFormDTO checkForTheValidDataForLogin(
+            UserLoginFormDTO userLoginFormDTO) throws BadRequestException {
+        if (userLoginFormDTO == null) {
+            throw new BadRequestException(WRONG_REQUEST);
+        }
         if (userLoginFormDTO.getUserName() == null) {
             throw new AuthorizationException(WRONG_CREDENTIALS);
         }
@@ -108,5 +113,18 @@ public class UserValidator extends AbstractValidator {
             throw new AuthorizationException(WRONG_CREDENTIALS);
         }
         return user;
+    }
+
+    public static User checkUserIsLogged(User user) {
+        if (user == null) {
+            throw new AuthorizationException(LOGIN_MESSAGES);
+        }
+        return user;
+    }
+
+    public static void checkUserIsAdmin(User user) {
+        if (!user.getIsAdmin()) {
+            throw new AuthorizationException(NOT_ALLOWED_OPERATION);
+        }
     }
 }

@@ -14,10 +14,12 @@ import java.time.LocalDateTime;
 
 public abstract class AbstractController {
 
+    // key session
+    static final String LOGGED_USER_KEY_IN_SESSION = "loggedUser";
+
     // responses
-    public static final String WRONG_REQUEST = "Invalid request!";
+    private static final String WRONG_REQUEST = "Invalid request!";
     private static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
-    static final String NOT_EXISTS_OBJECT = "Object not found!";
 
     // parameters
     static final String USER_ID = "user_id";
@@ -25,15 +27,6 @@ public abstract class AbstractController {
     static final String CATEGORY_ID = "category_id";
     static final String COMMENT_ID = "comment_id";
     static final String PICTURE_ID = "picture_id";
-
-    @ExceptionHandler(ExistsObjectException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionObject handlerOfExistsObjectException(Exception e) {
-        return new ExceptionObject(
-                e.getMessage(), HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now(), e.getClass().getName()
-        );
-    }
 
     @ExceptionHandler(AuthorizationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -44,7 +37,7 @@ public abstract class AbstractController {
         );
     }
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler({BadRequestException.class, ExistsObjectException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionObject handlerOfBadRequestException(Exception e) {
         return new ExceptionObject(
@@ -80,37 +73,9 @@ public abstract class AbstractController {
         );
     }
 
-    @ExceptionHandler(TransactionException.class)
+    @ExceptionHandler({TransactionException.class,IOException.class, SQLException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ExceptionObject handlerOfTransactionException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG,
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
-        System.out.println(e.getMessage());
-        System.out.println(LocalDateTime.now());
-        return exceptionObject;
-    }
-
-    @ExceptionHandler(IOException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ExceptionObject handlerOfIOException(IOException e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG,
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
-        System.out.println(e.getMessage());
-        System.out.println(LocalDateTime.now());
-        return exceptionObject;
-    }
-
-    @ExceptionHandler(SQLException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ExceptionObject handlerOfSQLException(Exception e) {
+    public ExceptionObject handlerOfTransactionIOAndSQLException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(
                 SOMETHING_WENT_WRONG,
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

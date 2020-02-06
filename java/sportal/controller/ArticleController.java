@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.BadRequestException;
 import sportal.model.dto.article.*;
+import sportal.model.pojo.User;
 import sportal.model.service.ArticleService;
 
 import javax.servlet.http.HttpSession;
@@ -19,7 +20,8 @@ public class ArticleController extends AbstractController {
     @PostMapping(value = "/articles")
     public ArticleAfterCreateDTO createArticle(@RequestBody ArticleCreateDTO articleCreateDTO,
                                                HttpSession session) throws SQLException, BadRequestException {
-        return this.articleService.addArticle(articleCreateDTO, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.articleService.addArticle(articleCreateDTO, user);
     }
 
     @GetMapping(value = "/articles/search")
@@ -49,12 +51,14 @@ public class ArticleController extends AbstractController {
     @PutMapping(value = "/articles")
     public ArticleAfterEditDTO editArticleTitleOrText(@RequestBody ArticleEditDTO articleEditDTO,
                                                       HttpSession session) throws BadRequestException {
-        return this.articleService.edit(articleEditDTO, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.articleService.edit(articleEditDTO, user);
     }
 
     @DeleteMapping(value = "/articles/{" + ARTICLE_ID + "}")
     public ArticleRespDTO removeArticle(@PathVariable(name = ARTICLE_ID) long articleId,
                                         HttpSession session) throws BadRequestException {
-        return this.articleService.delete(articleId, session);
+        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        return this.articleService.delete(articleId, user);
     }
 }

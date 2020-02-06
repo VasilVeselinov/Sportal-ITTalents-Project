@@ -8,7 +8,7 @@ import sportal.exception.ExistsObjectException;
 import sportal.model.dao.ArticlesCategoriesDAO;
 import sportal.model.data_validators.ArticleValidator;
 import sportal.model.data_validators.CategoryValidator;
-import sportal.model.data_validators.SessionValidator;
+import sportal.model.data_validators.UserValidator;
 import sportal.model.dto.category.CategoryRequestDTO;
 import sportal.model.dto.category.CategoryResponseDTO;
 import sportal.model.dto.category.CategoryWhitArticleIdDTO;
@@ -17,7 +17,6 @@ import sportal.model.pojo.ExistsObject;
 import sportal.model.pojo.User;
 import sportal.model.repository.CategoryRepository;
 
-import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -37,9 +36,9 @@ public class CategoryService {
     private ArticlesCategoriesDAO articlesCategoriesDAO;
 
     public CategoryResponseDTO addNewCategory(CategoryRequestDTO categoryRequestDTO,
-                                              HttpSession session) throws BadRequestException {
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
+                                              User user) throws BadRequestException {
+        User logUser = UserValidator.checkUserIsLogged(user);
+        UserValidator.checkUserIsAdmin(logUser);
         CategoryRequestDTO validCategoryDTO = CategoryValidator.checkForValidNewCategory(categoryRequestDTO);
         Category category = new Category(validCategoryDTO.getCategoryName());
 
@@ -47,9 +46,9 @@ public class CategoryService {
         return new CategoryResponseDTO(saveCategory);
     }
 
-    public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, HttpSession session) throws BadRequestException {
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
+    public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, User user) throws BadRequestException {
+        User logUser = UserValidator.checkUserIsLogged(user);
+        UserValidator.checkUserIsAdmin(logUser);
         CategoryRequestDTO validCategoryRequestDTO = CategoryValidator.checkForValidData(categoryRequestDTO);
         Category category = new Category(validCategoryRequestDTO);
         if (this.categoryRepository.existsByCategoryName(category.getCategoryName())) {
@@ -64,12 +63,12 @@ public class CategoryService {
         return CategoryResponseDTO.fromCategoryListToCategoryResponseDTO(categories);
     }
 
-    public CategoryResponseDTO delete(long categoryId, HttpSession session) throws BadRequestException {
+    public CategoryResponseDTO delete(long categoryId, User user) throws BadRequestException {
         if (categoryId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
+        User logUser = UserValidator.checkUserIsLogged(user);
+        UserValidator.checkUserIsAdmin(logUser);
         Optional<Category> category = this.categoryRepository.findById(categoryId);
         if (!category.isPresent()) {
             throw new ExistsObjectException(THIS_CATEGORY_NOT_EXISTS);
@@ -79,15 +78,15 @@ public class CategoryService {
     }
 
     public CategoryWhitArticleIdDTO addCategoryByArticleId(
-            long categoryId, long articleId, HttpSession session) throws BadRequestException, SQLException {
+            long categoryId, long articleId, User user) throws BadRequestException, SQLException {
         if (categoryId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
+        User logUser = UserValidator.checkUserIsLogged(user);
+        UserValidator.checkUserIsAdmin(logUser);
         Optional<Category> category = this.categoryRepository.findById(categoryId);
         if (!category.isPresent()) {
             throw new ExistsObjectException(THIS_CATEGORY_NOT_EXISTS);
@@ -99,19 +98,23 @@ public class CategoryService {
     }
 
     public long removeCategoryFromArticle(long categoryId, long articleId,
-                                          HttpSession session) throws BadRequestException {
+                                          User user) throws BadRequestException {
         if (categoryId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        User user = SessionValidator.checkUserIsLogged(session);
-        SessionValidator.checkUserIsAdmin(user);
+        User logUser = UserValidator.checkUserIsLogged(user);
+        UserValidator.checkUserIsAdmin(logUser);
         if (this.articlesCategoriesDAO.delete(categoryId, articleId) > 0) {
             return categoryId;
         } else {
             throw new BadRequestException(NOT_ALLOWED_OPERATION);
         }
+    }
+
+     List<Category> findAllExistsCategorise() {
+        return this.categoryRepository.findAll();
     }
 }

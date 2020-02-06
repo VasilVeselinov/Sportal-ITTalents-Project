@@ -21,6 +21,7 @@ public class AbstractValidator {
     static final int MIN_NUMBER_OF_SYMBOLS_FOR_USER_NAME = 8;
     static final int MAX_NUMBER_OF_SYMBOLS_FOR_USER_NAME = 20;
     static final String FAILED_CREDENTIALS = "Validate your data is failed!";
+    static final String LOGIN_MESSAGES = "You must to log in!";
     static final String WRONG_CREDENTIALS = "Your username or password is wrong!";
     static final String WRONG_INFORMATION = "Wrong information about the user or empty fields!";
     static final int MAX_NUMBER_FOR_TITLE_SIZE = 100;
@@ -33,7 +34,4 @@ public class AbstractValidator {
     public static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed for you!";
     public static final String WRONG_REQUEST = "Invalid request!";
     public static final String NOT_EXISTS_OBJECT = "Object not found!";
-
-    // key session
-    public static final String LOGGED_USER_KEY_IN_SESSION = "loggedUser";
 }
