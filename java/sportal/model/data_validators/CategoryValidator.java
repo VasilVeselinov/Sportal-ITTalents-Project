@@ -2,31 +2,32 @@ package sportal.model.data_validators;
 
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.dto.category.CategoryRequestDTO;
+import sportal.controller.models.category.CategoryRequestModel;
 import sportal.model.pojo.Category;
+import sportal.model.service.dto.CategoryServiceDTO;
 
 import java.util.List;
 
 public class CategoryValidator extends AbstractValidator {
 
-    public static CategoryRequestDTO checkForValidData(
-            CategoryRequestDTO categoryRequestDTO) throws BadRequestException {
-        if (categoryRequestDTO == null) {
+    public static CategoryServiceDTO checkForValidData(
+            CategoryServiceDTO serviceDTO) throws BadRequestException {
+        if (serviceDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        if (categoryRequestDTO.getCategoryName() == null || categoryRequestDTO.getCategoryName().isEmpty()) {
+        if (serviceDTO.getCategoryName() == null || serviceDTO.getCategoryName().isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        if (categoryRequestDTO.getId() < 1) {
+        if (serviceDTO.getId() < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        return categoryRequestDTO;
+        return serviceDTO;
     }
 
-    public static List<Category> conformityCheck(List<Category> existsCategories,
-                                                 List<CategoryRequestDTO> categories) {
+    public static List<CategoryServiceDTO> conformityCheck(List<Category> existsCategories,
+                                                           List<CategoryServiceDTO> categories) {
         int countValidCategory = 0;
-        for (CategoryRequestDTO categoryDTO : categories) {
+        for (CategoryServiceDTO categoryDTO : categories) {
             for (Category category : existsCategories) {
                 if (categoryDTO.getId() == category.getId()) {
                     countValidCategory++;
@@ -36,17 +37,17 @@ public class CategoryValidator extends AbstractValidator {
         if (countValidCategory != categories.size()) {
             throw new ExistsObjectException(SOME_OF_THE_CATEGORIES_DO_NOT_EXIST);
         }
-        return Category.fromCategoryRequestDTOToCategory(categories);
+        return categories;
     }
 
-    public static CategoryRequestDTO checkForValidNewCategory(
-            CategoryRequestDTO categoryRequestDTO) throws BadRequestException {
-        if (categoryRequestDTO == null) {
+    public static CategoryServiceDTO checkForValidNewCategory(
+            CategoryServiceDTO serviceDTO) throws BadRequestException {
+        if (serviceDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        if (categoryRequestDTO.getCategoryName().isEmpty() || categoryRequestDTO.getCategoryName() == null) {
+        if (serviceDTO.getCategoryName().isEmpty() || serviceDTO.getCategoryName() == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        return categoryRequestDTO;
+        return serviceDTO;
     }
 }

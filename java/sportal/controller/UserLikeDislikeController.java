@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sportal.exception.*;
 import sportal.model.pojo.User;
-import sportal.model.service.VoteService;
+import sportal.model.service.IVoteService;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
@@ -14,7 +14,7 @@ import java.sql.SQLException;
 public class UserLikeDislikeController extends AbstractController {
 
     @Autowired
-    private VoteService voteService;
+    private IVoteService voteService;
 
     @PostMapping(value = "/like_articles/{" + ARTICLE_ID + "}")
     public long likeOfArticle(@PathVariable(name = ARTICLE_ID) long articleId,

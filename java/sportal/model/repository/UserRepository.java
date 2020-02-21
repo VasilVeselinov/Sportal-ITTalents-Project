@@ -8,5 +8,5 @@ import sportal.model.pojo.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsUserByUserNameOrUserEmail(String userName, String userEmail);
-    User getUserByUserName(String userName);
+    User findByUserName(String userName);
 }

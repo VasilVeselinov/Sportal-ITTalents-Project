@@ -3,7 +3,8 @@ package sportal.model.pojo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.model.dto.picture.PictureDTO;
+import sportal.model.service.dto.CategoryServiceDTO;
+import sportal.model.service.dto.PictureServiceDTO;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -23,16 +24,15 @@ public class Picture {
     private String urlOFPicture;
     private Long articleId;
 
-    public Picture(PictureDTO pictureDTO) {
-        this.setId(pictureDTO.getId());
-        this.setUrlOFPicture(pictureDTO.getUrlOFPicture());
+    public Picture(long id) {
+        this.id = id;
     }
 
-    public static List<Picture> fromPictureDTOToPicture(List<PictureDTO> pictures) {
-        List<Picture> pictureList = new ArrayList<>();
-        for (PictureDTO pictureDTO : pictures){
-            pictureList.add(new Picture(pictureDTO));
+    public static List<Picture> fromDTOToPojo(List<PictureServiceDTO> pictures) {
+        List<Picture> pojoList = new ArrayList<>();
+        for (PictureServiceDTO picture : pictures) {
+            pojoList.add(new Picture(picture.getId()));
         }
-        return pictureList;
+        return pojoList;
     }
 }

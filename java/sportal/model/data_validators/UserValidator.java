@@ -2,9 +2,9 @@ package sportal.model.data_validators;
 
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
-import sportal.model.dto.user.UserLoginFormDTO;
-import sportal.model.dto.user.UserRegistrationFormDTO;
-import sportal.model.dto.user.UserChangePasswordDTO;
+import sportal.controller.models.user.UserLoginFormDTO;
+import sportal.controller.models.user.UserRegistrationFormDTO;
+import sportal.controller.models.user.UserChangePasswordDTO;
 import sportal.model.pojo.User;
 
 public class UserValidator extends AbstractValidator {

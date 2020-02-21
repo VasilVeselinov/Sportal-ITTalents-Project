@@ -3,8 +3,9 @@ package sportal.model.pojo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.model.dto.article.ArticleCreateDTO;
-import sportal.model.dto.article.ArticleEditDTO;
+import sportal.controller.models.article.ArticleCreateModel;
+import sportal.controller.models.article.ArticleEditModel;
+import sportal.model.service.dto.ArticleServiceDTO;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -31,17 +32,17 @@ public class Article {
     @Transient
     private String authorName;
 
-    public Article(ArticleEditDTO articleEditDTO) {
-        this.setId(articleEditDTO.getOldArticleId());
-        this.setTitle(articleEditDTO.getNewTitle());
-        this.setFullText(articleEditDTO.getNewFullText());
-        this.setCreateDateAndTime(Timestamp.valueOf(LocalDateTime.now()));
+    public Article(String title, String fullText) {
+        this.title = title;
+        this.fullText = fullText;
+        this.createDateAndTime = Timestamp.valueOf(LocalDateTime.now());
+        this.views = 0;
     }
 
-    public Article(ArticleCreateDTO validArticle) {
-        this.setTitle(validArticle.getTitle());
-        this.setFullText(validArticle.getFullText());
+    public Article(ArticleServiceDTO serviceDTO) {
+        this.id =serviceDTO.getId();
+        this.title = serviceDTO.getTitle();
+        this.fullText = serviceDTO.getFullText();
         this.setCreateDateAndTime(Timestamp.valueOf(LocalDateTime.now()));
-        this.setViews(0);
     }
 }

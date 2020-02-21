@@ -2,6 +2,7 @@ package sportal.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -69,6 +70,15 @@ public abstract class AbstractController {
     public ExceptionObject handlerOfMethodArgumentTypeMismatchException(Exception e) {
         return new ExceptionObject(
                 WRONG_REQUEST, HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(), e.getClass().getName()
+        );
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    public ExceptionObject handlerOfHttpMediaTypeNotSupportedExceptionException(Exception e) {
+        return new ExceptionObject(
+                WRONG_REQUEST, HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
     }

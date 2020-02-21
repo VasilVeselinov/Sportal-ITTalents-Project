@@ -3,8 +3,9 @@ package sportal.model.data_validators;
 import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.dto.picture.PictureDTO;
+import sportal.controller.models.picture.PictureModel;
 import sportal.model.pojo.Picture;
+import sportal.model.service.dto.PictureServiceDTO;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class PictureValidator extends AbstractValidator{
+public class PictureValidator extends AbstractValidator {
 
     private static final String FILE_EXPANSION = ".jpg";
     // date time formatter
@@ -24,19 +25,20 @@ public class PictureValidator extends AbstractValidator{
             "image/x-icon", "image/x-portable-anymap", "image/x-portable-bitmap", "image/x-portable-graymap",
             "image/x-portable-pixmap", "image/x-rgb");
 
-    public static List<Picture> conformityCheck(List<Picture> existsPictures, List<PictureDTO> pictures) {
+    public static List<PictureServiceDTO> conformityCheck(List<Picture> existsPictures,
+                                                          List<PictureServiceDTO> pictures) {
         int countValidPicture = 0;
-        for (PictureDTO pictureDTO : pictures){
-            for (Picture picture : existsPictures){
-                if (pictureDTO.getId() == picture.getId()){
+        for (PictureServiceDTO pictureDTO : pictures) {
+            for (Picture picture : existsPictures) {
+                if (pictureDTO.getId() == picture.getId()) {
                     countValidPicture++;
                 }
             }
         }
-        if (countValidPicture != pictures.size()){
+        if (countValidPicture != pictures.size()) {
             throw new ExistsObjectException(SOME_OF_THE_PICTURES_DO_NOT_EXIST);
         }
-        return Picture.fromPictureDTOToPicture(pictures);
+        return pictures;
     }
 
     public static List<Picture> checkForValidContentType(List<MultipartFile> multipartFiles) throws BadRequestException {

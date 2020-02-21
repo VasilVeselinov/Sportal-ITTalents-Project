@@ -25,6 +25,7 @@ public class AbstractValidator {
     static final String WRONG_CREDENTIALS = "Your username or password is wrong!";
     static final String WRONG_INFORMATION = "Wrong information about the user or empty fields!";
     static final int MAX_NUMBER_FOR_TITLE_SIZE = 100;
+    static final int MIN_NUMBER_FOR_TITLE_SIZE = 5;
     static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST = "Some of the pictures do not exist or do not free!";
     public static final String THE_PICTURES_DO_NOT_EXIST = "The pictures do not exist!";
     static final String SOME_OF_THE_CATEGORIES_DO_NOT_EXIST = "Some of the categories do not exist!";

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import sportal.exception.BadRequestException;
 import sportal.model.dto.comment.*;
 import sportal.model.pojo.User;
-import sportal.model.service.CommentService;
+import sportal.model.service.implementation.CommentServiceImpl;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
@@ -15,7 +15,7 @@ import java.util.List;
 public class CommentController extends AbstractController {
 
     @Autowired
-    private CommentService commentService;
+    private CommentServiceImpl commentService;
 
     @PostMapping(value = "/comments")
     public CommentResponseDTO addCommentToArticle(@RequestBody CommentCreateDTO commentCreateDTO,

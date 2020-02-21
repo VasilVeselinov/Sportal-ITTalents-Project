@@ -3,7 +3,7 @@ package sportal.model.pojo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.model.dto.user.UserRegistrationFormDTO;
+import sportal.controller.models.user.UserRegistrationFormDTO;
 
 import javax.persistence.*;
 
