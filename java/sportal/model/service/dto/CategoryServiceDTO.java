@@ -3,7 +3,7 @@ package sportal.model.service.dto;
 import lombok.Getter;
 import lombok.Setter;
 import sportal.controller.models.category.CategoryRequestModel;
-import sportal.model.pojo.Category;
+import sportal.model.db.pojo.Category;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,20 +18,6 @@ public class CategoryServiceDTO {
 
     private CategoryServiceDTO(long id) {
         this.id = id;
-    }
-
-    public CategoryServiceDTO(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public CategoryServiceDTO(Category category) {
-        this(category.getId());
-        this.categoryName = category.getCategoryName();
-    }
-
-    public CategoryServiceDTO(Category category, long articleId) {
-        this(category);
-        this.articleId = articleId;
     }
 
     public CategoryServiceDTO(long id, String categoryName) {
@@ -50,7 +36,7 @@ public class CategoryServiceDTO {
     public static List<CategoryServiceDTO> fromPOJOToDTO(List<Category> categories) {
         List<CategoryServiceDTO> dtoList = new ArrayList<>();
         for (Category category : categories) {
-            dtoList.add(new CategoryServiceDTO(category));
+            dtoList.add(new CategoryServiceDTO(category.getId(), category.getCategoryName()));
         }
         return dtoList;
     }

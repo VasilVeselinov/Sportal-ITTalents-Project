@@ -4,15 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.dao.ArticleDAO;
-import sportal.model.dao.ArticlesCategoriesDAO;
-import sportal.model.data_validators.ArticleValidator;
-import sportal.model.data_validators.UserValidator;
-import sportal.model.pojo.Article;
-import sportal.model.pojo.Category;
-import sportal.model.pojo.Picture;
-import sportal.model.pojo.User;
-import sportal.model.repository.ArticleRepository;
+import sportal.model.db.dao.ArticleDAO;
+import sportal.model.validators.ArticleValidator;
+import sportal.model.validators.UserValidator;
+import sportal.model.db.pojo.Article;
+import sportal.model.db.pojo.Category;
+import sportal.model.db.pojo.Picture;
+import sportal.model.db.pojo.User;
+import sportal.model.db.repository.ArticleRepository;
 import sportal.model.service.IArticleService;
 import sportal.model.service.ICategoryService;
 import sportal.model.service.IPictureService;
@@ -24,8 +23,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import static sportal.model.data_validators.AbstractValidator.THIS_ARTICLE_IS_NOT_EXISTS;
-import static sportal.model.data_validators.AbstractValidator.WRONG_REQUEST;
+import static sportal.model.validators.AbstractValidator.THIS_ARTICLE_IS_NOT_EXISTS;
+import static sportal.model.validators.AbstractValidator.WRONG_REQUEST;
 
 @Service
 public class ArticleServiceImpl implements IArticleService {
@@ -37,9 +36,7 @@ public class ArticleServiceImpl implements IArticleService {
     @Autowired
     private IPictureService pictureService;
     @Autowired
-    private ArticleDAO articlesDAO;
-    @Autowired
-    private ArticlesCategoriesDAO articlesCategoriesDAO;
+    private ArticleDAO articleDAO;
     @Autowired
     private ArticleRepository articleRepository;
 
@@ -56,7 +53,7 @@ public class ArticleServiceImpl implements IArticleService {
                 this.pictureService.findAllByArticleIdIsNullAndCheckIsValid(serviceDTO.getPictures());
         Article article = new Article(validArticle.getTitle(), validArticle.getFullText());
         article.setAuthorId(logUser.getId());
-        article = this.articlesDAO.addArticle(
+        article = this.articleDAO.addArticle(
                 article,
                 Picture.fromDTOToPojo(dtoListOfPictures),
                 Category.fromDTOToPojo(dtoListOfCategories));
@@ -65,7 +62,7 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     public List<ArticleServiceDTO> findByArticleTitleOrCategory(String titleOrCategory) throws SQLException {
-        return ArticleServiceDTO.fromPOJOToDTO(this.articlesDAO.allArticlesByTitleOrCategory(titleOrCategory));
+        return ArticleServiceDTO.fromPOJOToDTO(this.articleDAO.allArticlesByTitleOrCategory(titleOrCategory));
     }
 
     @Override
@@ -73,7 +70,7 @@ public class ArticleServiceImpl implements IArticleService {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        Article article = this.articlesDAO.findById(articleId);
+        Article article = this.articleDAO.findById(articleId);
         if (article.getId() == 0) {
             throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
         }
@@ -85,7 +82,7 @@ public class ArticleServiceImpl implements IArticleService {
         } else {
             viewArticle.setAuthorName(article.getAuthorName());
         }
-        this.articlesDAO.addViewOfByArticleId(article.getId());
+        this.articleDAO.addViewOfByArticleId(article.getId());
         return viewArticle;
     }
 
@@ -94,12 +91,12 @@ public class ArticleServiceImpl implements IArticleService {
         if (categoryId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        return ArticleServiceDTO.fromPOJOToDTO(this.articlesCategoriesDAO.allArticlesByCategoryId(categoryId));
+        return ArticleServiceDTO.fromPOJOToDTO(this.articleDAO.articlesByCategoryId(categoryId));
     }
 
     @Override
     public List<ArticleServiceDTO> findTopFiveReadToday() throws SQLException {
-        return ArticleServiceDTO.fromPOJOToDTO(this.articlesDAO.topFiveMostViewedArticlesForToday());
+        return ArticleServiceDTO.fromPOJOToDTO(this.articleDAO.topFiveMostViewedArticlesForToday());
     }
 
     @Override

@@ -1,10 +1,13 @@
 package sportal.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sportal.controller.models.article.*;
 import sportal.exception.BadRequestException;
-import sportal.model.pojo.User;
+import sportal.model.db.pojo.User;
 import sportal.model.service.IArticleService;
 import sportal.model.service.dto.ArticleServiceDTO;
 import sportal.model.service.dto.CategoryServiceDTO;
@@ -23,18 +26,19 @@ public class ArticleController extends AbstractController {
     private IArticleService articleService;
 
     @PostMapping(value = "/articles")
-    public void createArticle(
+    public ResponseEntity<Void> createArticle(
             @RequestBody ArticleCreateModel articleModel,
-            HttpSession session,
-            HttpServletResponse response) throws SQLException, BadRequestException, IOException {
+            HttpSession session) throws SQLException, BadRequestException {
         User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         ArticleServiceDTO serviceDTO =
                 new ArticleServiceDTO(
                         articleModel.getTitle(), articleModel.getFullText(),
                         CategoryServiceDTO.fromModelToDTO(articleModel.getCategories()),
                         PictureServiceDTO.fromModelToDTO(articleModel.getPictures()));
-        response.setStatus(201);
-        response.sendRedirect("/articles/{" + this.articleService.addArticle(serviceDTO, user) + "}");
+        long articleId = this.articleService.addArticle(serviceDTO, user);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(LOCATION, "/articles/" + articleId);
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
     @GetMapping(value = "/articles/search")
@@ -69,7 +73,7 @@ public class ArticleController extends AbstractController {
         User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         ArticleServiceDTO serviceDTO = new ArticleServiceDTO(
                 articleEditDTO.getOldArticleId(), articleEditDTO.getNewTitle(), articleEditDTO.getNewFullText());
-        response.sendRedirect("/articles/{" + this.articleService.edit(serviceDTO, user) + "}");
+        response.sendRedirect("/articles/" + this.articleService.edit(serviceDTO, user));
     }
 
     @DeleteMapping(value = "/articles/{" + ARTICLE_ID + "}")
@@ -77,5 +81,6 @@ public class ArticleController extends AbstractController {
                                           HttpSession session) throws BadRequestException {
         User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         return new ArticleRespModel(this.articleService.delete(articleId, user));
+        // vasko: response.sendRedirect("/home");
     }
 }

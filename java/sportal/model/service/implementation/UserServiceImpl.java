@@ -5,18 +5,18 @@ import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.data_validators.UserValidator;
+import sportal.model.validators.UserValidator;
 import sportal.controller.models.user.UserChangePasswordDTO;
 import sportal.controller.models.user.UserLoginFormDTO;
 import sportal.controller.models.user.UserRegistrationFormDTO;
-import sportal.model.pojo.User;
-import sportal.model.repository.UserRepository;
+import sportal.model.db.pojo.User;
+import sportal.model.db.repository.UserRepository;
 import sportal.model.service.IUserService;
 import sportal.model.service.dto.UserServiceDTO;
 
 import java.util.Optional;
 
-import static sportal.model.data_validators.AbstractValidator.*;
+import static sportal.model.validators.AbstractValidator.*;
 
 @Service
 public class UserServiceImpl implements IUserService {

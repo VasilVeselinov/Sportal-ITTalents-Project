@@ -2,7 +2,7 @@ package sportal.model.service.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import sportal.model.pojo.Article;
+import sportal.model.db.pojo.Article;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

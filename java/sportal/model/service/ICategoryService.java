@@ -1,27 +1,24 @@
 package sportal.model.service;
 
 import sportal.exception.BadRequestException;
-import sportal.model.pojo.User;
+import sportal.model.db.pojo.User;
 import sportal.model.service.dto.CategoryServiceDTO;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public interface ICategoryService {
-    CategoryServiceDTO addNewCategory(CategoryServiceDTO serviceDTO,
-                                      User user) throws BadRequestException;
+    void addNewCategory(CategoryServiceDTO serviceDTO, User user) throws BadRequestException;
 
-    CategoryServiceDTO edit(CategoryServiceDTO serviceDTO, User user) throws BadRequestException;
+    void edit(CategoryServiceDTO serviceDTO, User user) throws BadRequestException;
 
     List<CategoryServiceDTO> allCategories();
 
-    CategoryServiceDTO delete(long categoryId, User user) throws BadRequestException;
+    void delete(long categoryId, User user) throws BadRequestException;
 
-    CategoryServiceDTO addCategoryByArticleId(long categoryId, long articleId,
-                                              User user) throws BadRequestException, SQLException;
+    void addCategoryToArticle(long categoryId, long articleId, User user) throws BadRequestException, SQLException;
 
-    long removeCategoryFromArticle(long categoryId, long articleId,
-                                   User user) throws BadRequestException;
+    void removeCategoryFromArticle(long categoryId, long articleId, User user) throws BadRequestException, SQLException;
 
     List<CategoryServiceDTO> findAllExistsCategoriseAndCheckIsValid(List<CategoryServiceDTO> categories);
 

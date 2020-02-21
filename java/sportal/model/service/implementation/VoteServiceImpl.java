@@ -4,21 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.dao.UsersDislikeCommentsDAO;
-import sportal.model.dao.UsersLikeArticlesDAO;
-import sportal.model.dao.UsersLikeCommentsDAO;
-import sportal.model.data_validators.ArticleValidator;
-import sportal.model.data_validators.UserValidator;
-import sportal.model.pojo.Comment;
-import sportal.model.pojo.ExistsObject;
-import sportal.model.pojo.User;
+import sportal.model.db.dao.UsersDislikeCommentsDAO;
+import sportal.model.db.dao.UsersLikeArticlesDAO;
+import sportal.model.db.dao.UsersLikeCommentsDAO;
+import sportal.model.validators.ArticleValidator;
+import sportal.model.validators.UserValidator;
+import sportal.model.db.pojo.Comment;
+import sportal.model.db.pojo.ExistsObject;
+import sportal.model.db.pojo.User;
 import sportal.model.service.IVoteService;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import static sportal.model.data_validators.AbstractValidator.*;
+import static sportal.model.validators.AbstractValidator.*;
 
 @Service
 public class VoteServiceImpl implements IVoteService {
@@ -35,7 +35,7 @@ public class VoteServiceImpl implements IVoteService {
     private UsersDislikeCommentsDAO dislikeCommentsDAO;
 
     @Override
-    public long likeArticle(long articleId, User user) throws BadRequestException, SQLException {
+    public void likeArticle(long articleId, User user) throws BadRequestException, SQLException {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -43,24 +43,21 @@ public class VoteServiceImpl implements IVoteService {
         List<ExistsObject> objectList = this.likeArticlesDAO.existsCombinationAndArticleId(articleId);
         ArticleValidator.validation(objectList, articleId, logUser.getId());
         this.likeArticlesDAO.addInThirdTable(articleId, logUser.getId());
-        return articleId;
     }
 
     @Override
-    public long deleteVoteForArticle(long articleId, User user) throws BadRequestException {
+    public void deleteVoteForArticle(long articleId, User user) throws BadRequestException {
         if (articleId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         User logUser = UserValidator.checkUserIsLogged(user);
-        if (this.likeArticlesDAO.delete(articleId, logUser.getId()) > 0) {
-            return articleId;
-        } else {
+        if (this.likeArticlesDAO.delete(articleId, logUser.getId()) == 0) {
             throw new BadRequestException(NOT_ALLOWED_OPERATION);
         }
     }
 
     @Override
-    public long likeComment(long commentId, User user) throws BadRequestException, SQLException {
+    public void likeComment(long commentId, User user) throws BadRequestException, SQLException {
         if (commentId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -73,11 +70,10 @@ public class VoteServiceImpl implements IVoteService {
             throw new BadRequestException(ALREADY_VOTED);
         }
         this.likeCommentsDAO.addInThirdTable(commentId, logUser.getId());
-        return commentId;
     }
 
     @Override
-    public long dislikeComment(long commentId, User user) throws BadRequestException, SQLException {
+    public void dislikeComment(long commentId, User user) throws BadRequestException, SQLException {
         if (commentId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -90,31 +86,26 @@ public class VoteServiceImpl implements IVoteService {
             throw new BadRequestException(ALREADY_VOTED);
         }
         this.dislikeCommentsDAO.addInThirdTable(commentId, logUser.getId());
-        return commentId;
     }
 
     @Override
-    public long deleteLikeForComment(long commentId, User user) throws BadRequestException {
+    public void deleteLikeForComment(long commentId, User user) throws BadRequestException {
         if (commentId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         User logUser = UserValidator.checkUserIsLogged(user);
-        if (this.likeCommentsDAO.delete(commentId, logUser.getId()) > 0) {
-            return commentId;
-        } else {
+        if (this.likeCommentsDAO.delete(commentId, logUser.getId()) == 0) {
             throw new BadRequestException(NOT_ALLOWED_OPERATION);
         }
     }
 
     @Override
-    public long deleteDislikeForComment(long commentId, User user) throws BadRequestException {
+    public void deleteDislikeForComment(long commentId, User user) throws BadRequestException {
         if (commentId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
         User logUser = UserValidator.checkUserIsLogged(user);
-        if (this.dislikeCommentsDAO.delete(commentId, logUser.getId()) > 0) {
-            return commentId;
-        } else {
+        if (this.dislikeCommentsDAO.delete(commentId, logUser.getId()) == 0) {
             throw new BadRequestException(NOT_ALLOWED_OPERATION);
         }
     }

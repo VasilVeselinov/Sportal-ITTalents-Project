@@ -28,6 +28,7 @@ public abstract class AbstractController {
     static final String CATEGORY_ID = "category_id";
     static final String COMMENT_ID = "comment_id";
     static final String PICTURE_ID = "picture_id";
+    static final String LOCATION = "Location";
 
     @ExceptionHandler(AuthorizationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

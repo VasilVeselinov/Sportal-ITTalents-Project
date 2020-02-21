@@ -3,9 +3,8 @@ package sportal.model.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.model.pojo.User;
+import sportal.model.db.pojo.User;
 
-@NoArgsConstructor
 @Getter
 @Setter
 public class UserServiceDTO {

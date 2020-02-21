@@ -3,7 +3,7 @@ package sportal.model.service.dto;
 import lombok.Getter;
 import lombok.Setter;
 import sportal.controller.models.picture.PictureModel;
-import sportal.model.pojo.Picture;
+import sportal.model.db.pojo.Picture;
 
 import java.util.ArrayList;
 import java.util.List;

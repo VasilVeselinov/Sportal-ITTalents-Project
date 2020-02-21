@@ -17,28 +17,16 @@ public class PictureModel {
     private String urlOFPicture;
     private Long articleId;
 
-    private PictureModel(long id, String urlOFPicture) {
-        this.id = id;
-        this.urlOFPicture = urlOFPicture;
-    }
-
     public PictureModel(PictureServiceDTO serviceDTO) {
-        this(serviceDTO.getId(),serviceDTO.getUrlOFPicture());
+        this.id = serviceDTO.getId();
+        this.urlOFPicture = serviceDTO.getUrlOFPicture();
         this.articleId = serviceDTO.getArticleId();
-    }
-
-    public static List<PictureModel> fromServiceDTOToModel(List<PictureServiceDTO> pictures) {
-        List<PictureModel> list = new ArrayList<>();
-        for (PictureServiceDTO picture: pictures){
-            list.add(new PictureModel(picture));
-        }
-        return list;
     }
 
     public static List<PictureModel> fromDTOToModel(List<PictureServiceDTO> pictures) {
         List<PictureModel> list = new ArrayList<>();
         for (PictureServiceDTO picture: pictures){
-            list.add(new PictureModel(picture.getId(), picture.getUrlOFPicture()));
+            list.add(new PictureModel(picture));
         }
         return list;
     }

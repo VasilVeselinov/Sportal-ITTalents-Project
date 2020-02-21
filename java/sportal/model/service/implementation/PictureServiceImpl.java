@@ -5,12 +5,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.dao.FileManagerDAO;
-import sportal.model.data_validators.PictureValidator;
-import sportal.model.data_validators.UserValidator;
-import sportal.model.pojo.Picture;
-import sportal.model.pojo.User;
-import sportal.model.repository.PictureRepository;
+import sportal.model.file.FileManagerDAO;
+import sportal.model.validators.PictureValidator;
+import sportal.model.validators.UserValidator;
+import sportal.model.db.pojo.Picture;
+import sportal.model.db.pojo.User;
+import sportal.model.db.repository.PictureRepository;
 import sportal.model.service.IPictureService;
 import sportal.model.service.dto.PictureServiceDTO;
 
@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static sportal.model.data_validators.AbstractValidator.WRONG_REQUEST;
-import static sportal.model.data_validators.AbstractValidator.THE_PICTURES_DO_NOT_EXIST;
-import static sportal.model.data_validators.AbstractValidator.THIS_ARTICLE_IS_NOT_EXISTS;
+import static sportal.model.validators.AbstractValidator.WRONG_REQUEST;
+import static sportal.model.validators.AbstractValidator.THE_PICTURES_DO_NOT_EXIST;
+import static sportal.model.validators.AbstractValidator.THIS_ARTICLE_IS_NOT_EXISTS;
 
 @Service
 public class PictureServiceImpl implements IPictureService {
@@ -36,7 +36,7 @@ public class PictureServiceImpl implements IPictureService {
 
     @Transactional
     @Override
-    public List<PictureServiceDTO> upload(List<MultipartFile> multipartFiles, User user) throws BadRequestException {
+    public void upload(List<MultipartFile> multipartFiles, User user) throws BadRequestException {
         User logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         if (multipartFiles == null || multipartFiles.isEmpty()) {
@@ -49,7 +49,7 @@ public class PictureServiceImpl implements IPictureService {
         List<Picture> pictures = PictureValidator.checkForValidContentType(multipartFiles);
         FileManagerDAO fileManagerDAO = new FileManagerDAO(multipartFiles, PACKAGE_NAME, pictures);
         fileManagerDAO.start();
-        return new ArrayList<>(PictureServiceDTO.fromPOJOToDTO(this.pictureRepository.saveAll(pictures)));
+        this.pictureRepository.saveAll(pictures);
     }
 
     @Override
@@ -70,8 +70,8 @@ public class PictureServiceImpl implements IPictureService {
     }
 
     @Override
-    public PictureServiceDTO addPictureToTheArticleById(long pictureId, long articleId,
-                                                 User user) throws BadRequestException {
+    public void addPictureToTheArticleById(long pictureId, long articleId,
+                                           User user) throws BadRequestException {
         if (pictureId < 0 || articleId < 0) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -83,13 +83,24 @@ public class PictureServiceImpl implements IPictureService {
             throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
         }
         validPicture.setArticleId(articleId);
-        Picture updatedPicture = this.pictureRepository.save(validPicture);
-        return new PictureServiceDTO(updatedPicture);
+        this.pictureRepository.save(validPicture);
     }
 
     @Override
     public List<PictureServiceDTO> findAllByArticleIdIsNullAndCheckIsValid(List<PictureServiceDTO> pictures) {
-        return PictureValidator.conformityCheck(this.pictureRepository.findAllByArticleIdIsNull(), pictures);
+        List<Picture> pictureList = this.findAllByArticleIdIsNull();
+        return PictureValidator.conformityCheck(pictureList, pictures);
+    }
+
+    private List<Picture> findAllByArticleIdIsNull() {
+        return this.pictureRepository.findAllByArticleIdIsNull();
+    }
+
+    @Override
+    public List<PictureServiceDTO> findAllWhereArticleIdIsNull(User user) {
+        User logUser = UserValidator.checkUserIsLogged(user);
+        UserValidator.checkUserIsAdmin(logUser);
+        return PictureServiceDTO.fromPOJOToDTO(this.pictureRepository.findAllByArticleIdIsNull());
     }
 
     @Override

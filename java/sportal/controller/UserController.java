@@ -7,7 +7,7 @@ import sportal.controller.models.user.UserLoginFormDTO;
 import sportal.controller.models.user.UserRegistrationFormDTO;
 import sportal.controller.models.user.UserResponseModel;
 import sportal.controller.models.user.UserChangePasswordDTO;
-import sportal.model.pojo.User;
+import sportal.model.db.pojo.User;
 import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.service.implementation.UserServiceImpl;
 
@@ -22,17 +22,19 @@ public class UserController extends AbstractController {
 
     @PostMapping(value = "/registration")
     public UserResponseModel registrationUser(
-            @ModelAttribute UserRegistrationFormDTO userRegFormDTO) throws BadRequestException {
+            @RequestBody UserRegistrationFormDTO userRegFormDTO) throws BadRequestException {
         UserServiceDTO regUser = this.userService.registration(userRegFormDTO);
         return new UserResponseModel(regUser);
+        // vasko: response.sendRedirect("/home");
     }
 
     @PostMapping(value = "/login")
-    public UserResponseModel loginUser(@ModelAttribute UserLoginFormDTO userLoginFormDTO,
+    public UserResponseModel loginUser(@RequestBody UserLoginFormDTO userLoginFormDTO,
                                        HttpSession session) throws BadRequestException {
         User logUser = this.userService.login(userLoginFormDTO);
         session.setAttribute(LOGGED_USER_KEY_IN_SESSION, logUser);
         return new UserResponseModel(logUser);
+        // vasko: response.sendRedirect("/home");
     }
 
     @PutMapping(value = "/change_password")
@@ -42,12 +44,14 @@ public class UserController extends AbstractController {
         User userAfterChangePassword = this.userService.changePassword(userChangePasswordDTO, user);
         session.setAttribute(LOGGED_USER_KEY_IN_SESSION, userAfterChangePassword);
         return new UserResponseModel(userAfterChangePassword);
+        // vasko: response.sendRedirect("/profile");
     }
 
     @PostMapping(value = "/logout")
     public String logoutUser(HttpSession session) {
         session.invalidate();
         return "You are successful logout!";
+        // vasko: response.sendRedirect("/home");
     }
 
     // todo this operation should only be performed by the Director of Sportal
@@ -56,5 +60,6 @@ public class UserController extends AbstractController {
                                         HttpSession session) throws BadRequestException {
         User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         return new UserResponseModel(this.userService.adminRemoveUserByUserId(userId, user));
+        // vasko: response.sendRedirect("/home");
     }
 }

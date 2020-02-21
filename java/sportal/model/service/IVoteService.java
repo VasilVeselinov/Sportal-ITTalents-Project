@@ -1,20 +1,20 @@
 package sportal.model.service;
 
 import sportal.exception.BadRequestException;
-import sportal.model.pojo.User;
+import sportal.model.db.pojo.User;
 
 import java.sql.SQLException;
 
 public interface IVoteService {
-    long likeArticle(long articleId, User user) throws BadRequestException, SQLException;
+    void likeArticle(long articleId, User user) throws BadRequestException, SQLException;
 
-    long deleteVoteForArticle(long articleId, User user) throws BadRequestException;
+    void deleteVoteForArticle(long articleId, User user) throws BadRequestException;
 
-    long likeComment(long commentId, User user) throws BadRequestException, SQLException;
+    void likeComment(long commentId, User user) throws BadRequestException, SQLException;
 
-    long dislikeComment(long commentId, User user) throws BadRequestException, SQLException;
+    void dislikeComment(long commentId, User user) throws BadRequestException, SQLException;
 
-    long deleteLikeForComment(long commentId, User user) throws BadRequestException;
+    void deleteLikeForComment(long commentId, User user) throws BadRequestException;
 
-    long deleteDislikeForComment(long commentId, User user) throws BadRequestException;
+    void deleteDislikeForComment(long commentId, User user) throws BadRequestException;
 }

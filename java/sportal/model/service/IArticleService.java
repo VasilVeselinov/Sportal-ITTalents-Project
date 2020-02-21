@@ -1,7 +1,7 @@
 package sportal.model.service;
 
 import sportal.exception.BadRequestException;
-import sportal.model.pojo.User;
+import sportal.model.db.pojo.User;
 import sportal.model.service.dto.ArticleServiceDTO;
 
 import java.sql.SQLException;

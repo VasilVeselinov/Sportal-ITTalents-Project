@@ -3,7 +3,6 @@ package sportal.controller.models.category;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.model.pojo.Category;
 import sportal.model.service.dto.CategoryServiceDTO;
 
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public class CategoryResponseModel {
     private long id;
     private String categoryName;
 
-    public CategoryResponseModel(CategoryServiceDTO serviceDTO) {
+    private CategoryResponseModel(CategoryServiceDTO serviceDTO) {
         this.setId(serviceDTO.getId());
         this.setCategoryName(serviceDTO.getCategoryName());
     }

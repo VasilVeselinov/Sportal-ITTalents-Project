@@ -5,14 +5,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.dao.ArticlesCategoriesDAO;
-import sportal.model.data_validators.ArticleValidator;
-import sportal.model.data_validators.CategoryValidator;
-import sportal.model.data_validators.UserValidator;
-import sportal.model.pojo.Category;
-import sportal.model.pojo.ExistsObject;
-import sportal.model.pojo.User;
-import sportal.model.repository.CategoryRepository;
+import sportal.model.db.dao.CategoryDAO;
+import sportal.model.service.IArticleService;
+import sportal.model.service.dto.ArticleServiceDTO;
+import sportal.model.validators.CategoryValidator;
+import sportal.model.validators.UserValidator;
+import sportal.model.db.pojo.Category;
+import sportal.model.db.pojo.User;
+import sportal.model.db.repository.CategoryRepository;
 import sportal.model.service.ICategoryService;
 import sportal.model.service.dto.CategoryServiceDTO;
 
@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static sportal.model.data_validators.AbstractValidator.NOT_ALLOWED_OPERATION;
-import static sportal.model.data_validators.AbstractValidator.WRONG_REQUEST;
+import static sportal.model.validators.AbstractValidator.*;
 
 @Service
 public class CategoryServiceImpl implements ICategoryService {
@@ -33,21 +32,24 @@ public class CategoryServiceImpl implements ICategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
-    private ArticlesCategoriesDAO articlesCategoriesDAO;
+    private CategoryDAO categoryDAO;
+    @Autowired
+    private IArticleService articleService;
 
     @Override
-    public CategoryServiceDTO addNewCategory(CategoryServiceDTO serviceDTO,
-                                             User user) throws BadRequestException {
+    public void addNewCategory(CategoryServiceDTO serviceDTO, User user) throws BadRequestException {
         User logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         CategoryServiceDTO validCategoryDTO = CategoryValidator.checkForValidNewCategory(serviceDTO);
+        if (this.categoryRepository.existsByCategoryName(validCategoryDTO.getCategoryName())) {
+            throw new ExistsObjectException(EXISTS_CATEGORY);
+        }
         Category category = new Category(validCategoryDTO.getCategoryName());
-        Category saveCategory = this.categoryRepository.save(category);
-        return new CategoryServiceDTO(saveCategory);
+        this.categoryRepository.save(category);
     }
 
     @Override
-    public CategoryServiceDTO edit(CategoryServiceDTO serviceDTO, User user) throws BadRequestException {
+    public void edit(CategoryServiceDTO serviceDTO, User user) throws BadRequestException {
         User logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         CategoryServiceDTO validCategoryDTO = CategoryValidator.checkForValidData(serviceDTO);
@@ -55,8 +57,7 @@ public class CategoryServiceImpl implements ICategoryService {
         if (this.categoryRepository.existsByCategoryName(category.getCategoryName())) {
             throw new ExistsObjectException(EXISTS_CATEGORY);
         }
-        Category saveCategory = this.categoryRepository.save(category);
-        return new CategoryServiceDTO(saveCategory);
+        this.categoryRepository.save(category);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public CategoryServiceDTO delete(long categoryId, User user) throws BadRequestException {
+    public void delete(long categoryId, User user) throws BadRequestException {
         if (categoryId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -77,12 +78,11 @@ public class CategoryServiceImpl implements ICategoryService {
             throw new ExistsObjectException(THIS_CATEGORY_NOT_EXISTS);
         }
         this.categoryRepository.deleteById(categoryId);
-        return new CategoryServiceDTO(category.get());
     }
 
     @Override
-    public CategoryServiceDTO addCategoryByArticleId(
-            long categoryId, long articleId, User user) throws BadRequestException, SQLException {
+    public void addCategoryToArticle(long categoryId, long articleId,
+                                     User user) throws BadRequestException, SQLException {
         if (categoryId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -91,19 +91,23 @@ public class CategoryServiceImpl implements ICategoryService {
         }
         User logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
+        ArticleServiceDTO serviceDTO = this.articleService.findArticleById(articleId);
+        if (serviceDTO.getAuthorId() != user.getId()) {
+            throw new BadRequestException(YOU_ARE_NOT_AUTHOR);
+        }
         Optional<Category> category = this.categoryRepository.findById(categoryId);
         if (!category.isPresent()) {
             throw new ExistsObjectException(THIS_CATEGORY_NOT_EXISTS);
         }
-        List<ExistsObject> objectList = this.articlesCategoriesDAO.existsCombinationAndArticleId(articleId);
-        ArticleValidator.validation(objectList, articleId, category.get().getId());
-        this.articlesCategoriesDAO.addCategoryIdAndArticleId(articleId, category.get().getId());
-        return new CategoryServiceDTO(category.get(), articleId);
+        if (this.categoryDAO.existsCombination(articleId, categoryId)) {
+            throw new ExistsObjectException(ALREADY_COMBINATION);
+        }
+        this.categoryDAO.addCategoryToArticleById(articleId, category.get().getId());
     }
 
     @Override
-    public long removeCategoryFromArticle(long categoryId, long articleId,
-                                          User user) throws BadRequestException {
+    public void removeCategoryFromArticle(long categoryId, long articleId,
+                                          User user) throws BadRequestException, SQLException {
         if (categoryId < 1) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -112,11 +116,11 @@ public class CategoryServiceImpl implements ICategoryService {
         }
         User logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
-        if (this.articlesCategoriesDAO.delete(categoryId, articleId) > 0) {
-            return categoryId;
-        } else {
-            throw new BadRequestException(NOT_ALLOWED_OPERATION);
+        ArticleServiceDTO serviceDTO = this.articleService.findArticleById(articleId);
+        if (serviceDTO.getAuthorId() != user.getId()) {
+            throw new BadRequestException(YOU_ARE_NOT_AUTHOR);
         }
+        this.categoryDAO.deleteCategoryFromArticleById(articleId, categoryId);
     }
 
     @Override
@@ -127,6 +131,6 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public List<CategoryServiceDTO> findAllByArticleId(long articleId) throws SQLException {
         return new ArrayList<>(
-                CategoryServiceDTO.fromPOJOToDTO(this.articlesCategoriesDAO.allCategoriesByArticlesId(articleId)));
+                CategoryServiceDTO.fromPOJOToDTO(this.categoryDAO.allCategoriesByArticlesId(articleId)));
     }
 }

@@ -4,7 +4,7 @@ import sportal.exception.BadRequestException;
 import sportal.controller.models.user.UserChangePasswordDTO;
 import sportal.controller.models.user.UserLoginFormDTO;
 import sportal.controller.models.user.UserRegistrationFormDTO;
-import sportal.model.pojo.User;
+import sportal.model.db.pojo.User;
 import sportal.model.service.dto.UserServiceDTO;
 
 public interface IUserService {

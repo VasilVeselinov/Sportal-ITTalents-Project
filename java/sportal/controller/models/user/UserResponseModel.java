@@ -3,7 +3,7 @@ package sportal.controller.models.user;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.model.pojo.User;
+import sportal.model.db.pojo.User;
 import sportal.model.service.dto.UserServiceDTO;
 
 @NoArgsConstructor
