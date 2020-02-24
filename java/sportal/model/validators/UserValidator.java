@@ -2,127 +2,72 @@ package sportal.model.validators;
 
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
-import sportal.controller.models.user.UserLoginFormDTO;
-import sportal.controller.models.user.UserRegistrationFormDTO;
-import sportal.controller.models.user.UserChangePasswordDTO;
 import sportal.model.db.pojo.User;
+import sportal.model.service.dto.UserServiceDTO;
+import sportal.model.service.implementation.BCryptServiceImpl;
 
 public class UserValidator extends AbstractValidator {
 
-    public static User checkCredentials(User user, UserChangePasswordDTO userChangePasswordDTO) {
-        if (userChangePasswordDTO.getUserPassword() == null || userChangePasswordDTO.getUserPassword().isEmpty()) {
-            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
-        }
-        if (userChangePasswordDTO.getNewPassword() == null || userChangePasswordDTO.getNewPassword().isEmpty()) {
-            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
-        }
-        if (userChangePasswordDTO.getVerificationPassword() == null ||
-                userChangePasswordDTO.getVerificationPassword().isEmpty()) {
-            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
-        }
-        if (!userChangePasswordDTO.getNewPassword().equals(userChangePasswordDTO.getVerificationPassword())) {
+    public static UserServiceDTO checkCredentials(UserServiceDTO user, UserServiceDTO serviceDTO) {
+        if (!serviceDTO.getNewPassword().equals(serviceDTO.getVerificationPassword())) {
             throw new AuthorizationException(NOT_EQUAL_PASSWORD);
         }
-        if (!userChangePasswordDTO.getNewPassword().matches(SPECIAL_CHARACTER_PATTERN_FOR_PASSWORD)) {
-            throw new AuthorizationException(NOT_STRONG_PASSWORD);
-        }
-        if (!BCryptValidator.checkPassword(userChangePasswordDTO.getUserPassword(), user.getUserPassword())) {
+        if (!BCryptServiceImpl.checkPassword(serviceDTO.getUserPassword(), user.getUserPassword())) {
             throw new AuthorizationException(FAILED_CREDENTIALS);
         }
-        String cryptPassword = BCryptValidator.cryptPassword(userChangePasswordDTO.getNewPassword());
-        user.setUserPassword(cryptPassword);
         return user;
     }
 
-    public static UserRegistrationFormDTO checkForTheValidDataForRegistration(UserRegistrationFormDTO user) {
-        if (user.getUserName() == null || user.getUserEmail() == null) {
-            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
-        }
-        if (user.getUserPassword() == null || user.getVerificationPassword() == null) {
-            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
-        }
-        user.setUserName(user.getUserName().trim());
-        if (user.getUserName().isEmpty() || user.getUserEmail().isEmpty()) {
-            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
-        }
-        if (user.getUserPassword().isEmpty() || user.getVerificationPassword().isEmpty()) {
-            throw new AuthorizationException(YOU_HAVE_EMPTY_FIELDS);
-        }
-        if (!user.getUserPassword().equals(user.getVerificationPassword())) {
+    public static UserServiceDTO checkForTheValidDataForRegistration(UserServiceDTO serviceDTO) {
+        if (!serviceDTO.getUserPassword().equals(serviceDTO.getVerificationPassword())) {
             throw new AuthorizationException(NOT_EQUAL_PASSWORD);
         }
-        if (!userNameCheck(user.getUserName())) {
-            throw new AuthorizationException(INVALID_USER_NAME);
-        }
-        if (!emailValidation(user.getUserEmail())) {
-            throw new AuthorizationException(EMAIL_IS_INVALID);
-        }
-        if (!user.getUserPassword().matches(SPECIAL_CHARACTER_PATTERN_FOR_PASSWORD)) {
-            throw new AuthorizationException(NOT_STRONG_PASSWORD);
-        }
-        String cryptPassword = BCryptValidator.cryptPassword(user.getUserPassword());
-        user.setUserPassword(cryptPassword);
-        return user;
+        return serviceDTO;
     }
 
-    private static boolean userNameCheck(String userName) {
-        return userName.length() > MIN_NUMBER_OF_SYMBOLS_FOR_USER_NAME &&
-                userName.length() < MAX_NUMBER_OF_SYMBOLS_FOR_USER_NAME;
-    }
-
-    private static boolean emailValidation(String userEmail) {
-        if (userEmail == null) {
-            return false;
-        }
-        if (userEmail.length() > MAX_NUMBER_OF_SYMBOL_FOR_EMAIL ||
-                userEmail.length() < MIN_NUMBER_OF_SYMBOL_FOR_EMAIL) {
-            throw new AuthorizationException(VALID_EMAIL);
-        }
-        return userEmail.matches(SPECIAL_CHARACTER_PATTERN_FOR_EMAIL);
-    }
-
-    public static UserLoginFormDTO checkForTheValidDataForLogin(
-            UserLoginFormDTO userLoginFormDTO) throws BadRequestException {
-        if (userLoginFormDTO == null) {
+    public static UserServiceDTO checkForTheValidDataForLogin(UserServiceDTO serviceDTO) throws BadRequestException {
+        if (serviceDTO == null) {
             throw new BadRequestException(WRONG_REQUEST);
         }
-        if (userLoginFormDTO.getUserName() == null) {
+        if (serviceDTO.getUsername() == null) {
             throw new AuthorizationException(WRONG_CREDENTIALS);
         }
-        if (userLoginFormDTO.getUserPassword() == null || userLoginFormDTO.getVerificationPassword() == null) {
+        if (serviceDTO.getUserPassword() == null || serviceDTO.getVerificationPassword() == null) {
             throw new AuthorizationException(WRONG_CREDENTIALS);
         }
-        userLoginFormDTO.setUserName(userLoginFormDTO.getUserName().trim());
-        if (userLoginFormDTO.getUserName().isEmpty()) {
+        if (serviceDTO.getUsername().isEmpty()) {
             throw new AuthorizationException(WRONG_CREDENTIALS);
         }
-        if (userLoginFormDTO.getUserPassword().isEmpty() || userLoginFormDTO.getVerificationPassword().isEmpty()) {
+        if (serviceDTO.getUserPassword().isEmpty() || serviceDTO.getVerificationPassword().isEmpty()) {
             throw new AuthorizationException(WRONG_CREDENTIALS);
         }
-        if (!userLoginFormDTO.getUserPassword().equals(userLoginFormDTO.getVerificationPassword())) {
+        if (!serviceDTO.getUserPassword().equals(serviceDTO.getVerificationPassword())) {
             throw new AuthorizationException(WRONG_CREDENTIALS);
         }
-        return userLoginFormDTO;
+        return serviceDTO;
     }
 
-    public static User checkCredentialsOfUserFromDB(User user, UserLoginFormDTO validLogUser) {
+    public static UserServiceDTO checkCredentialsOfUserFromDB(User user, UserServiceDTO serviceDTO) {
         if (user == null) {
             throw new AuthorizationException(WRONG_CREDENTIALS);
         }
-        if (!BCryptValidator.checkPassword(validLogUser.getUserPassword(), user.getUserPassword())) {
+        if (!BCryptServiceImpl.checkPassword(serviceDTO.getUserPassword(), user.getPassword())) {
             throw new AuthorizationException(WRONG_CREDENTIALS);
         }
-        return user;
+        serviceDTO.setId(user.getId());
+        serviceDTO.setUserEmail(user.getUserEmail());
+        serviceDTO.setIsAdmin(user.getIsAdmin());
+        return serviceDTO;
     }
 
-    public static User checkUserIsLogged(User user) {
+    public static UserServiceDTO checkUserIsLogged(UserServiceDTO user) {
         if (user == null) {
             throw new AuthorizationException(LOGIN_MESSAGES);
         }
         return user;
     }
 
-    public static void checkUserIsAdmin(User user) {
+    public static void checkUserIsAdmin(UserServiceDTO user) {
         if (!user.getIsAdmin()) {
             throw new AuthorizationException(NOT_ALLOWED_OPERATION);
         }

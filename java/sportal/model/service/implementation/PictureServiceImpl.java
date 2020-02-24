@@ -6,10 +6,10 @@ import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.file.FileManagerDAO;
+import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.validators.PictureValidator;
 import sportal.model.validators.UserValidator;
 import sportal.model.db.pojo.Picture;
-import sportal.model.db.pojo.User;
 import sportal.model.db.repository.PictureRepository;
 import sportal.model.service.IPictureService;
 import sportal.model.service.dto.PictureServiceDTO;
@@ -36,8 +36,8 @@ public class PictureServiceImpl implements IPictureService {
 
     @Transactional
     @Override
-    public void upload(List<MultipartFile> multipartFiles, User user) throws BadRequestException {
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public void upload(List<MultipartFile> multipartFiles, UserServiceDTO user) throws BadRequestException {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         if (multipartFiles == null || multipartFiles.isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
@@ -53,11 +53,8 @@ public class PictureServiceImpl implements IPictureService {
     }
 
     @Override
-    public PictureServiceDTO delete(long pictureId, User user) throws BadRequestException {
-        if (pictureId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public PictureServiceDTO delete(long pictureId, UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         Optional<Picture> picture = this.pictureRepository.findById(pictureId);
         if (!picture.isPresent()) {
@@ -66,16 +63,12 @@ public class PictureServiceImpl implements IPictureService {
         this.pictureRepository.deleteById(pictureId);
         File fileForDelete = new File(PACKAGE_NAME + picture.get().getUrlOFPicture());
         fileForDelete.delete();
-        return  new PictureServiceDTO(picture.get());
+        return new PictureServiceDTO(picture.get());
     }
 
     @Override
-    public void addPictureToTheArticleById(long pictureId, long articleId,
-                                           User user) throws BadRequestException {
-        if (pictureId < 0 || articleId < 0) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public void addPictureToTheArticleById(long pictureId, long articleId, UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         Optional<Picture> optionalPicture = this.pictureRepository.findById(pictureId);
         Picture validPicture = PictureValidator.checkForValidPicture(optionalPicture);
@@ -97,8 +90,8 @@ public class PictureServiceImpl implements IPictureService {
     }
 
     @Override
-    public List<PictureServiceDTO> findAllWhereArticleIdIsNull(User user) {
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public List<PictureServiceDTO> findAllWhereArticleIdIsNull(UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         return PictureServiceDTO.fromPOJOToDTO(this.pictureRepository.findAllByArticleIdIsNull());
     }

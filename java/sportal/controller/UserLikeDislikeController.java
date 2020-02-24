@@ -5,11 +5,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sportal.controller.models.user.UserResponseModel;
 import sportal.exception.*;
-import sportal.model.db.pojo.User;
 import sportal.model.service.IVoteService;
+import sportal.model.service.dto.UserServiceDTO;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.Positive;
 import java.sql.SQLException;
 
 @RestController
@@ -20,9 +22,15 @@ public class UserLikeDislikeController extends AbstractController {
     private IVoteService voteService;
 
     @PostMapping(value = "/like_articles/{" + ARTICLE_ID + "}")
-    public ResponseEntity<Void> likeOfArticle(@PathVariable(name = ARTICLE_ID) long articleId,
-                                              HttpSession session) throws SQLException, BadRequestException {
-        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+    public ResponseEntity<Void> likeOfArticle(
+            @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
+            HttpSession session) throws SQLException, BadRequestException {
+        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        UserServiceDTO user = new UserServiceDTO(
+                userOfSession.getId(),
+                userOfSession.getUsername(),
+                userOfSession.getUserEmail(),
+                userOfSession.getIsAdmin());
         this.voteService.likeArticle(articleId, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/articles/" + articleId);
@@ -30,9 +38,15 @@ public class UserLikeDislikeController extends AbstractController {
     }
 
     @DeleteMapping(value = "/like_articles/{" + ARTICLE_ID + "}")
-    public ResponseEntity<Void> removeLikeOfArticle(@PathVariable(name = ARTICLE_ID) long articleId,
-                                    HttpSession session) throws BadRequestException {
-        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+    public ResponseEntity<Void> removeLikeOfArticle(
+            @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
+            HttpSession session) throws BadRequestException {
+        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        UserServiceDTO user = new UserServiceDTO(
+                userOfSession.getId(),
+                userOfSession.getUsername(),
+                userOfSession.getUserEmail(),
+                userOfSession.getIsAdmin());
         this.voteService.deleteVoteForArticle(articleId, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/articles/" + articleId);
@@ -40,9 +54,15 @@ public class UserLikeDislikeController extends AbstractController {
     }
 
     @PostMapping(value = "/like_comments/{" + COMMENT_ID + "}")
-    public ResponseEntity<Void> likeOfComment(@PathVariable(name = COMMENT_ID) long commentId,
-                              HttpSession session) throws SQLException, BadRequestException {
-        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+    public ResponseEntity<Void> likeOfComment(
+            @PathVariable(name = COMMENT_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long commentId,
+            HttpSession session) throws SQLException, BadRequestException {
+        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        UserServiceDTO user = new UserServiceDTO(
+                userOfSession.getId(),
+                userOfSession.getUsername(),
+                userOfSession.getUserEmail(),
+                userOfSession.getIsAdmin());
         this.voteService.likeComment(commentId, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/" + commentId);
@@ -50,9 +70,15 @@ public class UserLikeDislikeController extends AbstractController {
     }
 
     @PostMapping(value = "/dislike_comments/{" + COMMENT_ID + "}")
-    public ResponseEntity<Void> dislikeOfComment(@PathVariable(name = COMMENT_ID) long commentId,
-                                 HttpSession session) throws SQLException, BadRequestException {
-        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+    public ResponseEntity<Void> dislikeOfComment(
+            @PathVariable(name = COMMENT_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long commentId,
+            HttpSession session) throws SQLException, BadRequestException {
+        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        UserServiceDTO user = new UserServiceDTO(
+                userOfSession.getId(),
+                userOfSession.getUsername(),
+                userOfSession.getUserEmail(),
+                userOfSession.getIsAdmin());
         this.voteService.dislikeComment(commentId, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/" + commentId);
@@ -60,9 +86,15 @@ public class UserLikeDislikeController extends AbstractController {
     }
 
     @DeleteMapping(value = "/like_comments/{" + COMMENT_ID + "}")
-    public ResponseEntity<Void> removeLikeOfComment(@PathVariable(name = COMMENT_ID) long commentId,
-                                    HttpSession session) throws BadRequestException {
-        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+    public ResponseEntity<Void> removeLikeOfComment(
+            @PathVariable(name = COMMENT_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long commentId,
+            HttpSession session) throws BadRequestException {
+        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        UserServiceDTO user = new UserServiceDTO(
+                userOfSession.getId(),
+                userOfSession.getUsername(),
+                userOfSession.getUserEmail(),
+                userOfSession.getIsAdmin());
         this.voteService.deleteLikeForComment(commentId, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/" + commentId);
@@ -70,9 +102,15 @@ public class UserLikeDislikeController extends AbstractController {
     }
 
     @DeleteMapping(value = "/dislike_comments/{" + COMMENT_ID + "}")
-    public ResponseEntity<Void> removeDislikeOfComment(@PathVariable(name = COMMENT_ID) long commentId,
-                                       HttpSession session) throws BadRequestException {
-        User user = (User) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+    public ResponseEntity<Void> removeDislikeOfComment(
+            @PathVariable(name = COMMENT_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long commentId,
+            HttpSession session) throws BadRequestException {
+        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        UserServiceDTO user = new UserServiceDTO(
+                userOfSession.getId(),
+                userOfSession.getUsername(),
+                userOfSession.getUserEmail(),
+                userOfSession.getIsAdmin());
         this.voteService.deleteDislikeForComment(commentId, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/" + commentId);

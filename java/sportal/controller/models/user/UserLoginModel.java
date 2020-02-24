@@ -7,11 +7,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserRegistrationFormDTO {
+public class UserLoginModel {
 
-    private String userName;
+    private String username;
     private String userPassword;
     private String verificationPassword;
-    private String userEmail;
-    private Boolean isAdmin;
 }

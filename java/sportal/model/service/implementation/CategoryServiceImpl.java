@@ -8,10 +8,10 @@ import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.CategoryDAO;
 import sportal.model.service.IArticleService;
 import sportal.model.service.dto.ArticleServiceDTO;
+import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.validators.CategoryValidator;
 import sportal.model.validators.UserValidator;
 import sportal.model.db.pojo.Category;
-import sportal.model.db.pojo.User;
 import sportal.model.db.repository.CategoryRepository;
 import sportal.model.service.ICategoryService;
 import sportal.model.service.dto.CategoryServiceDTO;
@@ -37,23 +37,21 @@ public class CategoryServiceImpl implements ICategoryService {
     private IArticleService articleService;
 
     @Override
-    public void addNewCategory(CategoryServiceDTO serviceDTO, User user) throws BadRequestException {
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public void addNewCategory(String categoryName, UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
-        CategoryServiceDTO validCategoryDTO = CategoryValidator.checkForValidNewCategory(serviceDTO);
-        if (this.categoryRepository.existsByCategoryName(validCategoryDTO.getCategoryName())) {
+        if (this.categoryRepository.existsByCategoryName(categoryName)) {
             throw new ExistsObjectException(EXISTS_CATEGORY);
         }
-        Category category = new Category(validCategoryDTO.getCategoryName());
+        Category category = new Category(categoryName);
         this.categoryRepository.save(category);
     }
 
     @Override
-    public void edit(CategoryServiceDTO serviceDTO, User user) throws BadRequestException {
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public void edit(CategoryServiceDTO serviceDTO, UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
-        CategoryServiceDTO validCategoryDTO = CategoryValidator.checkForValidData(serviceDTO);
-        Category category = new Category(validCategoryDTO);
+        Category category = new Category(serviceDTO);
         if (this.categoryRepository.existsByCategoryName(category.getCategoryName())) {
             throw new ExistsObjectException(EXISTS_CATEGORY);
         }
@@ -67,11 +65,8 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public void delete(long categoryId, User user) throws BadRequestException {
-        if (categoryId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public void delete(long categoryId, UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         Optional<Category> category = this.categoryRepository.findById(categoryId);
         if (!category.isPresent()) {
@@ -82,14 +77,8 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public void addCategoryToArticle(long categoryId, long articleId,
-                                     User user) throws BadRequestException, SQLException {
-        if (categoryId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        if (articleId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User logUser = UserValidator.checkUserIsLogged(user);
+                                     UserServiceDTO user) throws BadRequestException, SQLException {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         ArticleServiceDTO serviceDTO = this.articleService.findArticleById(articleId);
         if (serviceDTO.getAuthorId() != user.getId()) {
@@ -107,14 +96,8 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public void removeCategoryFromArticle(long categoryId, long articleId,
-                                          User user) throws BadRequestException, SQLException {
-        if (categoryId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        if (articleId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User logUser = UserValidator.checkUserIsLogged(user);
+                                          UserServiceDTO user) throws BadRequestException, SQLException {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         ArticleServiceDTO serviceDTO = this.articleService.findArticleById(articleId);
         if (serviceDTO.getAuthorId() != user.getId()) {

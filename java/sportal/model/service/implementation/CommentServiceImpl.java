@@ -2,14 +2,13 @@ package sportal.model.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.CommentDAO;
 import sportal.model.service.dto.CommentServiceDTO;
+import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.validators.CommentValidator;
 import sportal.model.validators.UserValidator;
 import sportal.model.db.pojo.Comment;
-import sportal.model.db.pojo.User;
 import sportal.model.db.repository.CommentRepository;
 import sportal.model.service.ICommentService;
 
@@ -32,37 +31,31 @@ public class CommentServiceImpl implements ICommentService {
     private CommentDAO commentDAO;
 
     @Override
-    public long addComment(CommentServiceDTO serviceDTO,
-                           User user) throws BadRequestException {
-        User logUser = UserValidator.checkUserIsLogged(user);
-        CommentServiceDTO validComment = CommentValidator.checkForValidDataOfCommentCreateDTO(serviceDTO);
-        if (!this.articleService.existsById(validComment.getArticleId())) {
+    public long addComment(CommentServiceDTO serviceDTO, UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
+        if (!this.articleService.existsById(serviceDTO.getArticleId())) {
             throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
         }
-        Comment comment = new Comment(validComment, logUser.getId());
+        Comment comment = new Comment(serviceDTO, logUser.getId());
         comment = this.commentRepository.save(comment);
-        comment.setUserName(logUser.getUserName());
+        comment.setUserName(logUser.getUsername());
         return comment.getArticleId();
     }
 
     @Override
-    public long edit(CommentServiceDTO serviceDTO, User user) throws BadRequestException {
-        User logUser = UserValidator.checkUserIsLogged(user);
-        CommentServiceDTO validComment = CommentValidator.checkForValidDataOfCommentEditDTO(serviceDTO);
-        Optional<Comment> existsComment = this.commentRepository.findById(validComment.getId());
+    public long edit(CommentServiceDTO serviceDTO, UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
+        Optional<Comment> existsComment = this.commentRepository.findById(serviceDTO.getId());
         Comment validExistsComment = CommentValidator.validationOfExistsComment(existsComment, logUser);
-        validExistsComment.setFullCommentText(validComment.getText());
+        validExistsComment.setFullCommentText(serviceDTO.getText());
         validExistsComment.setDatePublished(Timestamp.valueOf(LocalDateTime.now()));
         Comment editComment = this.commentRepository.save(validExistsComment);
         return editComment.getId();
     }
 
     @Override
-    public long deleteFromUser(long commentId, User user) throws BadRequestException {
-        if (commentId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public long deleteFromUser(long commentId, UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         Optional<Comment> existsComment = this.commentRepository.findById(commentId);
         Comment validExistsComment = CommentValidator.validationOfExistsComment(existsComment, logUser);
         this.commentRepository.deleteById(commentId);
@@ -70,11 +63,8 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
-    public long deleteFromAdmin(long commentId, User user) throws BadRequestException {
-        if (commentId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public long deleteFromAdmin(long commentId, UserServiceDTO user) {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         Optional<Comment> existsComment = this.commentRepository.findById(commentId);
         if (!existsComment.isPresent()) {
@@ -85,19 +75,13 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
-    public List<CommentServiceDTO> getAllCommentsByArticleId(long articleId) throws BadRequestException, SQLException {
-        if (articleId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
+    public List<CommentServiceDTO> getAllCommentsByArticleId(long articleId) throws SQLException {
         List<Comment> comments = this.commentDAO.allCommentsByArticleId(articleId);
         return CommentServiceDTO.fromPOJOToDTO(comments);
     }
 
     @Override
-    public CommentServiceDTO getCommentsById(long commentId) throws BadRequestException, SQLException {
-        if (commentId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
+    public CommentServiceDTO getCommentsById(long commentId) throws SQLException {
         Comment existsComment = this.commentDAO.findById(commentId);
         if (existsComment == null) {
             throw new ExistsObjectException(NOT_EXISTS_OBJECT);
@@ -111,7 +95,9 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
-    public Optional<Comment> findById(long commentId) {
-        return this.commentRepository.findById(commentId);
+    public void existsById(long commentId) {
+        if (!this.commentRepository.existsById(commentId)) {
+            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
+        }
     }
 }

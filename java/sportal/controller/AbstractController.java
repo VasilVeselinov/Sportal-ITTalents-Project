@@ -2,6 +2,7 @@ package sportal.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,10 +10,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import sportal.exception.*;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+@Validated
 public abstract class AbstractController {
 
     // key session
@@ -21,6 +25,7 @@ public abstract class AbstractController {
     // responses
     private static final String WRONG_REQUEST = "Invalid request!";
     private static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
+    static final String MASSAGE_FOR_INVALID_ID = "Id must be greater than 0!";
 
     // parameters
     static final String USER_ID = "user_id";
@@ -39,11 +44,24 @@ public abstract class AbstractController {
         );
     }
 
-    @ExceptionHandler({BadRequestException.class, ExistsObjectException.class})
+    @ExceptionHandler({BadRequestException.class, ExistsObjectException.class, InvalidInputException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionObject handlerOfBadRequestException(Exception e) {
         return new ExceptionObject(
                 e.getMessage(), HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(), e.getClass().getName()
+        );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionObject handlerOfConstraintViolationException(ConstraintViolationException e) {
+        String message = "";
+        for (ConstraintViolation<?> eex : e.getConstraintViolations()) {
+            message= eex.getMessage();
+        }
+        return new ExceptionObject(
+                message, HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
     }
@@ -84,7 +102,7 @@ public abstract class AbstractController {
         );
     }
 
-    @ExceptionHandler({TransactionException.class,IOException.class, SQLException.class})
+    @ExceptionHandler({TransactionException.class, IOException.class, SQLException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionObject handlerOfTransactionIOAndSQLException(Exception e) {
         ExceptionObject exceptionObject = new ExceptionObject(

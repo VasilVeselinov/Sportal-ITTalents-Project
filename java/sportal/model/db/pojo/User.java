@@ -3,9 +3,11 @@ package sportal.model.db.pojo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.controller.models.user.UserRegistrationFormDTO;
+import org.springframework.security.core.userdetails.UserDetails;
+import sportal.model.service.dto.UserServiceDTO;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @NoArgsConstructor
 @Getter
@@ -14,17 +16,24 @@ import javax.persistence.*;
 @Table(name = "users")
 public class User extends BasePOJO {
 
-    private String userName;
-    private String userPassword;
+    private String username;
+    private String password;
     private String userEmail;
     private Boolean isAdmin;
+    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
+    )
+    private Set<Role> authorities;
 
-    public User(UserRegistrationFormDTO userRegistrationFormDTO) {
-        this.setUserName(userRegistrationFormDTO.getUserName());
-        this.setUserPassword(userRegistrationFormDTO.getUserPassword());
-        this.setUserEmail(userRegistrationFormDTO.getUserEmail());
-        if (userRegistrationFormDTO.getIsAdmin() != null) {
-            this.setIsAdmin(userRegistrationFormDTO.getIsAdmin());
+    public User(UserServiceDTO serviceDTO) {
+        this.setUsername(serviceDTO.getUsername());
+        this.setPassword(serviceDTO.getUserPassword());
+        this.setUserEmail(serviceDTO.getUserEmail());
+        if (serviceDTO.getIsAdmin() != null) {
+            this.setIsAdmin(serviceDTO.getIsAdmin());
         } else {
             this.setIsAdmin(false);
         }

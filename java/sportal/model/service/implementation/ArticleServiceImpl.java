@@ -5,12 +5,12 @@ import org.springframework.stereotype.Service;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.ArticleDAO;
+import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.validators.ArticleValidator;
 import sportal.model.validators.UserValidator;
 import sportal.model.db.pojo.Article;
 import sportal.model.db.pojo.Category;
 import sportal.model.db.pojo.Picture;
-import sportal.model.db.pojo.User;
 import sportal.model.db.repository.ArticleRepository;
 import sportal.model.service.IArticleService;
 import sportal.model.service.ICategoryService;
@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static sportal.model.validators.AbstractValidator.THIS_ARTICLE_IS_NOT_EXISTS;
-import static sportal.model.validators.AbstractValidator.WRONG_REQUEST;
 
 @Service
 public class ArticleServiceImpl implements IArticleService {
@@ -41,17 +40,14 @@ public class ArticleServiceImpl implements IArticleService {
     private ArticleRepository articleRepository;
 
     @Override
-    public long addArticle(ArticleServiceDTO serviceDTO,
-                           User user) throws BadRequestException, SQLException {
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public long addArticle(ArticleServiceDTO serviceDTO, UserServiceDTO user) throws SQLException {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
-        ArticleServiceDTO validArticle = ArticleValidator.checkArticleForValidData(serviceDTO);
-
         List<CategoryServiceDTO> dtoListOfCategories =
                 this.categoryService.findAllExistsCategoriseAndCheckIsValid(serviceDTO.getCategories());
         List<PictureServiceDTO> dtoListOfPictures =
                 this.pictureService.findAllByArticleIdIsNullAndCheckIsValid(serviceDTO.getPictures());
-        Article article = new Article(validArticle.getTitle(), validArticle.getFullText());
+        Article article = new Article(serviceDTO.getTitle(), serviceDTO.getFullText());
         article.setAuthorId(logUser.getId());
         article = this.articleDAO.addArticle(
                 article,
@@ -66,10 +62,7 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public ArticleServiceDTO findArticleById(long articleId) throws BadRequestException, SQLException {
-        if (articleId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
+    public ArticleServiceDTO findArticleById(long articleId) throws SQLException {
         Article article = this.articleDAO.findById(articleId);
         if (article.getId() == 0) {
             throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
@@ -87,10 +80,7 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public List<ArticleServiceDTO> findByCategoryId(long categoryId) throws BadRequestException, SQLException {
-        if (categoryId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
+    public List<ArticleServiceDTO> findByCategoryId(long categoryId) throws SQLException {
         return ArticleServiceDTO.fromPOJOToDTO(this.articleDAO.articlesByCategoryId(categoryId));
     }
 
@@ -100,24 +90,20 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public long edit(ArticleServiceDTO serviceDTO, User user) throws BadRequestException {
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public long edit(ArticleServiceDTO serviceDTO, UserServiceDTO user) throws BadRequestException {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
-        ArticleServiceDTO validArticle = ArticleValidator.validationBeforeEdit(serviceDTO);
         Optional<Article> existsArticle = this.articleRepository.findById(serviceDTO.getId());
         ArticleValidator.conformityCheck(existsArticle, logUser);
-        Article article = new Article(validArticle);
+        Article article = new Article(serviceDTO);
         article.setAuthorId(logUser.getId());
         article.setViews(existsArticle.get().getViews());
         return this.articleRepository.save(article).getId();
     }
 
     @Override
-    public ArticleServiceDTO delete(long articleId, User user) throws BadRequestException {
-        if (articleId < 1) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        User logUser = UserValidator.checkUserIsLogged(user);
+    public ArticleServiceDTO delete(long articleId, UserServiceDTO user) throws BadRequestException {
+        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
         UserValidator.checkUserIsAdmin(logUser);
         Optional<Article> existsArticle = this.articleRepository.findById(articleId);
         ArticleValidator.conformityCheck(existsArticle, logUser);
