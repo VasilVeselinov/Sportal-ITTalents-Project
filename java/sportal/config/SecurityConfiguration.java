@@ -50,10 +50,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .loginPage("/users/login").permitAll()
                             .usernameParameter("username")
                             .passwordParameter("password")
-                // redirect: after login -> /home
+                // redirect: after login -> /
                         .defaultSuccessUrl("/",true)
                 .and()
-                // redirect: after logout -> /login
+                // redirect: after logout -> /
                 .logout()
                     .logoutSuccessUrl("/")
                         .permitAll()
