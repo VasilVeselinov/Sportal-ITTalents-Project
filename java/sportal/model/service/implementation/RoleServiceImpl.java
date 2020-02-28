@@ -7,9 +7,7 @@ import sportal.model.db.repository.RoleRepository;
 import sportal.model.service.IRoleService;
 import sportal.model.service.dto.RoleServiceDTO;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class RoleServiceImpl implements IRoleService {
@@ -19,6 +17,7 @@ public class RoleServiceImpl implements IRoleService {
 
     @Override
     public void seedRoleInDB() {
+        this.roleRepository.saveAndFlush(new Role("ROOT"));
         this.roleRepository.saveAndFlush(new Role("EDITOR"));
         this.roleRepository.saveAndFlush(new Role("ADMIN"));
         this.roleRepository.saveAndFlush(new Role("USER"));
@@ -28,5 +27,10 @@ public class RoleServiceImpl implements IRoleService {
     public List<RoleServiceDTO> findAll() {
         List<Role> roleList = this.roleRepository.findAll();
         return RoleServiceDTO.fromPOJOToDTO(roleList);
+    }
+
+    @Override
+    public RoleServiceDTO getAuthorities(String authority) {
+        return new RoleServiceDTO(this.roleRepository.findByAuthority(authority));
     }
 }

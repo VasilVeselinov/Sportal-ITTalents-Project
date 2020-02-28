@@ -6,12 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import sportal.controller.models.user.UserResponseModel;
+import sportal.controller.util.AuthValidator;
+import sportal.controller.models.user.UserLoginModel;
 import sportal.controller.validation.NameValid;
 import sportal.exception.BadRequestException;
 import sportal.controller.models.category.CategoryRequestModel;
 import sportal.controller.models.category.CategoryResponseModel;
-import sportal.exception.InvalidInputException;
 import sportal.model.service.dto.CategoryServiceDTO;
 import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.service.implementation.CategoryServiceImpl;
@@ -34,12 +34,9 @@ public class CategoryController extends AbstractController {
     @PostMapping(value = "/add_new")
     public ResponseEntity<Void> addNewCategory(
             @RequestParam(name = "text", required = false) @NameValid String categoryName, HttpSession session) {
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        AuthValidator.checkUserIsAdmin(logUser);
+        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         this.categoryService.addNewCategory(categoryName, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/categories/all");
@@ -49,15 +46,9 @@ public class CategoryController extends AbstractController {
     @PutMapping(value = "/edit")
     public void editCategories(@Valid @RequestBody CategoryRequestModel categoryModel, BindingResult bindingResult,
                                HttpSession session, HttpServletResponse response) throws IOException {
-        if (bindingResult.hasErrors()) {
-            throw new InvalidInputException(bindingResult.getFieldError().getDefaultMessage());
-        }
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        AuthValidator.checkUserIsAdmin(logUser);
+        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         CategoryServiceDTO serviceDTO = new CategoryServiceDTO(categoryModel.getId(), categoryModel.getCategoryName());
         this.categoryService.edit(serviceDTO, user);
         response.sendRedirect("/categories/all");
@@ -72,13 +63,9 @@ public class CategoryController extends AbstractController {
     public ResponseEntity<Void> deleteCategory(
             @PathVariable(name = CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId,
             HttpSession session) {
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
-        this.categoryService.delete(categoryId, user);
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        AuthValidator.checkUserIsEditor(logUser);
+        this.categoryService.delete(categoryId);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/categories/all");
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
@@ -89,12 +76,9 @@ public class CategoryController extends AbstractController {
             @PathVariable(name = CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId,
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
             HttpSession session) throws BadRequestException, SQLException {
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        AuthValidator.checkUserIsAdmin(logUser);
+        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         this.categoryService.addCategoryToArticle(categoryId, articleId, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/articles/" + articleId);
@@ -106,13 +90,9 @@ public class CategoryController extends AbstractController {
             @PathVariable(name = CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId,
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
             HttpSession session) throws BadRequestException, SQLException {
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
-        this.categoryService.removeCategoryFromArticle(categoryId, articleId, user);
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        AuthValidator.checkUserIsEditor(logUser);
+        this.categoryService.removeCategoryFromArticle(categoryId, articleId);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/articles/" + articleId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);

@@ -12,7 +12,7 @@ import java.util.List;
 public class CommentDAO extends DAO {
 
     private static final String FIND_COMMENT_BY_ID =
-            "SELECT c.id, c.full_comment_text, c.date_published, c.user_id, c.article_id, u.user_name, " +
+            "SELECT c.id, c.full_comment_text, c.date_published, c.user_id, c.article_id, u.username, " +
                     "COUNT(ulc.user_id) AS number_of_likes, " +
                     "COUNT(udc.user_id) AS number_of_dislikes " +
                     "FROM comments AS c " +
@@ -23,7 +23,7 @@ public class CommentDAO extends DAO {
                     "GROUP BY c.id ;";
 
     private static final String ALL_COMMENT_BY_ARTICLE_ID =
-            "SELECT c.id, c.full_comment_text, c.date_published, c.user_id, c.article_id, u.user_name, " +
+            "SELECT c.id, c.full_comment_text, c.date_published, c.user_id, c.article_id, u.username, " +
                     "COUNT(ulc.user_id) AS number_of_likes, " +
                     "COUNT(udc.user_id) AS number_of_dislikes " +
                     "FROM comments AS c " +
@@ -64,7 +64,7 @@ public class CommentDAO extends DAO {
         comment.setDatePublished(rowSet.getTimestamp("date_published"));
         comment.setUserId(rowSet.getLong("user_id"));
         comment.setArticleId(rowSet.getLong("article_id"));
-        comment.setUserName(rowSet.getString("user_name"));
+        comment.setUserName(rowSet.getString("username"));
         comment.setNumberOfLikes(rowSet.getInt("number_of_likes"));
         comment.setNumberOfDislike(rowSet.getInt("number_of_dislikes"));
         return comment;

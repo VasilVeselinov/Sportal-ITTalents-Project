@@ -9,4 +9,6 @@ public abstract class DAO {
 
     @Autowired
     JdbcTemplate jdbcTemplate;
+
+    static final String UNSUCCESSFUL_CONNECTION_ROLLBACK = "Unsuccessful connection rollback!";
 }

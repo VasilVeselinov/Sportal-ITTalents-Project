@@ -1,22 +1,23 @@
 package sportal.model.service.implementation;
 
-import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sportal.model.service.IBCryptService;
 
 @Service
 public class BCryptServiceImpl implements IBCryptService {
 
-    private static final int salt = 7;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
-    public String cryptPassword(String userPassword) {
-        String salt = BCrypt.gensalt(BCryptServiceImpl.salt);
-        String cryptPassword = BCrypt.hashpw(userPassword, salt);
-        return (cryptPassword);
+    public String cryptPassword(String text) {
+        return this.passwordEncoder.encode(text);
     }
 
-    public static boolean checkPassword(String userPassword, String dbUserPassword) {
-        return BCrypt.checkpw(userPassword, dbUserPassword);
+    @Override
+    public boolean checkPassword(String text, String dbText) {
+        return this.passwordEncoder.matches(text , dbText);
     }
 }

@@ -14,10 +14,8 @@ import java.util.List;
 @Component
 public class ArticleDAO extends DAO {
 
-    private static final String UNSUCCESSFUL_CONNECTION_ROLLBACK = "Unsuccessful connection rollback!";
-
     private static final String ADD_NEW_ARTICLE =
-            "INSERT INTO articles (title ,full_text, date_published, views, author_id) " +
+            "INSERT INTO articles (title, full_text, date_published, views, author_id) " +
                     "VALUES (?, ?, ?, ?, ?);";
     private static final String SET_ARTICLE_ID_INTO_PICTURES_TABLE =
             "UPDATE pictures SET article_id = ? WHERE id = ?;";
@@ -31,7 +29,7 @@ public class ArticleDAO extends DAO {
     private static final String UPDATE_VIEWS_BY_ARTICLE_ID = "UPDATE articles SET views = views + 1 WHERE id = ?;";
     private static final String FIND_ARTICLE_BY_ID =
             "SELECT a.id, a.title, a.full_text, a.date_published, a.views, a.author_id, " +
-                    "u.user_name, COUNT(ula.user_id) AS number_of_likes " +
+                    "u.username, COUNT(ula.user_id) AS number_of_likes " +
                     "FROM articles AS a " +
                     "LEFT JOIN users AS u ON a.author_id = u.id " +
                     "LEFT JOIN users_like_articles AS ula ON ula.article_id = a.id " +
@@ -116,7 +114,7 @@ public class ArticleDAO extends DAO {
         article.setViews(rowSet.getInt("views") + 1);
         article.setAuthorId(rowSet.getLong("author_id"));
         article.setNumberOfLikes(rowSet.getInt("number_of_likes"));
-        article.setAuthorName(rowSet.getString("user_name"));
+        article.setAuthorName(rowSet.getString("username"));
         return article;
     }
 

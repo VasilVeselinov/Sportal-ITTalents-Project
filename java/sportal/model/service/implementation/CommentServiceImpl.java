@@ -2,12 +2,11 @@ package sportal.model.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sportal.exception.AuthorizationException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.CommentDAO;
 import sportal.model.service.dto.CommentServiceDTO;
 import sportal.model.service.dto.UserServiceDTO;
-import sportal.model.validators.CommentValidator;
-import sportal.model.validators.UserValidator;
 import sportal.model.db.pojo.Comment;
 import sportal.model.db.repository.CommentRepository;
 import sportal.model.service.ICommentService;
@@ -16,9 +15,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-
-import static sportal.model.validators.AbstractValidator.*;
 
 @Service
 public class CommentServiceImpl implements ICommentService {
@@ -32,46 +28,43 @@ public class CommentServiceImpl implements ICommentService {
 
     @Override
     public long addComment(CommentServiceDTO serviceDTO, UserServiceDTO user) {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        if (!this.articleService.existsById(serviceDTO.getArticleId())) {
-            throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
-        }
-        Comment comment = new Comment(serviceDTO, logUser.getId());
+        this.articleService.existsById(serviceDTO.getArticleId());
+        Comment comment = new Comment(serviceDTO, user.getId());
         comment = this.commentRepository.save(comment);
-        comment.setUserName(logUser.getUsername());
+        comment.setUserName(user.getUsername());
         return comment.getArticleId();
     }
 
     @Override
     public long edit(CommentServiceDTO serviceDTO, UserServiceDTO user) {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        Optional<Comment> existsComment = this.commentRepository.findById(serviceDTO.getId());
-        Comment validExistsComment = CommentValidator.validationOfExistsComment(existsComment, logUser);
-        validExistsComment.setFullCommentText(serviceDTO.getText());
-        validExistsComment.setDatePublished(Timestamp.valueOf(LocalDateTime.now()));
-        Comment editComment = this.commentRepository.save(validExistsComment);
+        Comment existsComment = this.commentRepository.findById(serviceDTO.getId())
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
+        if (user.getId() != existsComment.getUserId()) {
+            throw new AuthorizationException(WRONG_INFORMATION);
+        }
+        existsComment.setFullCommentText(serviceDTO.getText());
+        existsComment.setDatePublished(Timestamp.valueOf(LocalDateTime.now()));
+        Comment editComment = this.commentRepository.save(existsComment);
         return editComment.getId();
     }
 
     @Override
-    public long deleteFromUser(long commentId, UserServiceDTO user) {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        Optional<Comment> existsComment = this.commentRepository.findById(commentId);
-        Comment validExistsComment = CommentValidator.validationOfExistsComment(existsComment, logUser);
+    public long delete(long commentId, UserServiceDTO user) {
+        Comment existsComment = this.commentRepository.findById(commentId)
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
+        if (user.getId() != existsComment.getUserId()) {
+            throw new AuthorizationException(WRONG_INFORMATION);
+        }
         this.commentRepository.deleteById(commentId);
-        return validExistsComment.getArticleId();
+        return existsComment.getArticleId();
     }
 
     @Override
-    public long deleteFromAdmin(long commentId, UserServiceDTO user) {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        UserValidator.checkUserIsAdmin(logUser);
-        Optional<Comment> existsComment = this.commentRepository.findById(commentId);
-        if (!existsComment.isPresent()) {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
-        }
-        this.commentRepository.deleteById(existsComment.get().getId());
-        return existsComment.get().getArticleId();
+    public long deleteFromEditor(long commentId) {
+        Comment existsComment = this.commentRepository.findById(commentId)
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
+        this.commentRepository.deleteById(existsComment.getId());
+        return existsComment.getArticleId();
     }
 
     @Override

@@ -19,4 +19,14 @@ public class ExceptionObject {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime time;
     private String exceptionClass;
+
+    @Override
+    public String toString() {
+        return "ExceptionObject{" +
+                "messages='" + messages + '\'' +
+                ", status=" + status +
+                ", time=" + time +
+                ", exceptionClass='" + exceptionClass + '\'' +
+                '}';
+    }
 }

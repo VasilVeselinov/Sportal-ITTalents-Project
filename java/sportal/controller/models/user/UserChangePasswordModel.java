@@ -3,7 +3,6 @@ package sportal.controller.models.user;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.controller.validation.user.NameValidation;
 import sportal.controller.validation.user.PasswordValidation;
 
 @NoArgsConstructor
@@ -11,7 +10,7 @@ import sportal.controller.validation.user.PasswordValidation;
 @Setter
 public class UserChangePasswordModel {
 
-    @NameValidation
+//    @PasswordValidation
     private String userPassword;
     @PasswordValidation
     private String newPassword;

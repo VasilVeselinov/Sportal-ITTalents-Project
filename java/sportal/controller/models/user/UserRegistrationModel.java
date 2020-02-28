@@ -15,22 +15,9 @@ public class UserRegistrationModel {
     @NameValidation
     private String username;
     @PasswordValidation
-    private String userPassword;
+    private String password;
     @PasswordValidation
     private String verificationPassword;
     @EmailValidation
     private String userEmail;
-
-    private Boolean isAdmin;
-
-    @Override
-    public String toString() {
-        return "UserRegistrationModel{" +
-                "username='" + username + '\'' +
-                ", userPassword='" + userPassword + '\'' +
-                ", verificationPassword='" + verificationPassword + '\'' +
-                ", userEmail='" + userEmail + '\'' +
-                ", isAdmin=" + isAdmin +
-                '}';
-    }
 }

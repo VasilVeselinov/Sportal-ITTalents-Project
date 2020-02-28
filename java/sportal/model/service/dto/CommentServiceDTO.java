@@ -39,7 +39,11 @@ public class CommentServiceDTO {
         this.datePublished = comment.getDatePublished();
         this.userId = comment.getUserId();
         this.articleId = comment.getArticleId();
-        this.userName = comment.getUserName();
+        if (comment.getUserName() == null){
+            this.userName = "The user is deleted!";
+        }else {
+            this.userName = comment.getUserName();
+        }
         this.numberOfLikes = comment.getNumberOfLikes();
         this.numberOfDislike = comment.getNumberOfDislike();
 

@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = UserNameValidation.class)
 public @interface NameValidation {
 
-    String message() default "User name have to min 8 symbols and max 20 symbols\n" +
-            "and without spaces between the symbols!";
+    String message() default "User name have to min 8 symbols and max 20 symbols " +
+            "and without spaces between the symbols! ";
 
     Class<?>[] groups() default {};
 

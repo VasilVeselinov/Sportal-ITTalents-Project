@@ -2,12 +2,11 @@ package sportal.model.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.ArticleDAO;
 import sportal.model.service.dto.UserServiceDTO;
-import sportal.model.validators.ArticleValidator;
-import sportal.model.validators.UserValidator;
 import sportal.model.db.pojo.Article;
 import sportal.model.db.pojo.Category;
 import sportal.model.db.pojo.Picture;
@@ -21,14 +20,9 @@ import sportal.model.service.dto.PictureServiceDTO;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
-
-import static sportal.model.validators.AbstractValidator.THIS_ARTICLE_IS_NOT_EXISTS;
 
 @Service
 public class ArticleServiceImpl implements IArticleService {
-
-    private static final String COPYRIGHT = "Sportal holds the copyright of this article.";
 
     @Autowired
     private ICategoryService categoryService;
@@ -41,14 +35,12 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     public long addArticle(ArticleServiceDTO serviceDTO, UserServiceDTO user) throws SQLException {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        UserValidator.checkUserIsAdmin(logUser);
         List<CategoryServiceDTO> dtoListOfCategories =
                 this.categoryService.findAllExistsCategoriseAndCheckIsValid(serviceDTO.getCategories());
         List<PictureServiceDTO> dtoListOfPictures =
                 this.pictureService.findAllByArticleIdIsNullAndCheckIsValid(serviceDTO.getPictures());
         Article article = new Article(serviceDTO.getTitle(), serviceDTO.getFullText());
-        article.setAuthorId(logUser.getId());
+        article.setAuthorId(user.getId());
         article = this.articleDAO.addArticle(
                 article,
                 Picture.fromDTOToPojo(dtoListOfPictures),
@@ -90,29 +82,31 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public long edit(ArticleServiceDTO serviceDTO, UserServiceDTO user) throws BadRequestException {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        UserValidator.checkUserIsAdmin(logUser);
-        Optional<Article> existsArticle = this.articleRepository.findById(serviceDTO.getId());
-        ArticleValidator.conformityCheck(existsArticle, logUser);
+    public long edit(ArticleServiceDTO serviceDTO, UserServiceDTO user) {
+        Article existsArticle = this.articleRepository.findById(serviceDTO.getId())
+                .orElseThrow(() -> new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS));
+        if (existsArticle.getAuthorId() != user.getId()) {
+            throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
+        }
         Article article = new Article(serviceDTO);
-        article.setAuthorId(logUser.getId());
-        article.setViews(existsArticle.get().getViews());
+        article.setAuthorId(user.getId());
+        article.setViews(existsArticle.getViews());
         return this.articleRepository.save(article).getId();
     }
 
     @Override
-    public ArticleServiceDTO delete(long articleId, UserServiceDTO user) throws BadRequestException {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        UserValidator.checkUserIsAdmin(logUser);
-        Optional<Article> existsArticle = this.articleRepository.findById(articleId);
-        ArticleValidator.conformityCheck(existsArticle, logUser);
-        this.articleRepository.deleteById(existsArticle.get().getId());
-        return new ArticleServiceDTO(existsArticle.get());
+    public ArticleServiceDTO delete(long articleId) {
+        Article existsArticle = this.articleRepository.findById(articleId)
+                .orElseThrow(() -> new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS));
+        this.articleRepository.deleteById(existsArticle.getId());
+        return new ArticleServiceDTO(existsArticle);
     }
 
     @Override
     public boolean existsById(long articleId) {
-        return this.articleRepository.existsById(articleId);
+        if (!this.articleRepository.existsById(articleId)){
+            throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
+        }
+        return true;
     }
 }

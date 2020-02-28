@@ -9,4 +9,6 @@ public interface IRoleService {
     void seedRoleInDB();
 
     List<RoleServiceDTO> findAll();
+
+    RoleServiceDTO getAuthorities(String authority);
 }

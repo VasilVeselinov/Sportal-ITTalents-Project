@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 public @interface EmailValidation {
 
     String message() default "Email have to between 6 and 40 symbols! " +
-            "Example for valid email: email@hostexpansion.countryexpansion!";
+            "Example for valid email: email@hostexpansion.countryexpansion! ";
 
     Class<?>[] groups() default {};
 

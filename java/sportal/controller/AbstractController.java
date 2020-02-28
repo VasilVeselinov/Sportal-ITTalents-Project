@@ -8,6 +8,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.ModelAndView;
 import sportal.exception.*;
 
 import javax.validation.ConstraintViolation;
@@ -20,7 +21,7 @@ import java.time.LocalDateTime;
 public abstract class AbstractController {
 
     // key session
-    static final String LOGGED_USER_KEY_IN_SESSION = "loggedUser";
+    public static final String LOGGED_USER_KEY_IN_SESSION = "loggedUser";
 
     // responses
     private static final String WRONG_REQUEST = "Invalid request!";
@@ -37,96 +38,129 @@ public abstract class AbstractController {
 
     @ExceptionHandler(AuthorizationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ExceptionObject handlerOfAuthorizationException(Exception e) {
-        return new ExceptionObject(
+    public ModelAndView handlerOfAuthorizationException(Exception e) {
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
                 e.getMessage(), HttpStatus.UNAUTHORIZED.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
+        System.out.println(exceptionObject);
+        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("message", exceptionObject.getMessages());
+        return view;
     }
 
     @ExceptionHandler({BadRequestException.class, ExistsObjectException.class, InvalidInputException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionObject handlerOfBadRequestException(Exception e) {
-        return new ExceptionObject(
+    public ModelAndView handlerOfBadRequestException(Exception e) {
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
                 e.getMessage(), HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
+        System.out.println(exceptionObject);
+        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("message", exceptionObject.getMessages());
+        return view;
+
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionObject handlerOfConstraintViolationException(ConstraintViolationException e) {
-        String message = "";
+        StringBuilder message = new StringBuilder("");
         for (ConstraintViolation<?> eex : e.getConstraintViolations()) {
-            message= eex.getMessage();
+            message.append(eex.getMessage());
         }
         return new ExceptionObject(
-                message, HttpStatus.BAD_REQUEST.value(),
+                message.toString(), HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionObject handlerOfJsonParseException(Exception e) {
-        return new ExceptionObject(
+    public ModelAndView handlerOfJsonParseException(Exception e) {
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
                 WRONG_REQUEST, HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
+        System.out.println(exceptionObject);
+        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("message", exceptionObject.getMessages());
+        return view;
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public ExceptionObject handlerOfHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        return new ExceptionObject(
+    public ModelAndView handlerOfHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
                 WRONG_REQUEST, HttpStatus.METHOD_NOT_ALLOWED.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
+        System.out.println(exceptionObject);
+        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("message", exceptionObject.getMessages());
+        return view;
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionObject handlerOfMethodArgumentTypeMismatchException(Exception e) {
-        return new ExceptionObject(
+    public ModelAndView handlerOfMethodArgumentTypeMismatchException(Exception e) {
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
                 WRONG_REQUEST, HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
+        System.out.println(exceptionObject);
+        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("message", exceptionObject.getMessages());
+        return view;
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-    public ExceptionObject handlerOfHttpMediaTypeNotSupportedExceptionException(Exception e) {
-        return new ExceptionObject(
+    public ModelAndView handlerOfHttpMediaTypeNotSupportedExceptionException(Exception e) {
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
                 WRONG_REQUEST, HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
+        System.out.println(exceptionObject);
+        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("message", exceptionObject.getMessages());
+        return view;
     }
 
     @ExceptionHandler({TransactionException.class, IOException.class, SQLException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ExceptionObject handlerOfTransactionIOAndSQLException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG,
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
+    public ModelAndView handlerOfTransactionIOAndSQLException(Exception e) {
         System.out.println(e.getMessage());
-        System.out.println(LocalDateTime.now());
-        return exceptionObject;
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
+                SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                LocalDateTime.now(), e.getClass().getName()
+        );
+        System.out.println(exceptionObject);
+        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("message", exceptionObject.getMessages());
+        return view;
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)  // vasko:
-    public ExceptionObject handlerOfException(Exception e) {
-        ExceptionObject exceptionObject = new ExceptionObject(
-                SOMETHING_WENT_WRONG,
-                HttpStatus.I_AM_A_TEAPOT.value(),
-                LocalDateTime.now(),
-                e.getClass().getName()
-        );
+    public ModelAndView handlerOfException(Exception e) {
         System.out.println(e.getMessage());
-        System.out.println(LocalDateTime.now());
-        return exceptionObject;
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
+                SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                LocalDateTime.now(), e.getClass().getName()
+        );
+        System.out.println(exceptionObject);
+        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("message", exceptionObject.getMessages());
+        return view;
     }
 }

@@ -12,13 +12,13 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = UserPasswordValidation.class)
 public @interface PasswordValidation {
 
-    String message() default "Your password is not strong!\n" +
-            "Your password have to min 8 symbols and max 100 symbols,\n" +
-            "min one digit between 0 and 9,\n" +
-            "min one lowercase letter,\n" +
-            "min one uppercase letter,\n" +
-            "min one special character between [@#$%^&+=]\n" +
-            "and without spaces between the symbols!";
+    String message() default "Your password is not strong! " +
+            "Your password have to min 8 symbols and max 100 symbols, " +
+            "min one digit between 0 and 9, " +
+            "min one lowercase letter, " +
+            "min one uppercase letter, " +
+            "min one special character between [@$%^=!] " +
+            "and without spaces between the symbols! ";
 
     Class<?>[] groups() default {};
 

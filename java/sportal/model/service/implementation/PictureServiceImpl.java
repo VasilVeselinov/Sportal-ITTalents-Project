@@ -6,9 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.file.FileManagerDAO;
-import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.validators.PictureValidator;
-import sportal.model.validators.UserValidator;
 import sportal.model.db.pojo.Picture;
 import sportal.model.db.repository.PictureRepository;
 import sportal.model.service.IPictureService;
@@ -21,10 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static sportal.model.validators.AbstractValidator.WRONG_REQUEST;
-import static sportal.model.validators.AbstractValidator.THE_PICTURES_DO_NOT_EXIST;
-import static sportal.model.validators.AbstractValidator.THIS_ARTICLE_IS_NOT_EXISTS;
-
 @Service
 public class PictureServiceImpl implements IPictureService {
     // Vasko : please fix me, if you change directory
@@ -36,9 +30,7 @@ public class PictureServiceImpl implements IPictureService {
 
     @Transactional
     @Override
-    public void upload(List<MultipartFile> multipartFiles, UserServiceDTO user) throws BadRequestException {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        UserValidator.checkUserIsAdmin(logUser);
+    public void upload(List<MultipartFile> multipartFiles) throws BadRequestException {
         if (multipartFiles == null || multipartFiles.isEmpty()) {
             throw new BadRequestException(WRONG_REQUEST);
         }
@@ -53,9 +45,7 @@ public class PictureServiceImpl implements IPictureService {
     }
 
     @Override
-    public PictureServiceDTO delete(long pictureId, UserServiceDTO user) {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        UserValidator.checkUserIsAdmin(logUser);
+    public PictureServiceDTO delete(long pictureId) {
         Optional<Picture> picture = this.pictureRepository.findById(pictureId);
         if (!picture.isPresent()) {
             throw new ExistsObjectException(THE_PICTURES_DO_NOT_EXIST);
@@ -67,14 +57,10 @@ public class PictureServiceImpl implements IPictureService {
     }
 
     @Override
-    public void addPictureToTheArticleById(long pictureId, long articleId, UserServiceDTO user) {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        UserValidator.checkUserIsAdmin(logUser);
+    public void addPictureToTheArticleById(long pictureId, long articleId) {
         Optional<Picture> optionalPicture = this.pictureRepository.findById(pictureId);
         Picture validPicture = PictureValidator.checkForValidPicture(optionalPicture);
-        if (!this.articleService.existsById(articleId)) {
-            throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
-        }
+        this.articleService.existsById(articleId);
         validPicture.setArticleId(articleId);
         this.pictureRepository.save(validPicture);
     }
@@ -90,9 +76,7 @@ public class PictureServiceImpl implements IPictureService {
     }
 
     @Override
-    public List<PictureServiceDTO> findAllWhereArticleIdIsNull(UserServiceDTO user) {
-        UserServiceDTO logUser = UserValidator.checkUserIsLogged(user);
-        UserValidator.checkUserIsAdmin(logUser);
+    public List<PictureServiceDTO> findAllWhereArticleIdIsNull() {
         return PictureServiceDTO.fromPOJOToDTO(this.pictureRepository.findAllByArticleIdIsNull());
     }
 

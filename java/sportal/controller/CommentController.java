@@ -6,11 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import sportal.controller.util.AuthValidator;
 import sportal.controller.models.comment.CommentCreateModel;
 import sportal.controller.models.comment.CommentEditModel;
 import sportal.controller.models.comment.CommentResponseModel;
-import sportal.controller.models.user.UserResponseModel;
-import sportal.exception.InvalidInputException;
+import sportal.controller.models.user.UserLoginModel;
 import sportal.model.service.dto.CommentServiceDTO;
 import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.service.implementation.CommentServiceImpl;
@@ -31,15 +31,8 @@ public class CommentController extends AbstractController {
     @PostMapping(value = "/add")
     public ResponseEntity<Void> addCommentToArticle(@Valid @RequestBody CommentCreateModel commentModel,
                                                     BindingResult bindingResult, HttpSession session) {
-        if (bindingResult.hasErrors()) {
-            throw new InvalidInputException(bindingResult.getFieldError().getDefaultMessage());
-        }
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         CommentServiceDTO serviceDTO = new CommentServiceDTO(commentModel);
         long articleId = this.commentService.addComment(serviceDTO, user);
         HttpHeaders headers = new HttpHeaders();
@@ -50,15 +43,8 @@ public class CommentController extends AbstractController {
     @PutMapping(value = "/edit")
     public ResponseEntity<Void> editComment(@Valid @RequestBody CommentEditModel commentModel,
                                             BindingResult bindingResult, HttpSession session) {
-        if (bindingResult.hasErrors()) {
-            throw new InvalidInputException(bindingResult.getFieldError().getDefaultMessage());
-        }
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         CommentServiceDTO serviceDTO = new CommentServiceDTO(commentModel);
         long commentId = this.commentService.edit(serviceDTO, user);
         HttpHeaders headers = new HttpHeaders();
@@ -70,29 +56,21 @@ public class CommentController extends AbstractController {
     public ResponseEntity<Void> removeComment(
             @PathVariable(name = COMMENT_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long commentId,
             HttpSession session) {
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
-        long articleId = this.commentService.deleteFromUser(commentId, user);
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
+        long articleId = this.commentService.delete(commentId, user);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/all/" + articleId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
     @DeleteMapping(value = "/remove/admin/{" + COMMENT_ID + "}")
-    public ResponseEntity<Void> removeCommentFromAdmin(
+    public ResponseEntity<Void> removeCommentFromEditor(
             @PathVariable(name = COMMENT_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long commentId,
             HttpSession session) {
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
-        long articleId = this.commentService.deleteFromAdmin(commentId, user);
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        AuthValidator.checkUserIsEditor(logUser);
+        long articleId = this.commentService.deleteFromEditor(commentId);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/all/" + articleId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);

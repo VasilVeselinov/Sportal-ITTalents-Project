@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = CategoryNameValidation.class)
 public @interface NameValid {
 
-    String message() default "Name of the category have to between 2 and 30 symbols!";
+    String message() default "Name of the category have to between 2 and 30 symbols! ";
 
     Class<?>[] groups() default {};
 

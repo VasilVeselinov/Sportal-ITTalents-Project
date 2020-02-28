@@ -9,6 +9,10 @@ import java.util.List;
 
 public interface IArticleService {
 
+    String YOU_ARE_NOT_AUTHOR = "You are not author of this article!";
+    String THIS_ARTICLE_IS_NOT_EXISTS = "This article is not exists!";
+    String COPYRIGHT = "Sportal holds the copyright of this article.";
+
     long addArticle(ArticleServiceDTO serviceDTO, UserServiceDTO userOfSession) throws BadRequestException, SQLException;
 
     List<ArticleServiceDTO> findByArticleTitleOrCategory(String titleOrCategory) throws SQLException;
@@ -21,7 +25,7 @@ public interface IArticleService {
 
     long edit(ArticleServiceDTO serviceDTO, UserServiceDTO userOfSession) throws BadRequestException;
 
-    ArticleServiceDTO delete(long articleId, UserServiceDTO userOfSession) throws BadRequestException;
+    ArticleServiceDTO delete(long articleId) throws BadRequestException;
 
     boolean existsById(long articleId);
 }

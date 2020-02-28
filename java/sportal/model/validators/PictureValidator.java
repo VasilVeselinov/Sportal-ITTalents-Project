@@ -13,8 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class PictureValidator extends AbstractValidator {
+public class PictureValidator {
 
+    private static final String WRONG_REQUEST = "Invalid request!";
     private static final String FILE_EXPANSION = ".jpg";
     // date time formatter
     private static final String DATE_AND_TIME_OF_UPLOAD = "date_and_time_of_upload_";
@@ -23,6 +24,8 @@ public class PictureValidator extends AbstractValidator {
             "image/svg+xml", "image/ief", "image/tiff", "image/vnd.djvu", "image/vnd.wap.wbmp", "image/x-cmu-raster",
             "image/x-icon", "image/x-portable-anymap", "image/x-portable-bitmap", "image/x-portable-graymap",
             "image/x-portable-pixmap", "image/x-rgb");
+    private static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST =
+            "Some of the pictures do not exist or do not free!";
 
     public static List<PictureServiceDTO> conformityCheck(List<Picture> existsPictures,
                                                           List<PictureServiceDTO> pictures) {
@@ -40,7 +43,8 @@ public class PictureValidator extends AbstractValidator {
         return pictures;
     }
 
-    public static List<Picture> checkForValidContentType(List<MultipartFile> multipartFiles) throws BadRequestException {
+    public static List<Picture> checkForValidContentType(
+            List<MultipartFile> multipartFiles) throws BadRequestException {
         List<Picture> pictures = new ArrayList<>();
         for (int i = 0; i < multipartFiles.size(); i++) {
             String fileContentType = multipartFiles.get(i).getContentType();

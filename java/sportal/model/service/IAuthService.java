@@ -1,13 +1,18 @@
 package sportal.model.service;
 
-import sportal.exception.BadRequestException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import sportal.model.service.dto.UserServiceDTO;
 
-public interface IAuthService {
+import java.sql.SQLException;
 
-    UserServiceDTO registration(UserServiceDTO serviceDTO) throws BadRequestException;
+public interface IAuthService extends UserDetailsService {
 
-    UserServiceDTO login(UserServiceDTO serviceDTO) throws BadRequestException;
+    String FAILED_CREDENTIALS = "Validate your data is failed!";
+    String NOT_EXISTS_OBJECT = "User not found!";
+
+    void registration(UserServiceDTO serviceDTO) throws SQLException;
 
     UserServiceDTO changePassword(UserServiceDTO serviceDTO, UserServiceDTO userOfSession);
+
+    UserServiceDTO findUserByUsername(String username);
 }

@@ -6,10 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import sportal.controller.util.AuthValidator;
 import sportal.controller.models.article.*;
-import sportal.controller.models.user.UserResponseModel;
+import sportal.controller.models.user.UserLoginModel;
 import sportal.exception.BadRequestException;
-import sportal.exception.InvalidInputException;
 import sportal.model.service.IArticleService;
 import sportal.model.service.dto.ArticleServiceDTO;
 import sportal.model.service.dto.CategoryServiceDTO;
@@ -35,15 +35,9 @@ public class ArticleController extends AbstractController {
     public ResponseEntity<Void> createArticle(@Valid @RequestBody ArticleCreateModel articleModel,
                                               BindingResult bindingResult,
                                               HttpSession session) throws SQLException, BadRequestException {
-        if (bindingResult.hasErrors()) {
-            throw new InvalidInputException(bindingResult.getFieldError().getDefaultMessage());
-        }
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        AuthValidator.checkUserIsAdmin(logUser);
+        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         ArticleServiceDTO serviceDTO =
                 new ArticleServiceDTO(
                         articleModel.getTitle(), articleModel.getFullText(),
@@ -82,20 +76,13 @@ public class ArticleController extends AbstractController {
 
 
     @PutMapping(value = "/edit")
-    public void editArticleTitleOrText(
-            @Valid @RequestBody ArticleEditModel articleEditDTO,
-            BindingResult bindingResult,
-            HttpSession session,
-            HttpServletResponse response) throws BadRequestException, IOException {
-        if (bindingResult.hasErrors()) {
-            throw new InvalidInputException(bindingResult.getFieldError().getDefaultMessage());
-        }
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
+    public void editArticleTitleOrText(@Valid @RequestBody ArticleEditModel articleEditDTO,
+                                       BindingResult bindingResult,
+                                       HttpSession session,
+                                       HttpServletResponse response) throws BadRequestException, IOException {
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        AuthValidator.checkUserIsAdmin(logUser);
+        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         ArticleServiceDTO serviceDTO = new ArticleServiceDTO(
                 articleEditDTO.getOldArticleId(), articleEditDTO.getNewTitle(), articleEditDTO.getNewFullText());
         response.sendRedirect("/articles/" + this.articleService.edit(serviceDTO, user));
@@ -105,12 +92,8 @@ public class ArticleController extends AbstractController {
     public ArticleRespModel removeArticle(
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
             HttpSession session) throws BadRequestException {
-        UserResponseModel userOfSession = (UserResponseModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(
-                userOfSession.getId(),
-                userOfSession.getUsername(),
-                userOfSession.getUserEmail(),
-                userOfSession.getIsAdmin());
-        return new ArticleRespModel(this.articleService.delete(articleId, user));
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        AuthValidator.checkUserIsEditor(logUser);
+        return new ArticleRespModel(this.articleService.delete(articleId));
     }
 }

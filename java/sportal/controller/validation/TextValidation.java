@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = TextFieldValidation.class)
 public @interface TextValidation {
 
-    String message() default "Text field is empty!";
+    String message() default "Text field is empty! ";
 
     Class<?>[] groups() default {};
 

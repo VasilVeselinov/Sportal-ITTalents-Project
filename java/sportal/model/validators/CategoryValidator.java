@@ -6,7 +6,9 @@ import sportal.model.service.dto.CategoryServiceDTO;
 
 import java.util.List;
 
-public class CategoryValidator extends AbstractValidator {
+public class CategoryValidator {
+
+    private static final String SOME_OF_THE_CATEGORIES_DO_NOT_EXIST = "Some of the categories do not exist!";
 
     public static List<CategoryServiceDTO> conformityCheck(List<Category> existsCategories,
                                                            List<CategoryServiceDTO> categories) {
