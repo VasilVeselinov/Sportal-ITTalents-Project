@@ -38,7 +38,7 @@ public class PictureController extends AbstractController {
     @DeleteMapping(value = "/delete/{" + PICTURE_ID + "}")
     public PictureModel deletePicture(
             @PathVariable(name = PICTURE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long pictureId,
-            HttpSession session) throws BadRequestException {
+            HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         AuthValidator.checkUserIsEditor(logUser);
         return new PictureModel(this.pictureService.delete(pictureId));
@@ -48,7 +48,7 @@ public class PictureController extends AbstractController {
     public ResponseEntity<Void> addArticleIdByPictureId(
             @PathVariable(name = PICTURE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long pictureId,
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
-            HttpSession session) throws BadRequestException {
+            HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         AuthValidator.checkUserIsAdmin(logUser);
         this.pictureService.addPictureToTheArticleById(pictureId, articleId);

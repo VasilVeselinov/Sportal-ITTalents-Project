@@ -2,7 +2,6 @@ package sportal.model.service;
 
 import sportal.exception.BadRequestException;
 import sportal.model.service.dto.ArticleServiceDTO;
-import sportal.model.service.dto.UserServiceDTO;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,7 +12,7 @@ public interface IArticleService {
     String THIS_ARTICLE_IS_NOT_EXISTS = "This article is not exists!";
     String COPYRIGHT = "Sportal holds the copyright of this article.";
 
-    long addArticle(ArticleServiceDTO serviceDTO, UserServiceDTO userOfSession) throws BadRequestException, SQLException;
+    long addArticle(ArticleServiceDTO serviceDTO, long userId) throws BadRequestException, SQLException;
 
     List<ArticleServiceDTO> findByArticleTitleOrCategory(String titleOrCategory) throws SQLException;
 
@@ -23,7 +22,7 @@ public interface IArticleService {
 
     List<ArticleServiceDTO> findTopFiveReadToday() throws SQLException;
 
-    long edit(ArticleServiceDTO serviceDTO, UserServiceDTO userOfSession) throws BadRequestException;
+    long edit(ArticleServiceDTO serviceDTO, long userId) throws BadRequestException;
 
     ArticleServiceDTO delete(long articleId) throws BadRequestException;
 

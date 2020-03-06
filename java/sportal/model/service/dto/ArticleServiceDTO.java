@@ -23,10 +23,8 @@ public class ArticleServiceDTO {
     private List<PictureServiceDTO> pictures;
     private String authorName;
 
-    public ArticleServiceDTO(String title,
-                             String fullText,
-                             List<CategoryServiceDTO> categories,
-                             List<PictureServiceDTO> pictures) {
+    public ArticleServiceDTO(String title, String fullText,
+                             List<CategoryServiceDTO> categories, List<PictureServiceDTO> pictures) {
         this.title = title;
         this.fullText = fullText;
         this.categories = categories;
@@ -52,7 +50,7 @@ public class ArticleServiceDTO {
     }
 
     public ArticleServiceDTO(long oldArticleId, String newTitle, String newFullText) {
-        this.id =oldArticleId;
+        this.id = oldArticleId;
         this.title = newTitle;
         this.fullText = newFullText;
     }

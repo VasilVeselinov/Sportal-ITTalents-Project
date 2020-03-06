@@ -10,13 +10,13 @@ import java.util.List;
 public interface IUserService {
 
     String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed!";
-    String NOT_EXISTS_OBJECT = "User not found!";
+    String NOT_EXISTS_USER = "User not found!";
 
-    UserServiceDTO removeUserByUserId(long userId, UserServiceDTO userOfSession) throws BadRequestException;
+    UserServiceDTO removeUserByUserId(long userId, long editorId);
 
     List<UserServiceDTO> findAll();
 
-    void likeArticle(long articleId, long userId) throws BadRequestException, SQLException;
+    void likeArticle(long articleId, long userId) throws SQLException;
 
     void deleteVoteForArticle(long articleId, long userId) throws BadRequestException;
 
@@ -31,4 +31,6 @@ public interface IUserService {
     UserServiceDTO findById(long userId);
 
     void upAuthority(long userId, List<RoleServiceDTO> editorAuthorities) throws BadRequestException;
+
+    void confirmToken(String token) throws BadRequestException;
 }

@@ -2,8 +2,6 @@ package sportal.model.service.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import sportal.controller.models.comment.CommentCreateModel;
-import sportal.controller.models.comment.CommentEditModel;
 import sportal.model.db.pojo.Comment;
 
 import java.sql.Timestamp;
@@ -23,14 +21,14 @@ public class CommentServiceDTO {
     private int numberOfLikes;
     private int numberOfDislike;
 
-    public CommentServiceDTO(CommentCreateModel commentModel) {
-        this.text = commentModel.getCommentText();
-        this.articleId = commentModel.getArticleId();
+    public CommentServiceDTO(String text, long articleId) {
+        this.text = text;
+        this.articleId = articleId;
     }
 
-    public CommentServiceDTO(CommentEditModel commentModel) {
-        this.id = commentModel.getOldCommentId();
-        this.text = commentModel.getNewTextOfComment();
+    public CommentServiceDTO(long commentId, String text) {
+        this.id = commentId;
+        this.text = text;
     }
 
     public CommentServiceDTO(Comment comment) {

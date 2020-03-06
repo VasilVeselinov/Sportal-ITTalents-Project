@@ -3,7 +3,6 @@ package sportal.model.service.implementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
-import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.ArticleDAO;
 import sportal.model.service.dto.UserServiceDTO;
@@ -34,13 +33,13 @@ public class ArticleServiceImpl implements IArticleService {
     private ArticleRepository articleRepository;
 
     @Override
-    public long addArticle(ArticleServiceDTO serviceDTO, UserServiceDTO user) throws SQLException {
+    public long addArticle(ArticleServiceDTO serviceDTO, long userId) throws SQLException {
         List<CategoryServiceDTO> dtoListOfCategories =
                 this.categoryService.findAllExistsCategoriseAndCheckIsValid(serviceDTO.getCategories());
         List<PictureServiceDTO> dtoListOfPictures =
                 this.pictureService.findAllByArticleIdIsNullAndCheckIsValid(serviceDTO.getPictures());
         Article article = new Article(serviceDTO.getTitle(), serviceDTO.getFullText());
-        article.setAuthorId(user.getId());
+        article.setAuthorId(userId);
         article = this.articleDAO.addArticle(
                 article,
                 Picture.fromDTOToPojo(dtoListOfPictures),
@@ -82,14 +81,14 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public long edit(ArticleServiceDTO serviceDTO, UserServiceDTO user) {
+    public long edit(ArticleServiceDTO serviceDTO, long userId) {
         Article existsArticle = this.articleRepository.findById(serviceDTO.getId())
                 .orElseThrow(() -> new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS));
-        if (existsArticle.getAuthorId() != user.getId()) {
+        if (existsArticle.getAuthorId() != userId) {
             throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
         Article article = new Article(serviceDTO);
-        article.setAuthorId(user.getId());
+        article.setAuthorId(userId);
         article.setViews(existsArticle.getViews());
         return this.articleRepository.save(article).getId();
     }

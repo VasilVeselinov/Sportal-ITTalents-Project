@@ -1,18 +1,18 @@
 package sportal.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import sportal.controller.util.AuthValidator;
 import sportal.controller.models.user.UserLoginModel;
 import sportal.exception.*;
 import sportal.controller.models.user.UserRegistrationModel;
 import sportal.controller.models.user.UserResponseModel;
 import sportal.controller.models.user.UserChangePasswordModel;
 import sportal.model.service.IAuthService;
-import sportal.model.service.IUserService;
 import sportal.model.service.dto.UserServiceDTO;
+import sportal.model.util.OnRegistrationCompleteEvent;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -26,6 +26,8 @@ public class AuthController extends AbstractController {
 
     @Autowired
     private IAuthService authService;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @PostMapping(value = "/registration")
     public ModelAndView registerRequestBody(@Valid @RequestBody UserRegistrationModel userModel,
@@ -33,8 +35,10 @@ public class AuthController extends AbstractController {
         if (!userModel.getPassword().equals(userModel.getVerificationPassword())) {
             throw new InvalidInputException(NOT_EQUAL_PASSWORD);
         }
-        this.authService.registration(new UserServiceDTO(userModel));
-        return new ModelAndView("redirect:/users/login");
+        UserServiceDTO serviceDTO = this.authService.registration(
+                new UserServiceDTO(userModel.getUsername(), userModel.getUserEmail(), userModel.getPassword()));
+        this.eventPublisher.publishEvent(new OnRegistrationCompleteEvent(serviceDTO));
+        return new ModelAndView("redirect:/after_registration");
     }
 
     @PutMapping(value = "/change_password")
@@ -44,8 +48,8 @@ public class AuthController extends AbstractController {
             throw new InvalidInputException(NOT_EQUAL_PASSWORD);
         }
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
-        return new UserResponseModel(this.authService.changePassword(new UserServiceDTO(userModel), user));
+        return new UserResponseModel(this.authService.changePassword(
+                new UserServiceDTO(userModel.getUserPassword(), userModel.getNewPassword()), logUser.getId()));
     }
 
     @GetMapping("/login")

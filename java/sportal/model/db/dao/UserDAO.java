@@ -14,8 +14,8 @@ import java.util.List;
 public class UserDAO extends DAO {
 
     private static final String ADD_USER =
-            "INSERT INTO users (username, password, user_email) " +
-                    "VALUES (?, ?, ?);";
+            "INSERT INTO users (username, password, user_email, is_enabled, token) " +
+                    "VALUES (?, ?, ?, ?, ?);";
     private static final String ADD_ROLES_OF_THE_USER =
             "INSERT INTO users_authorities (user_id, authorities_id) " +
                     "VALUES (?, ?);";
@@ -36,6 +36,8 @@ public class UserDAO extends DAO {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());
             ps.setString(3, user.getUserEmail());
+            ps.setBoolean(4, user.isEnabled());
+            ps.setString(5, user.getToken());
             ps.executeUpdate();
             ResultSet resultSet = ps.getGeneratedKeys();
             resultSet.next();

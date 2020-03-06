@@ -6,7 +6,6 @@ import sportal.exception.AuthorizationException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.CommentDAO;
 import sportal.model.service.dto.CommentServiceDTO;
-import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.db.pojo.Comment;
 import sportal.model.db.repository.CommentRepository;
 import sportal.model.service.ICommentService;
@@ -27,19 +26,19 @@ public class CommentServiceImpl implements ICommentService {
     private CommentDAO commentDAO;
 
     @Override
-    public long addComment(CommentServiceDTO serviceDTO, UserServiceDTO user) {
+    public long addComment(CommentServiceDTO serviceDTO) {
         this.articleService.existsById(serviceDTO.getArticleId());
-        Comment comment = new Comment(serviceDTO, user.getId());
+        Comment comment = new Comment(serviceDTO, serviceDTO.getUserId());
         comment = this.commentRepository.save(comment);
-        comment.setUserName(user.getUsername());
+        comment.setUserName(serviceDTO.getUserName());
         return comment.getArticleId();
     }
 
     @Override
-    public long edit(CommentServiceDTO serviceDTO, UserServiceDTO user) {
+    public long edit(CommentServiceDTO serviceDTO) {
         Comment existsComment = this.commentRepository.findById(serviceDTO.getId())
                 .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
-        if (user.getId() != existsComment.getUserId()) {
+        if (serviceDTO.getUserId() != existsComment.getUserId()) {
             throw new AuthorizationException(WRONG_INFORMATION);
         }
         existsComment.setFullCommentText(serviceDTO.getText());
@@ -49,10 +48,10 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
-    public long delete(long commentId, UserServiceDTO user) {
+    public long delete(long commentId, long userId) {
         Comment existsComment = this.commentRepository.findById(commentId)
                 .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
-        if (user.getId() != existsComment.getUserId()) {
+        if (userId != existsComment.getUserId()) {
             throw new AuthorizationException(WRONG_INFORMATION);
         }
         this.commentRepository.deleteById(commentId);

@@ -11,9 +11,8 @@ import sportal.controller.models.comment.CommentCreateModel;
 import sportal.controller.models.comment.CommentEditModel;
 import sportal.controller.models.comment.CommentResponseModel;
 import sportal.controller.models.user.UserLoginModel;
+import sportal.model.service.ICommentService;
 import sportal.model.service.dto.CommentServiceDTO;
-import sportal.model.service.dto.UserServiceDTO;
-import sportal.model.service.implementation.CommentServiceImpl;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -26,27 +25,28 @@ import java.util.List;
 public class CommentController extends AbstractController {
 
     @Autowired
-    private CommentServiceImpl commentService;
+    private ICommentService commentService;
 
     @PostMapping(value = "/add")
-    public ResponseEntity<Void> addCommentToArticle(@Valid @RequestBody CommentCreateModel commentModel,
+    public ResponseEntity<Void> addCommentToArticle(@Valid @RequestBody CommentCreateModel model,
                                                     BindingResult bindingResult, HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
-        CommentServiceDTO serviceDTO = new CommentServiceDTO(commentModel);
-        long articleId = this.commentService.addComment(serviceDTO, user);
+        CommentServiceDTO serviceDTO = new CommentServiceDTO(model.getCommentText(), model.getArticleId());
+        serviceDTO.setUserId(logUser.getId());
+        serviceDTO.setUserName(logUser.getUsername());
+        long articleId = this.commentService.addComment(serviceDTO);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/all/" + articleId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
     @PutMapping(value = "/edit")
-    public ResponseEntity<Void> editComment(@Valid @RequestBody CommentEditModel commentModel,
+    public ResponseEntity<Void> editComment(@Valid @RequestBody CommentEditModel model,
                                             BindingResult bindingResult, HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
-        CommentServiceDTO serviceDTO = new CommentServiceDTO(commentModel);
-        long commentId = this.commentService.edit(serviceDTO, user);
+        CommentServiceDTO serviceDTO = new CommentServiceDTO(model.getOldCommentId(), model.getNewTextOfComment());
+        serviceDTO.setUserId(logUser.getId());
+        long commentId = this.commentService.edit(serviceDTO);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/" + commentId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
@@ -57,8 +57,7 @@ public class CommentController extends AbstractController {
             @PathVariable(name = COMMENT_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long commentId,
             HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
-        long articleId = this.commentService.delete(commentId, user);
+        long articleId = this.commentService.delete(commentId, logUser.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/all/" + articleId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);

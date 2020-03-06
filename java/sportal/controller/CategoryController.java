@@ -12,9 +12,8 @@ import sportal.controller.validation.NameValid;
 import sportal.exception.BadRequestException;
 import sportal.controller.models.category.CategoryRequestModel;
 import sportal.controller.models.category.CategoryResponseModel;
+import sportal.model.service.ICategoryService;
 import sportal.model.service.dto.CategoryServiceDTO;
-import sportal.model.service.dto.UserServiceDTO;
-import sportal.model.service.implementation.CategoryServiceImpl;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -29,15 +28,14 @@ import java.util.List;
 public class CategoryController extends AbstractController {
 
     @Autowired
-    private CategoryServiceImpl categoryService;
+    private ICategoryService categoryService;
 
     @PostMapping(value = "/add_new")
     public ResponseEntity<Void> addNewCategory(
             @RequestParam(name = "text", required = false) @NameValid String categoryName, HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         AuthValidator.checkUserIsAdmin(logUser);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
-        this.categoryService.addNewCategory(categoryName, user);
+        this.categoryService.addNewCategory(categoryName);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/categories/all");
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
@@ -48,9 +46,8 @@ public class CategoryController extends AbstractController {
                                HttpSession session, HttpServletResponse response) throws IOException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         AuthValidator.checkUserIsAdmin(logUser);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         CategoryServiceDTO serviceDTO = new CategoryServiceDTO(categoryModel.getId(), categoryModel.getCategoryName());
-        this.categoryService.edit(serviceDTO, user);
+        this.categoryService.edit(serviceDTO);
         response.sendRedirect("/categories/all");
     }
 
@@ -78,8 +75,7 @@ public class CategoryController extends AbstractController {
             HttpSession session) throws BadRequestException, SQLException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         AuthValidator.checkUserIsAdmin(logUser);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
-        this.categoryService.addCategoryToArticle(categoryId, articleId, user);
+        this.categoryService.addCategoryToArticle(categoryId, articleId, logUser.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/articles/" + articleId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);

@@ -10,9 +10,9 @@ public interface IAuthService extends UserDetailsService {
     String FAILED_CREDENTIALS = "Validate your data is failed!";
     String NOT_EXISTS_OBJECT = "User not found!";
 
-    void registration(UserServiceDTO serviceDTO) throws SQLException;
+    UserServiceDTO registration(UserServiceDTO serviceDTO) throws SQLException;
 
-    UserServiceDTO changePassword(UserServiceDTO serviceDTO, UserServiceDTO userOfSession);
+    UserServiceDTO changePassword(UserServiceDTO serviceDTO, long userId);
 
     UserServiceDTO findUserByUsername(String username);
 }

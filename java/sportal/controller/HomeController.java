@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class HomeController {
+public class HomeController extends AbstractController {
 
     @GetMapping("/")
     public ModelAndView index(Authentication authentication) {
@@ -24,5 +24,10 @@ public class HomeController {
     @GetMapping("/unauthorized")
     public ModelAndView unauthorized() {
         return new ModelAndView("unauthorized.html");
+    }
+
+    @GetMapping("/after_registration")
+    public ModelAndView afterRegistration() {
+        return new ModelAndView("after_registration.html");
     }
 }

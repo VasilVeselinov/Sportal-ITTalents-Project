@@ -10,7 +10,6 @@ import sportal.controller.models.user.UserResponseModel;
 import sportal.controller.util.AuthValidator;
 import sportal.exception.*;
 import sportal.model.service.IUserService;
-import sportal.model.service.dto.UserServiceDTO;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Positive;
@@ -27,11 +26,10 @@ public class UserController extends AbstractController {
     @DeleteMapping(value = "/remove/{" + USER_ID + "}")
     public UserResponseModel removeUser(
             @PathVariable(name = USER_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long userId,
-            HttpSession session) throws BadRequestException {
+            HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         AuthValidator.checkUserIsEditor(logUser);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
-        return new UserResponseModel(this.userService.removeUserByUserId(userId, user));
+        return new UserResponseModel(this.userService.removeUserByUserId(userId, logUser.getId()));
     }
 
     @GetMapping(value = "/all")
@@ -65,7 +63,7 @@ public class UserController extends AbstractController {
     @PostMapping(value = "/like_articles/{" + ARTICLE_ID + "}")
     public ResponseEntity<Void> likeOfArticle(
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
-            HttpSession session) throws SQLException, BadRequestException {
+            HttpSession session) throws SQLException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         this.userService.likeArticle(articleId, logUser.getId());
         HttpHeaders headers = new HttpHeaders();

@@ -32,7 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .antMatchers("/")
                         .permitAll()
-                    .antMatchers("/users/registration", "/users/login")
+                    .antMatchers("/users/registration", "/users/login", "/after_registration")
                         .anonymous()
                     .antMatchers("/css/*", "/img/*", "/js/*")
                         .permitAll()
@@ -43,17 +43,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .permitAll()
                     .antMatchers(HttpMethod.GET,"/comments/all/{id}", "/comments/{id}")
                         .permitAll()
+                    .antMatchers(HttpMethod.GET, "/emails/registration_confirm")
+                        .permitAll()
                     .anyRequest()
                         .authenticated()
                 .and()
                     .formLogin()
-                        .loginPage("/users/login").permitAll()
+                        .loginPage("/users/login")
+                            .permitAll()
                             .usernameParameter("username")
                             .passwordParameter("password")
-                // redirect: after login -> /
+                // redirect: after login -> /home
                         .defaultSuccessUrl("/",true)
                 .and()
-                // redirect: after logout -> /
+                // redirect: after logout -> /login
                 .logout()
                     .logoutSuccessUrl("/")
                         .permitAll()

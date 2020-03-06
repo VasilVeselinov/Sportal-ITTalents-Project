@@ -15,9 +15,9 @@ public interface IPictureService {
     @Transactional
     void upload(List<MultipartFile> multipartFiles) throws BadRequestException;
 
-    PictureServiceDTO delete(long pictureId) throws BadRequestException;
+    PictureServiceDTO delete(long pictureId);
 
-    void addPictureToTheArticleById(long pictureId, long articleId) throws BadRequestException;
+    void addPictureToTheArticleById(long pictureId, long articleId);
 
     List<PictureServiceDTO> findAllByArticleIdIsNullAndCheckIsValid(List<PictureServiceDTO> pictures);
 

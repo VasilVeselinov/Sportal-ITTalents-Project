@@ -19,6 +19,8 @@ public class User extends BasePOJO implements UserDetails {
     private String username;
     private String password;
     private String userEmail;
+    private boolean isEnabled;
+    private String token;
     @Transient
     private List<Role> authorities;
 
@@ -27,6 +29,7 @@ public class User extends BasePOJO implements UserDetails {
         this.setPassword(serviceDTO.getUserPassword());
         this.setUserEmail(serviceDTO.getUserEmail());
         this.authorities = Role.fromDTOToPOJO(serviceDTO.getAuthorities());
+        this.isEnabled = false;
     }
 
     @Transient
@@ -35,8 +38,6 @@ public class User extends BasePOJO implements UserDetails {
     private boolean isAccountNonLocked;
     @Transient
     private boolean isCredentialsNonExpired;
-    @Transient
-    private boolean isEnabled;
 
     @Override
     public boolean isAccountNonExpired() {
@@ -50,11 +51,6 @@ public class User extends BasePOJO implements UserDetails {
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
         return true;
     }
 }

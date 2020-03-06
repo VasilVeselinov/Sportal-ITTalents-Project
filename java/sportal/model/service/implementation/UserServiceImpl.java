@@ -22,7 +22,7 @@ import sportal.model.validators.ArticleValidator;
 import java.sql.SQLException;
 import java.util.List;
 
-import static sportal.model.service.implementation.AuthServiceImpl.ADMIN_USER_AUTHORITY;
+import static sportal.GlobalConstants.ADMIN_USER_AUTHORITY;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -46,14 +46,14 @@ public class UserServiceImpl implements IUserService {
     private IRoleService roleService;
 
     @Override
-    public UserServiceDTO removeUserByUserId(long userId, UserServiceDTO user) {
+    public UserServiceDTO removeUserByUserId(long userId, long editorId) {
         User existsUser = this.userRepository.findById(userId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
-        if (user.getId() == userId) {
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
+        if (editorId == userId) {
             throw new AuthorizationException(NOT_ALLOWED_OPERATION);
         }
         this.userRepository.deleteById(userId);
-        return new UserServiceDTO(existsUser);
+        return new UserServiceDTO(existsUser.getId(), existsUser.getUsername(), existsUser.getUserEmail());
     }
 
     @Override
@@ -64,19 +64,30 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserServiceDTO findById(long userId) {
         User user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
-        return new UserServiceDTO(user);
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
+        return new UserServiceDTO(user.getId(), user.getUsername(), user.getUserEmail());
     }
 
     @Override
     public void upAuthority(long userId, List<RoleServiceDTO> editorAuthorities) throws BadRequestException {
         this.userRepository.findById(userId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
         List<Role> roles = this.userDAO.findAllRolesByUserId(userId);
         if (roles.size() >= editorAuthorities.size() - 1) {
             throw new BadRequestException(NO_MORE_ACCESS_RIGHTS);
         }
         this.userDAO.upAuthorityByUserId(userId, this.roleService.getAuthorities(ADMIN_USER_AUTHORITY).getId());
+    }
+
+    @Override
+    public void confirmToken(String token) throws BadRequestException {
+        User user = this.userRepository.findByToken(token)
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
+        if (user.isEnabled()){
+            throw new BadRequestException("This registration is already active!");
+        }
+        user.setEnabled(true);
+        this.userRepository.save(user);
     }
 
     @Override

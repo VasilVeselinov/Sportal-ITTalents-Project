@@ -4,8 +4,8 @@ import sportal.controller.models.user.UserLoginModel;
 import sportal.exception.AuthorizationException;
 import sportal.model.service.dto.RoleServiceDTO;
 
-import static sportal.model.service.implementation.AuthServiceImpl.ADMIN_USER_AUTHORITY;
-import static sportal.model.service.implementation.AuthServiceImpl.EDITOR_USER_AUTHORITY;
+import static sportal.GlobalConstants.ADMIN_USER_AUTHORITY;
+import static sportal.GlobalConstants.EDITOR_USER_AUTHORITY;
 
 public class AuthValidator {
 

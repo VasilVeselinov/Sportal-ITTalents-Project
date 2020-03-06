@@ -34,7 +34,7 @@ public class CategoryServiceImpl implements ICategoryService {
     private IArticleService articleService;
 
     @Override
-    public void addNewCategory(String categoryName, UserServiceDTO user) {
+    public void addNewCategory(String categoryName) {
         if (this.categoryRepository.existsByCategoryName(categoryName)) {
             throw new ExistsObjectException(EXISTS_CATEGORY);
         }
@@ -43,7 +43,7 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public void edit(CategoryServiceDTO serviceDTO, UserServiceDTO user) {
+    public void edit(CategoryServiceDTO serviceDTO) {
         Category category = new Category(serviceDTO);
         if (this.categoryRepository.existsByCategoryName(category.getCategoryName())) {
             throw new ExistsObjectException(EXISTS_CATEGORY);
@@ -67,10 +67,10 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public void addCategoryToArticle(long categoryId, long articleId,
-                                     UserServiceDTO user) throws BadRequestException, SQLException {
+    public void addCategoryToArticle(
+            long categoryId, long articleId, long userId) throws BadRequestException, SQLException {
         ArticleServiceDTO serviceDTO = this.articleService.findArticleById(articleId);
-        if (serviceDTO.getAuthorId() != user.getId()) {
+        if (serviceDTO.getAuthorId() != userId) {
             throw new BadRequestException(YOU_ARE_NOT_AUTHOR);
         }
         Optional<Category> category = this.categoryRepository.findById(categoryId);

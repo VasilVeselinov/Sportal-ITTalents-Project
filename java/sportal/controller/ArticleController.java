@@ -14,7 +14,6 @@ import sportal.model.service.IArticleService;
 import sportal.model.service.dto.ArticleServiceDTO;
 import sportal.model.service.dto.CategoryServiceDTO;
 import sportal.model.service.dto.PictureServiceDTO;
-import sportal.model.service.dto.UserServiceDTO;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -37,13 +36,12 @@ public class ArticleController extends AbstractController {
                                               HttpSession session) throws SQLException, BadRequestException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         AuthValidator.checkUserIsAdmin(logUser);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         ArticleServiceDTO serviceDTO =
                 new ArticleServiceDTO(
                         articleModel.getTitle(), articleModel.getFullText(),
                         CategoryServiceDTO.fromModelToDTO(articleModel.getCategories()),
                         PictureServiceDTO.fromModelToDTO(articleModel.getPictures()));
-        long articleId = this.articleService.addArticle(serviceDTO, user);
+        long articleId = this.articleService.addArticle(serviceDTO, logUser.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/articles/" + articleId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
@@ -82,10 +80,9 @@ public class ArticleController extends AbstractController {
                                        HttpServletResponse response) throws BadRequestException, IOException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         AuthValidator.checkUserIsAdmin(logUser);
-        UserServiceDTO user = new UserServiceDTO(logUser.getId(), logUser.getUsername(), logUser.getUserEmail());
         ArticleServiceDTO serviceDTO = new ArticleServiceDTO(
                 articleEditDTO.getOldArticleId(), articleEditDTO.getNewTitle(), articleEditDTO.getNewFullText());
-        response.sendRedirect("/articles/" + this.articleService.edit(serviceDTO, user));
+        response.sendRedirect("/articles/" + this.articleService.edit(serviceDTO, logUser.getId()));
     }
 
     @DeleteMapping(value = "/{" + ARTICLE_ID + "}")

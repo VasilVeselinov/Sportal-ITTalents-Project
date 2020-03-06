@@ -10,7 +10,6 @@ import sportal.controller.validation.user.PasswordValidation;
 @Setter
 public class UserChangePasswordModel {
 
-//    @PasswordValidation
     private String userPassword;
     @PasswordValidation
     private String newPassword;

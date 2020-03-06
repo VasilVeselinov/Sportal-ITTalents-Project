@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.file.FileManagerDAO;
+import sportal.model.service.IArticleService;
 import sportal.model.validators.PictureValidator;
 import sportal.model.db.pojo.Picture;
 import sportal.model.db.repository.PictureRepository;
@@ -26,7 +27,7 @@ public class PictureServiceImpl implements IPictureService {
     @Autowired
     private PictureRepository pictureRepository;
     @Autowired
-    private ArticleServiceImpl articleService;
+    private IArticleService articleService;
 
     @Transactional
     @Override
