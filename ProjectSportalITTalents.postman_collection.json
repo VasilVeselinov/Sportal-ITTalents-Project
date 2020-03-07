@@ -22,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"Gosho88VV\",\n  \"password\": \"zaRche!123\",\n  \"verificationPassword\": \"zaRche!123\",\n  \"userEmail\": \"zar@abv.bg\"\n}",
+							"raw": "{\n  \"username\": \"Admin88VV\",\n  \"password\": \"Admin!123\",\n  \"verificationPassword\": \"Admin!123\",\n  \"userEmail\": \"Admin@abv.bg\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -57,7 +57,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"KORN_Slipknot\",\n  \"password\": \"Plovdiv!2020\",\n  \"verificationPassword\": \"Plovdiv!2020\",\n  \"userEmail\": \"hillsOfRock2@abv.bg\"\n}",
+							"raw": "{\n  \"username\": \"User12User\",\n  \"password\": \"User12!2020\",\n  \"verificationPassword\": \"User12!2020\",\n  \"userEmail\": \"User12@User12.bg\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -95,12 +95,12 @@
 							"formdata": [
 								{
 									"key": "username",
-									"value": "Gosho88VV",
+									"value": "Admin88VV",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "zaRche!123",
+									"value": "Admin!123",
 									"type": "text"
 								}
 							],
@@ -148,6 +148,53 @@
 								{
 									"key": "password",
 									"value": "Plovdiv!2020",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/users/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login-user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "User12User",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "User12!2020",
 									"type": "text"
 								}
 							],
@@ -231,15 +278,7 @@
 					},
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json",
-								"disabled": true
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "",
@@ -273,14 +312,7 @@
 					"name": "user like article",
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "",
@@ -329,14 +361,7 @@
 					"name": "user dislike comment",
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "",
@@ -365,14 +390,7 @@
 					"name": "user like comment",
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "",
@@ -501,7 +519,7 @@
 						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/users/up_authority/202",
+							"raw": "localhost:8888/users/up_authority/20",
 							"host": [
 								"localhost"
 							],
@@ -509,7 +527,7 @@
 							"path": [
 								"users",
 								"up_authority",
-								"202"
+								"20"
 							]
 						}
 					},
@@ -590,14 +608,7 @@
 					"name": "add picture to article",
 					"request": {
 						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "",
@@ -670,17 +681,10 @@
 			"name": "categories",
 			"item": [
 				{
-					"name": "admin add new category",
+					"name": "editor add new category",
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "",
@@ -691,7 +695,7 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/categories/add_new?text=vv",
+							"raw": "localhost:8888/categories/add_new?text=NewCategory",
 							"host": [
 								"localhost"
 							],
@@ -703,7 +707,7 @@
 							"query": [
 								{
 									"key": "text",
-									"value": "vv"
+									"value": "NewCategory"
 								}
 							]
 						}
@@ -724,7 +728,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"id\": 20,\r\n  \"categoryName\" : \"EU\"\r\n}",
+							"raw": "{\r\n  \"id\": 20,\r\n  \"categoryName\" : \"EU Sport\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -809,15 +813,7 @@
 					"name": "add category to article",
 					"request": {
 						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text",
-								"disabled": true
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "",
@@ -863,7 +859,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n   \r\n    \"fullText\": \"Today after 1 year i do not make web app.\",\r\n  \"categories\": [\r\n  \t{\r\n      \"id\": 48\r\n    }\r\n  ],\r\n  \"pictures\": [\r\n    {\r\n      \"id\": 48\r\n    }\r\n  ]\r\n}",
+							"raw": "{\r\n\t\"title\": \"Title\",\r\n    \"fullText\": \"Text of article.\",\r\n  \"categories\": [\r\n  \t{\r\n      \"id\": 8\r\n    }\r\n  ],\r\n  \"pictures\": [\r\n    {\r\n      \"id\": 48\r\n    }\r\n  ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -949,7 +945,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oldArticleId\" : 30,\n  \"newTitle\": \"New title of artilce.\",\n  \"newFullText\": \"New this is field for old full text of article.\"\n}",
+							"raw": "{\n  \"oldArticleId\" : 30,\n  \"newTitle\": \"New title of the artilce.\",\n  \"newFullText\": \"This is field for new text of the article.\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1048,7 +1044,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"articleId\" : 1,\n  \"commentText\": \"Test! Sportal comment! UserModel!\"\n}",
+							"raw": "{\n  \"articleId\" : 1,\n  \"commentText\": \"Test! Sportal comment!\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1083,7 +1079,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"oldCommentId\": 39,\n    \"newTextOfComment\": \"Sportal comment!\"\n}",
+							"raw": "{\n    \"oldCommentId\": 1,\n    \"newTextOfComment\": \"Sportal comment!\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
