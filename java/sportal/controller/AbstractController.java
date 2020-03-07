@@ -2,6 +2,7 @@ package sportal.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -36,10 +37,10 @@ public abstract class AbstractController {
     static final String PICTURE_ID = "picture_id";
     static final String LOCATION = "Location";
 
-    @ExceptionHandler(AuthorizationException.class)
+    @ExceptionHandler({AuthorizationException.class, AccessDeniedException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ModelAndView handlerOfAuthorizationException(Exception e) {
-        ModelAndView view = new ModelAndView("error.html");
+        ModelAndView view = new ModelAndView("unauthorized.html");
         ExceptionObject exceptionObject = new ExceptionObject(
                 e.getMessage(), HttpStatus.UNAUTHORIZED.value(),
                 LocalDateTime.now(), e.getClass().getName()

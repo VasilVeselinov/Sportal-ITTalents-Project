@@ -2,6 +2,10 @@ package sportal.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,7 +20,10 @@ import sportal.model.util.OnRegistrationCompleteEvent;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.sql.SQLException;
+
+import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 @RestController
 @RequestMapping("/users")
@@ -50,6 +57,18 @@ public class AuthController extends AbstractController {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         return new UserResponseModel(this.authService.changePassword(
                 new UserServiceDTO(userModel.getUserPassword(), userModel.getNewPassword()), logUser.getId()));
+    }
+
+    @PutMapping(value = "/up_authority/{" + USER_ID + "}")
+    @PreAuthorize(HAS_AUTHORITY_EDITOR)
+    public ResponseEntity<Void> upAuthorityOfUsersById(
+            @PathVariable(name = USER_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long userId,
+            HttpSession session) throws BadRequestException {
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        this.authService.upAuthority(userId, logUser.getAuthorities());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(LOCATION, "/users/" + userId);
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
     @GetMapping("/login")

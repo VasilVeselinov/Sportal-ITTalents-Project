@@ -2,7 +2,7 @@ package sportal;
 
 public class GlobalConstants {
 
-    public static final String ROOT_USER_AUTHORITY = "ROOT";
-    public static final String ADMIN_USER_AUTHORITY = "ADMIN";
-    public static final String EDITOR_USER_AUTHORITY = "EDITOR";
+    // Authorize
+    public static final String HAS_AUTHORITY_EDITOR = "hasAuthority('EDITOR')";
+    public static final String HAS_AUTHORITY_ADMIN = "hasAuthority('ADMIN')";
 }

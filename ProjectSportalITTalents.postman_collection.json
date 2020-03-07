@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "users",
+			"name": "auth",
 			"item": [
 				{
 					"name": "registration-admin",
@@ -22,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"userName\": \"Gosho88VV\",\n  \"userPassword\": \"zaRche#123\",\n  \"verificationPassword\": \"zaRche#123\",\n  \"userEmail\": \"zar@abv.bg\",\n  \"isAdmin\": true\n}",
+							"raw": "{\n  \"username\": \"Gosho88VV\",\n  \"password\": \"zaRche!123\",\n  \"verificationPassword\": \"zaRche!123\",\n  \"userEmail\": \"zar@abv.bg\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -30,13 +30,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/users",
+							"raw": "localhost:8888/users/registration",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
-								"users"
+								"users",
+								"registration"
 							]
 						}
 					},
@@ -56,7 +57,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"userName\": \"KORN_Slipknot\",\n  \"userPassword\": \"Plovd#iv2020\",\n  \"verificationPassword\": \"Plovd#iv2020\",\n  \"userEmail\": \"hillsOfRock@abv.bg\",\n  \"isAdmin\": false\n}",
+							"raw": "{\n  \"username\": \"KORN_Slipknot\",\n  \"password\": \"Plovdiv!2020\",\n  \"verificationPassword\": \"Plovdiv!2020\",\n  \"userEmail\": \"hillsOfRock2@abv.bg\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -64,13 +65,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/users",
+							"raw": "localhost:8888/users/registration",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
-								"users"
+								"users",
+								"registration"
 							]
 						}
 					},
@@ -89,8 +91,19 @@
 							}
 						],
 						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userName\": \"Gosho88VV\",\n  \"userPassword\": \"zaRche#123\",\n  \"verificationPassword\": \"zaRche#123\"\n}",
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "Gosho88VV",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "zaRche!123",
+									"type": "text"
+								}
+							],
 							"options": {
 								"raw": {
 									"language": "json"
@@ -98,12 +111,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/login",
+							"raw": "localhost:8888/users/login",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
+								"users",
 								"login"
 							]
 						}
@@ -111,7 +125,7 @@
 					"response": []
 				},
 				{
-					"name": "login-user",
+					"name": "login-editor",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -119,12 +133,24 @@
 								"key": "Content-Type",
 								"name": "Content-Type",
 								"value": "application/json",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userName\": \"KORN_Slipknot\",\n  \"userPassword\": \"Plovd#iv2020\",\n  \"verificationPassword\": \"Plovd#iv2020\"\n}",
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "KORN_Slipknot",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Plovdiv!2020",
+									"type": "text"
+								}
+							],
 							"options": {
 								"raw": {
 									"language": "json"
@@ -132,12 +158,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/login",
+							"raw": "localhost:8888/users/login",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
+								"users",
 								"login"
 							]
 						}
@@ -176,7 +203,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"userPassword\": \"Plovd#iv2020\",\r\n  \"newPassword\": \"Va#vVAr12!r\",\r\n  \"verificationPassword\": \"UserPassword123#\"\r\n}",
+							"raw": "{\r\n  \"userPassword\": \"Userpassword1^\",\r\n  \"newPassword\": \"Userpassword1&\",\r\n  \"verificationPassword\": \"Userpassword1&\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -198,19 +225,39 @@
 					"response": []
 				},
 				{
-					"name": "delete user by id",
+					"name": "registration",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "DELETE",
-						"header": [],
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "localhost:8888/users/2",
+							"raw": "localhost:8888/users/registration",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
 								"users",
-								"2"
+								"registration"
 							]
 						}
 					},
@@ -220,7 +267,7 @@
 			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "user like dislike",
+			"name": "user",
 			"item": [
 				{
 					"name": "user like article",
@@ -244,7 +291,7 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/users/like_articles/1",
+							"raw": "localhost:8888/users/like_articles/19",
 							"host": [
 								"localhost"
 							],
@@ -252,7 +299,27 @@
 							"path": [
 								"users",
 								"like_articles",
-								"1"
+								"19"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete like_article",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/users/like_articles/19",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"like_articles",
+								"19"
 							]
 						}
 					},
@@ -316,7 +383,7 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/users/like_comments/1",
+							"raw": "localhost:8888/users/like_comments/36",
 							"host": [
 								"localhost"
 							],
@@ -324,7 +391,7 @@
 							"path": [
 								"users",
 								"like_comments",
-								"1"
+								"36"
 							]
 						}
 					},
@@ -336,7 +403,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/users/like_comments/1",
+							"raw": "localhost:8888/users/like_comments/2",
 							"host": [
 								"localhost"
 							],
@@ -344,26 +411,6 @@
 							"path": [
 								"users",
 								"like_comments",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "delete like_article",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "localhost:8888/users/like_articles/2",
-							"host": [
-								"localhost"
-							],
-							"port": "8888",
-							"path": [
-								"users",
-								"like_articles",
 								"2"
 							]
 						}
@@ -389,6 +436,84 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "the editor delete user by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/users/remove/-3",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"remove",
+								"-3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "the editor get all user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/users/all",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "the editor get user by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/users/19",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"19"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "the editor up-authority of user",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/users/up_authority/202",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"users",
+								"up_authority",
+								"202"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -397,15 +522,15 @@
 			"name": "pictures",
 			"item": [
 				{
-					"name": "upload picture list",
+					"name": "upload list from pictures",
 					"request": {
 						"method": "POST",
 						"header": [
 							{
 								"key": "Content-Type",
 								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text"
+								"type": "text",
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -419,17 +544,20 @@
 								{
 									"key": "picture",
 									"type": "file",
-									"src": "/C:/Users/ACER/Desktop/Image/p2.jfif"
+									"src": [],
+									"disabled": true
 								},
 								{
 									"key": "picture",
 									"type": "file",
-									"src": "/C:/Users/ACER/Desktop/Image/p3.jfif"
+									"src": [],
+									"disabled": true
 								},
 								{
 									"key": "picture",
 									"type": "file",
-									"src": "/C:/Users/ACER/Desktop/Image/p4.jfif"
+									"src": [],
+									"disabled": true
 								},
 								{
 									"key": "picture",
@@ -445,13 +573,51 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/pictures",
+							"raw": "localhost:8888/pictures/upload",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
-								"pictures"
+								"pictures",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add picture to article",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/pictures/add_into_article/38/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"pictures",
+								"add_into_article",
+								"38",
+								"1"
 							]
 						}
 					},
@@ -463,14 +629,35 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/pictures/24",
+							"raw": "localhost:8888/pictures/delete/2",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
 								"pictures",
-								"24"
+								"delete",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all pictures where article id is null",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/pictures/all/article_id_is_null",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"pictures",
+								"all",
+								"article_id_is_null"
 							]
 						}
 					},
@@ -483,27 +670,9 @@
 			"name": "categories",
 			"item": [
 				{
-					"name": "all categories",
+					"name": "admin add new category",
 					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:8888/categories",
-							"host": [
-								"localhost"
-							],
-							"port": "8888",
-							"path": [
-								"categories"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "edit kategory",
-					"request": {
-						"method": "PUT",
+						"method": "POST",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -514,7 +683,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"categoryId\": 6,\r\n  \"categoryName\" : \"Word Football\"\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -522,13 +691,74 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/categories",
+							"raw": "localhost:8888/categories/add_new?text=vv",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
-								"categories"
+								"categories",
+								"add_new"
+							],
+							"query": [
+								{
+									"key": "text",
+									"value": "vv"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "edit category",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 20,\r\n  \"categoryName\" : \"EU\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/categories/edit",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"categories",
+								"edit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/categories/all",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"categories",
+								"all"
 							]
 						}
 					},
@@ -540,14 +770,74 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/categories/6",
+							"raw": "localhost:8888/categories/delete/21",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
 								"categories",
-								"6"
+								"delete",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete category from article",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/categories/delete_category_from_article/19/33",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"categories",
+								"delete_category_from_article",
+								"19",
+								"33"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add category to article",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/categories/add_into_article/21/33",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"categories",
+								"add_into_article",
+								"21",
+								"33"
 							]
 						}
 					},
@@ -573,7 +863,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"This is field for title!\",\r\n    \"fullText\": \"This is field for full text of article.\",\r\n  \"categories\": [\r\n    {\r\n        \"categoryId\": 6\r\n    },\r\n    {\r\n        \"categoryId\": 1\r\n    }\r\n  ],\r\n  \"pictures\": [\r\n    {\r\n      \"id\": 1\r\n    },\r\n    {\r\n      \"id\": 2\r\n    }\r\n  ]\r\n}",
+							"raw": "{\r\n   \r\n    \"fullText\": \"Today after 1 year i do not make web app.\",\r\n  \"categories\": [\r\n  \t{\r\n      \"id\": 48\r\n    }\r\n  ],\r\n  \"pictures\": [\r\n    {\r\n      \"id\": 48\r\n    }\r\n  ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -581,13 +871,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/articles",
+							"raw": "localhost:8888/articles/create",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
-								"articles"
+								"articles",
+								"create"
 							]
 						}
 					},
@@ -606,14 +897,8 @@
 							"formdata": [
 								{
 									"key": "text",
-									"value": "bas",
+									"value": "ice",
 									"type": "text"
-								},
-								{
-									"key": "text",
-									"value": "text",
-									"type": "text",
-									"disabled": true
 								}
 							]
 						},
@@ -637,14 +922,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/articles/top_5_view_articles",
+							"raw": "localhost:8888/articles/top_5_read_today",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
 								"articles",
-								"top_5_view_articles"
+								"top_5_read_today"
 							]
 						}
 					},
@@ -664,7 +949,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oldArticleId\" : 21,\n  \"newTitle\": \"New title of artilce.\",\n  \"newFullText\": \"New this is field for old full text of article.\"\n}",
+							"raw": "{\n  \"oldArticleId\" : 30,\n  \"newTitle\": \"New title of artilce.\",\n  \"newFullText\": \"New this is field for old full text of article.\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -672,13 +957,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/articles",
+							"raw": "localhost:8888/articles/edit",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
-								"articles"
+								"articles",
+								"edit"
 							]
 						}
 					},
@@ -690,14 +976,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/articles/2",
+							"raw": "localhost:8888/articles/8",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
 								"articles",
-								"2"
+								"8"
 							]
 						}
 					},
@@ -728,7 +1014,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/articles/the_category/6",
+							"raw": "localhost:8888/articles/the_category/1",
 							"host": [
 								"localhost"
 							],
@@ -736,7 +1022,7 @@
 							"path": [
 								"articles",
 								"the_category",
-								"6"
+								"1"
 							]
 						}
 					},
@@ -762,7 +1048,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"articleId\" : 1,\n  \"commentText\": \"That java is thjgdfjgadjkfe best!Sportal comment!\"\n}",
+							"raw": "{\n  \"articleId\" : 1,\n  \"commentText\": \"Test! Sportal comment! UserModel!\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -770,13 +1056,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/comments",
+							"raw": "localhost:8888/comments/add",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
-								"comments"
+								"comments",
+								"add"
 							]
 						}
 					},
@@ -796,7 +1083,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"oldCommentId\": 15,\n    \"fullCommentText\": \"That java is the best!Sportal comment!\",\n    \"newTextOfComment\": \"Sportal comment!\"\n}",
+							"raw": "{\n    \"oldCommentId\": 39,\n    \"newTextOfComment\": \"Sportal comment!\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -804,13 +1091,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8888/comments",
+							"raw": "localhost:8888/comments/edit",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
-								"comments"
+								"comments",
+								"edit"
 							]
 						}
 					},
@@ -822,34 +1110,36 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/comments/1",
+							"raw": "localhost:8888/comments/remove/-36",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
 								"comments",
-								"1"
+								"remove",
+								"-36"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "admin delete comment by id",
+					"name": "editor delete comment by id",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/comments/admin/1",
+							"raw": "localhost:8888/comments/remove/36/editor",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
 								"comments",
-								"admin",
-								"1"
+								"remove",
+								"36",
+								"editor"
 							]
 						}
 					},
@@ -861,14 +1151,66 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8888/comments/1",
+							"raw": "localhost:8888/comments/all/1",
 							"host": [
 								"localhost"
 							],
 							"port": "8888",
 							"path": [
 								"comments",
+								"all",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get comment by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/comments/-39",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"comments",
+								"-39"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "email",
+			"item": [
+				{
+					"name": "confirm registration  by email",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8888/emails/registration_confirm?token=27fa914e-097c-463f-96c0-45d944b00dcb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"emails",
+								"registration_confirm"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "27fa914e-097c-463f-96c0-45d944b00dcb"
+								}
 							]
 						}
 					},

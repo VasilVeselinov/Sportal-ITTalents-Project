@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import sportal.controller.util.AuthValidator;
 import sportal.controller.models.article.*;
 import sportal.controller.models.user.UserLoginModel;
 import sportal.exception.BadRequestException;
@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import static sportal.GlobalConstants.HAS_AUTHORITY_ADMIN;
+import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+
 @RestController
 @RequestMapping(value = "/articles")
 public class ArticleController extends AbstractController {
@@ -31,11 +34,11 @@ public class ArticleController extends AbstractController {
     private IArticleService articleService;
 
     @PostMapping(value = "/create")
+    @PreAuthorize(HAS_AUTHORITY_ADMIN)
     public ResponseEntity<Void> createArticle(@Valid @RequestBody ArticleCreateModel articleModel,
                                               BindingResult bindingResult,
                                               HttpSession session) throws SQLException, BadRequestException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        AuthValidator.checkUserIsAdmin(logUser);
         ArticleServiceDTO serviceDTO =
                 new ArticleServiceDTO(
                         articleModel.getTitle(), articleModel.getFullText(),
@@ -72,25 +75,23 @@ public class ArticleController extends AbstractController {
         return ArticleRespModel.fromDTOToModel(this.articleService.findTopFiveReadToday());
     }
 
-
     @PutMapping(value = "/edit")
+    @PreAuthorize(HAS_AUTHORITY_ADMIN)
     public void editArticleTitleOrText(@Valid @RequestBody ArticleEditModel articleEditDTO,
                                        BindingResult bindingResult,
                                        HttpSession session,
                                        HttpServletResponse response) throws BadRequestException, IOException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        AuthValidator.checkUserIsAdmin(logUser);
         ArticleServiceDTO serviceDTO = new ArticleServiceDTO(
                 articleEditDTO.getOldArticleId(), articleEditDTO.getNewTitle(), articleEditDTO.getNewFullText());
         response.sendRedirect("/articles/" + this.articleService.edit(serviceDTO, logUser.getId()));
     }
 
     @DeleteMapping(value = "/{" + ARTICLE_ID + "}")
+    @PreAuthorize(HAS_AUTHORITY_EDITOR)
     public ArticleRespModel removeArticle(
-            @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
-            HttpSession session) throws BadRequestException {
-        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        AuthValidator.checkUserIsEditor(logUser);
+            @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId)
+            throws BadRequestException {
         return new ArticleRespModel(this.articleService.delete(articleId));
     }
 }

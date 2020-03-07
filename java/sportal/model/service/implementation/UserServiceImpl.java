@@ -5,30 +5,23 @@ import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.db.dao.UserDAO;
 import sportal.model.db.dao.UsersDislikeCommentsDAO;
 import sportal.model.db.dao.UsersLikeArticlesDAO;
 import sportal.model.db.dao.UsersLikeCommentsDAO;
 import sportal.model.db.pojo.ExistsObject;
-import sportal.model.db.pojo.Role;
 import sportal.model.db.pojo.User;
 import sportal.model.db.repository.UserRepository;
-import sportal.model.service.IRoleService;
 import sportal.model.service.IUserService;
-import sportal.model.service.dto.RoleServiceDTO;
 import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.validators.ArticleValidator;
 
 import java.sql.SQLException;
 import java.util.List;
 
-import static sportal.GlobalConstants.ADMIN_USER_AUTHORITY;
-
 @Service
 public class UserServiceImpl implements IUserService {
 
     private static final String ALREADY_VOTED = "You have already voted on this comment!";
-    private static final String NO_MORE_ACCESS_RIGHTS = "No more access rights!";
 
     @Autowired
     private UserRepository userRepository;
@@ -40,10 +33,6 @@ public class UserServiceImpl implements IUserService {
     private UsersLikeCommentsDAO likeCommentsDAO;
     @Autowired
     private UsersDislikeCommentsDAO dislikeCommentsDAO;
-    @Autowired
-    private UserDAO userDAO;
-    @Autowired
-    private IRoleService roleService;
 
     @Override
     public UserServiceDTO removeUserByUserId(long userId, long editorId) {
@@ -66,17 +55,6 @@ public class UserServiceImpl implements IUserService {
         User user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
         return new UserServiceDTO(user.getId(), user.getUsername(), user.getUserEmail());
-    }
-
-    @Override
-    public void upAuthority(long userId, List<RoleServiceDTO> editorAuthorities) throws BadRequestException {
-        this.userRepository.findById(userId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
-        List<Role> roles = this.userDAO.findAllRolesByUserId(userId);
-        if (roles.size() >= editorAuthorities.size() - 1) {
-            throw new BadRequestException(NO_MORE_ACCESS_RIGHTS);
-        }
-        this.userDAO.upAuthorityByUserId(userId, this.roleService.getAuthorities(ADMIN_USER_AUTHORITY).getId());
     }
 
     @Override
