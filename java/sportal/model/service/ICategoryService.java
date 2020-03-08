@@ -12,9 +12,6 @@ import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface ICategoryService {
 
-    String YOU_ARE_NOT_AUTHOR = "You are not author of this article!";
-    String ALREADY_COMBINATION = "Exists this combination!";
-
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
     void addNewCategory(String categoryName);
 

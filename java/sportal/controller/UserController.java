@@ -50,7 +50,7 @@ public class UserController extends AbstractController {
     @PostMapping(value = "/like_articles/{" + ARTICLE_ID + "}")
     public ResponseEntity<Void> likeOfArticle(
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
-            HttpSession session) throws SQLException {
+            HttpSession session) throws SQLException, BadRequestException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         this.userService.likeArticle(articleId, logUser.getId());
         HttpHeaders headers = new HttpHeaders();

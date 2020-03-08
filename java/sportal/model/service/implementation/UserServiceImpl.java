@@ -5,15 +5,16 @@ import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
+import sportal.model.db.dao.UserDAO;
 import sportal.model.db.dao.UsersDislikeCommentsDAO;
 import sportal.model.db.dao.UsersLikeArticlesDAO;
 import sportal.model.db.dao.UsersLikeCommentsDAO;
-import sportal.model.db.pojo.ExistsObject;
 import sportal.model.db.pojo.User;
 import sportal.model.db.repository.UserRepository;
+import sportal.model.service.IArticleService;
+import sportal.model.service.ICommentService;
 import sportal.model.service.IUserService;
 import sportal.model.service.dto.UserServiceDTO;
-import sportal.model.validators.ArticleValidator;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -21,14 +22,18 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements IUserService {
 
-    private static final String ALREADY_VOTED = "You have already voted on this comment!";
+    private static final String ACTIVE_REGISTRATION = "This registration is already active!";
+    private static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed!";
+    private static final String NOT_EXISTS_USER = "User not found!";
 
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private UsersLikeArticlesDAO likeArticlesDAO;
     @Autowired
-    private CommentServiceImpl commentService;
+    private ICommentService commentService;
+    @Autowired
+    private IArticleService articleService;
     @Autowired
     private UsersLikeCommentsDAO likeCommentsDAO;
     @Autowired
@@ -62,16 +67,16 @@ public class UserServiceImpl implements IUserService {
         User user = this.userRepository.findByToken(token)
                 .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
         if (user.isEnabled()){
-            throw new BadRequestException("This registration is already active!");
+            throw new BadRequestException(ACTIVE_REGISTRATION);
         }
         user.setEnabled(true);
         this.userRepository.save(user);
     }
 
     @Override
-    public void likeArticle(long articleId, long userId) throws SQLException {
-        List<ExistsObject> objectList = this.likeArticlesDAO.existsCombinationAndArticleId(articleId);
-        ArticleValidator.validation(objectList, articleId, userId);
+    public void likeArticle(long articleId, long userId) throws SQLException, BadRequestException {
+        this.articleService.existsById(articleId);
+        this.articleService.existsVoteForThatArticleFromThisUser(articleId, userId);
         this.likeArticlesDAO.addInThirdTable(articleId, userId);
     }
 
@@ -85,18 +90,14 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void likeComment(long commentId, long userId) throws BadRequestException, SQLException {
         this.commentService.existsById(commentId);
-        if (this.commentService.existsVoteForThatCommentFromThisUser(commentId, userId)) {
-            throw new BadRequestException(ALREADY_VOTED);
-        }
+        this.commentService.existsVoteForThatCommentFromThisUser(commentId, userId);
         this.likeCommentsDAO.addInThirdTable(commentId, userId);
     }
 
     @Override
     public void dislikeComment(long commentId, long userId) throws BadRequestException, SQLException {
         this.commentService.existsById(commentId);
-        if (this.commentService.existsVoteForThatCommentFromThisUser(commentId, userId)) {
-            throw new BadRequestException(ALREADY_VOTED);
-        }
+        this.commentService.existsVoteForThatCommentFromThisUser(commentId, userId);
         this.dislikeCommentsDAO.addInThirdTable(commentId, userId);
     }
 

@@ -6,6 +6,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -63,23 +64,28 @@ public abstract class AbstractController {
         view.addObject("ExceptionObject", exceptionObject);
         view.addObject("message", exceptionObject.getMessages());
         return view;
-
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionObject handlerOfConstraintViolationException(ConstraintViolationException e) {
+    public ModelAndView handlerOfConstraintViolationException(ConstraintViolationException e) {
         StringBuilder message = new StringBuilder("");
         for (ConstraintViolation<?> eex : e.getConstraintViolations()) {
             message.append(eex.getMessage());
         }
-        return new ExceptionObject(
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
                 message.toString(), HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
+        System.out.println(exceptionObject);
+        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("message", exceptionObject.getMessages());
+        return view;
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestParameterException.class,
+            MethodArgumentTypeMismatchException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handlerOfJsonParseException(Exception e) {
         ModelAndView view = new ModelAndView("error.html");
@@ -93,26 +99,12 @@ public abstract class AbstractController {
         return view;
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class) // vasko: don't work
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public ModelAndView handlerOfHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+    public ModelAndView handlerOfHttpRequestMethodNotSupportedException(Exception e) {
         ModelAndView view = new ModelAndView("error.html");
         ExceptionObject exceptionObject = new ExceptionObject(
                 WRONG_REQUEST, HttpStatus.METHOD_NOT_ALLOWED.value(),
-                LocalDateTime.now(), e.getClass().getName()
-        );
-        System.out.println(exceptionObject);
-        view.addObject("ExceptionObject", exceptionObject);
-        view.addObject("message", exceptionObject.getMessages());
-        return view;
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handlerOfMethodArgumentTypeMismatchException(Exception e) {
-        ModelAndView view = new ModelAndView("error.html");
-        ExceptionObject exceptionObject = new ExceptionObject(
-                WRONG_REQUEST, HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);

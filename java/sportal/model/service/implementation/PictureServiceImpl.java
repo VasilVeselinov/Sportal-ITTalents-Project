@@ -24,6 +24,8 @@ import java.util.Optional;
 public class PictureServiceImpl implements IPictureService {
     // Vasko : please fix me, if you change directory
     private static final String PACKAGE_NAME = "C:\\Users\\ACER\\Desktop\\uploadPictures\\";
+    private static final String NOT_EXIST_PICTURE = "The picture do not exist!";
+    private static final String WRONG_REQUEST = "Invalid request!";
     @Autowired
     private PictureRepository pictureRepository;
     @Autowired
@@ -49,7 +51,7 @@ public class PictureServiceImpl implements IPictureService {
     public PictureServiceDTO delete(long pictureId) {
         Optional<Picture> picture = this.pictureRepository.findById(pictureId);
         if (!picture.isPresent()) {
-            throw new ExistsObjectException(THE_PICTURES_DO_NOT_EXIST);
+            throw new ExistsObjectException(NOT_EXIST_PICTURE);
         }
         this.pictureRepository.deleteById(pictureId);
         File fileForDelete = new File(PACKAGE_NAME + picture.get().getUrlOFPicture());

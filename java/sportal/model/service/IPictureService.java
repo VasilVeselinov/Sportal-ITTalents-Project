@@ -13,9 +13,6 @@ import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface IPictureService {
 
-    String THE_PICTURES_DO_NOT_EXIST = "The pictures do not exist!";
-    String WRONG_REQUEST = "Invalid request!";
-
     @Transactional
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
     void upload(List<MultipartFile> multipartFiles) throws BadRequestException;

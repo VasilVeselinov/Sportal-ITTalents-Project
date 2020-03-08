@@ -12,10 +12,6 @@ import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface IArticleService {
 
-    String YOU_ARE_NOT_AUTHOR = "You are not author of this article!";
-    String THIS_ARTICLE_IS_NOT_EXISTS = "This article is not exists!";
-    String COPYRIGHT = "Sportal holds the copyright of this article.";
-
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
     long addArticle(ArticleServiceDTO serviceDTO, long userId) throws BadRequestException, SQLException;
 
@@ -33,5 +29,7 @@ public interface IArticleService {
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
     ArticleServiceDTO delete(long articleId) throws BadRequestException;
 
-    boolean existsById(long articleId);
+    void existsById(long articleId);
+
+    void existsVoteForThatArticleFromThisUser(long articleId, long userId) throws BadRequestException;
 }

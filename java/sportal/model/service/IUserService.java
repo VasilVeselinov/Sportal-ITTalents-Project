@@ -11,16 +11,13 @@ import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface IUserService {
 
-    String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed!";
-    String NOT_EXISTS_USER = "User not found!";
-
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
     UserServiceDTO removeUserByUserId(long userId, long editorId);
 
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
     List<UserServiceDTO> findAll();
 
-    void likeArticle(long articleId, long userId) throws SQLException;
+    void likeArticle(long articleId, long userId) throws SQLException, BadRequestException;
 
     void deleteVoteForArticle(long articleId, long userId) throws BadRequestException;
 

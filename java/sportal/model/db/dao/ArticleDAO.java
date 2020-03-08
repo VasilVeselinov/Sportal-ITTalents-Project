@@ -51,6 +51,10 @@ public class ArticleDAO extends DAO {
                     "JOIN categories AS c ON c.id = ac.category_id " +
                     "WHERE category_id = ? " +
                     "ORDER BY a.date_published DESC LIMIT " + LIMIT_FOR_OUTPUT_FOR_SEARCH_BY_CATEGORY_ID + ";";
+    private static final String FIND_COMBINATION =
+            "SELECT article_id, user_id " +
+                    "FROM users_like_articles " +
+                    "WHERE article_id = ? AND user_id = ?";
 
     public Article addArticle(Article article, List<Picture> pictures, List<Category> categories) throws SQLException {
         Connection connection = this.jdbcTemplate.getDataSource().getConnection();
@@ -163,5 +167,10 @@ public class ArticleDAO extends DAO {
         article.setCreateDateAndTime(rowSet.getTimestamp("date_published"));
         article.setViews(rowSet.getInt("views"));
         return article;
+    }
+
+    public boolean existsVoteForThatArticleFromThisUser(long articleId, long userId) {
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_COMBINATION, articleId, userId);
+        return rowSet.next();
     }
 }

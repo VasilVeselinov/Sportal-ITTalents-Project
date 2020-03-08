@@ -8,7 +8,6 @@ import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.CategoryDAO;
 import sportal.model.service.IArticleService;
 import sportal.model.service.dto.ArticleServiceDTO;
-import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.validators.CategoryValidator;
 import sportal.model.db.pojo.Category;
 import sportal.model.db.repository.CategoryRepository;
@@ -24,7 +23,9 @@ import java.util.Optional;
 public class CategoryServiceImpl implements ICategoryService {
 
     private static final String EXISTS_CATEGORY = "That category exists!";
-    private static final String THIS_CATEGORY_NOT_EXISTS = "This category not exists!";
+    private static final String NOT_EXISTS_CATEGORY = "This category not exists!";
+    private static final String YOU_ARE_NOT_AUTHOR = "You are not author of this article!";
+    private static final String ALREADY_COMBINATION = "Exists this combination!";
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -61,7 +62,7 @@ public class CategoryServiceImpl implements ICategoryService {
     public void delete(long categoryId) {
         Optional<Category> category = this.categoryRepository.findById(categoryId);
         if (!category.isPresent()) {
-            throw new ExistsObjectException(THIS_CATEGORY_NOT_EXISTS);
+            throw new ExistsObjectException(NOT_EXISTS_CATEGORY);
         }
         this.categoryRepository.deleteById(categoryId);
     }
@@ -75,7 +76,7 @@ public class CategoryServiceImpl implements ICategoryService {
         }
         Optional<Category> category = this.categoryRepository.findById(categoryId);
         if (!category.isPresent()) {
-            throw new ExistsObjectException(THIS_CATEGORY_NOT_EXISTS);
+            throw new ExistsObjectException(NOT_EXISTS_CATEGORY);
         }
         if (this.categoryDAO.existsCombination(articleId, categoryId)) {
             throw new ExistsObjectException(ALREADY_COMBINATION);

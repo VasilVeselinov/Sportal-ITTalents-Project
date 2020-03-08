@@ -1,6 +1,7 @@
 package sportal.model.service;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import sportal.exception.BadRequestException;
 import sportal.model.service.dto.CommentServiceDTO;
 
 import java.sql.SQLException;
@@ -9,9 +10,6 @@ import java.util.List;
 import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface ICommentService {
-
-    String WRONG_INFORMATION = "Wrong information about the user!";
-    String NOT_EXISTS_OBJECT = "Comment not found!";
 
     long addComment(CommentServiceDTO serviceDTO);
 
@@ -26,7 +24,7 @@ public interface ICommentService {
 
     CommentServiceDTO getCommentsById(long commentId) throws SQLException;
 
-    boolean existsVoteForThatCommentFromThisUser(long commentId, long userId) throws SQLException;
+    void existsVoteForThatCommentFromThisUser(long commentId, long userId) throws SQLException, BadRequestException;
 
     void existsById(long commentId);
 }

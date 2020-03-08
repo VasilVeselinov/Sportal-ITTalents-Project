@@ -3,6 +3,7 @@ package sportal.model.service.implementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
+import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.CommentDAO;
 import sportal.model.service.dto.CommentServiceDTO;
@@ -17,6 +18,10 @@ import java.util.List;
 
 @Service
 public class CommentServiceImpl implements ICommentService {
+
+    private static final String ALREADY_VOTED = "You have already voted on this comment!";
+    private static final String WRONG_INFORMATION = "Wrong information about the user!";
+    private static final String NOT_EXISTS_COMMENT = "Comment not found!";
 
     @Autowired
     private CommentRepository commentRepository;
@@ -37,7 +42,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public long edit(CommentServiceDTO serviceDTO) {
         Comment existsComment = this.commentRepository.findById(serviceDTO.getId())
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_COMMENT));
         if (serviceDTO.getUserId() != existsComment.getUserId()) {
             throw new AuthorizationException(WRONG_INFORMATION);
         }
@@ -50,7 +55,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public long delete(long commentId, long userId) {
         Comment existsComment = this.commentRepository.findById(commentId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_COMMENT));
         if (userId != existsComment.getUserId()) {
             throw new AuthorizationException(WRONG_INFORMATION);
         }
@@ -61,7 +66,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public long deleteFromEditor(long commentId) {
         Comment existsComment = this.commentRepository.findById(commentId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_OBJECT));
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_COMMENT));
         this.commentRepository.deleteById(existsComment.getId());
         return existsComment.getArticleId();
     }
@@ -76,20 +81,23 @@ public class CommentServiceImpl implements ICommentService {
     public CommentServiceDTO getCommentsById(long commentId) throws SQLException {
         Comment existsComment = this.commentDAO.findById(commentId);
         if (existsComment == null) {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(NOT_EXISTS_COMMENT);
         }
         return new CommentServiceDTO(existsComment);
     }
 
     @Override
-    public boolean existsVoteForThatCommentFromThisUser(long commentId, long userId) throws SQLException {
-        return this.commentDAO.existsVoteForThatCommentFromThisUser(commentId, userId);
+    public void existsVoteForThatCommentFromThisUser(
+            long commentId, long userId) throws SQLException, BadRequestException {
+        if (this.commentDAO.existsVoteForThatCommentFromThisUser(commentId, userId)){
+            throw new BadRequestException(ALREADY_VOTED);
+        }
     }
 
     @Override
     public void existsById(long commentId) {
         if (!this.commentRepository.existsById(commentId)) {
-            throw new ExistsObjectException(NOT_EXISTS_OBJECT);
+            throw new ExistsObjectException(NOT_EXISTS_COMMENT);
         }
     }
 }

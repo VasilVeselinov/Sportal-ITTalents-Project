@@ -3,9 +3,9 @@ package sportal.model.service.implementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
+import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
 import sportal.model.db.dao.ArticleDAO;
-import sportal.model.service.dto.UserServiceDTO;
 import sportal.model.db.pojo.Article;
 import sportal.model.db.pojo.Category;
 import sportal.model.db.pojo.Picture;
@@ -22,6 +22,11 @@ import java.util.List;
 
 @Service
 public class ArticleServiceImpl implements IArticleService {
+
+    private static final String ALREADY_VOTED = "You have already voted on this article!";
+    private static final String YOU_ARE_NOT_AUTHOR = "You are not author of this article!";
+    private static final String NOT_EXISTS_ARTICLE = "This article is not exists!";
+    private static final String COPYRIGHT = "Sportal holds the copyright of this article.";
 
     @Autowired
     private ICategoryService categoryService;
@@ -56,7 +61,7 @@ public class ArticleServiceImpl implements IArticleService {
     public ArticleServiceDTO findArticleById(long articleId) throws SQLException {
         Article article = this.articleDAO.findById(articleId);
         if (article.getId() == 0) {
-            throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
+            throw new ExistsObjectException(NOT_EXISTS_ARTICLE);
         }
         List<CategoryServiceDTO> categories = this.categoryService.findAllByArticleId(article.getId());
         List<PictureServiceDTO> pictures = this.pictureService.findAllByArticleId(article.getId());
@@ -83,7 +88,7 @@ public class ArticleServiceImpl implements IArticleService {
     @Override
     public long edit(ArticleServiceDTO serviceDTO, long userId) {
         Article existsArticle = this.articleRepository.findById(serviceDTO.getId())
-                .orElseThrow(() -> new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS));
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_ARTICLE));
         if (existsArticle.getAuthorId() != userId) {
             throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
@@ -96,16 +101,22 @@ public class ArticleServiceImpl implements IArticleService {
     @Override
     public ArticleServiceDTO delete(long articleId) {
         Article existsArticle = this.articleRepository.findById(articleId)
-                .orElseThrow(() -> new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS));
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_ARTICLE));
         this.articleRepository.deleteById(existsArticle.getId());
         return new ArticleServiceDTO(existsArticle);
     }
 
     @Override
-    public boolean existsById(long articleId) {
+    public void existsById(long articleId) {
         if (!this.articleRepository.existsById(articleId)){
-            throw new ExistsObjectException(THIS_ARTICLE_IS_NOT_EXISTS);
+            throw new ExistsObjectException(NOT_EXISTS_ARTICLE);
         }
-        return true;
+    }
+
+    @Override
+    public void existsVoteForThatArticleFromThisUser(long articleId, long userId) throws BadRequestException {
+       if (this.articleDAO.existsVoteForThatArticleFromThisUser(articleId, userId)){
+           throw new BadRequestException(ALREADY_VOTED);
+       }
     }
 }

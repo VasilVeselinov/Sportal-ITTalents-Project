@@ -33,6 +33,8 @@ public class AuthServiceImpl implements IAuthService {
 
     private static final String EXISTS = "There is already a registered user with that name or email!";
     private static final String NO_MORE_ACCESS_RIGHTS = "No more access rights!";
+    private static final String FAILED_CREDENTIALS = "Validate your data is failed!";
+    private static final String NOT_EXISTS_USER = "User not found!";
 
     @Autowired
     private UserRepository userRepository;
