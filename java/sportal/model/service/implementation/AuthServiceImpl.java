@@ -1,6 +1,7 @@
 package sportal.model.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import sportal.model.service.IBCryptService;
 import sportal.model.service.IRoleService;
 import sportal.model.service.dto.RoleServiceDTO;
 import sportal.model.service.dto.UserServiceDTO;
+import sportal.model.util.OnRegistrationCompleteEvent;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -44,9 +46,11 @@ public class AuthServiceImpl implements IAuthService {
     private IBCryptService cryptService;
     @Autowired
     private UserDAO userDAO;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
-    public UserServiceDTO registration(UserServiceDTO serviceDTO) throws SQLException {
+    public void registration(UserServiceDTO serviceDTO) throws SQLException {
         if (this.userRepository.existsUserByUsernameOrUserEmail(serviceDTO.getUsername(), serviceDTO.getUserEmail())) {
             throw new ExistsObjectException(EXISTS);
         }
@@ -56,18 +60,20 @@ public class AuthServiceImpl implements IAuthService {
         String token = UUID.randomUUID().toString();
         user.setToken(token);
         user = this.userDAO.addUser(user);
-        return new UserServiceDTO(user.getId(), user.getUsername(), user.getUserEmail(), user.getToken());
+        serviceDTO = new UserServiceDTO(user.getId(), user.getUsername(), user.getUserEmail(), user.getToken());
+        this.eventPublisher.publishEvent(new OnRegistrationCompleteEvent(serviceDTO));
     }
 
     @Override
     public UserServiceDTO changePassword(UserServiceDTO serviceDTO, long userId) {
-        Optional<User> userDB = this.userRepository.findById(userId);
-        if (!this.cryptService.checkPassword(serviceDTO.getUserPassword(), userDB.get().getPassword())) {
+        User userDB = this.userRepository.findById(userId)
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));;
+        if (!this.cryptService.checkPassword(serviceDTO.getUserPassword(), userDB.getPassword())) {
             throw new AuthorizationException(FAILED_CREDENTIALS);
         }
-        userDB.get().setPassword(this.cryptService.cryptPassword(serviceDTO.getNewPassword()));
-        User user =  this.userRepository.save(userDB.get());
-        return new UserServiceDTO(user.getId(), user.getUsername(), user.getUserEmail());
+        userDB.setPassword(this.cryptService.cryptPassword(serviceDTO.getNewPassword()));
+        userDB = this.userRepository.save(userDB);
+        return new UserServiceDTO(userDB.getId(), userDB.getUsername(), userDB.getUserEmail());
     }
 
     @Override

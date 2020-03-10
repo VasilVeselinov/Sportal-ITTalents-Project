@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.exceptions.TemplateInputException;
 import sportal.exception.*;
 
 import javax.validation.ConstraintViolation;
@@ -99,7 +100,7 @@ public abstract class AbstractController {
         return view;
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class) // vasko: don't work
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ModelAndView handlerOfHttpRequestMethodNotSupportedException(Exception e) {
         ModelAndView view = new ModelAndView("error.html");
@@ -127,7 +128,7 @@ public abstract class AbstractController {
         return view;
     }
 
-    @ExceptionHandler({TransactionException.class, IOException.class, SQLException.class})
+    @ExceptionHandler({TransactionException.class, IOException.class, SQLException.class, TemplateInputException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handlerOfTransactionIOAndSQLException(Exception e) {
         System.out.println(e.getMessage());

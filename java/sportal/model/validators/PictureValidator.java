@@ -50,7 +50,7 @@ public class PictureValidator {
             String fileContentType = multipartFiles.get(i).getContentType();
             if (CONTENT_TYPES_LIST.contains(fileContentType)) {
                 String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss.SSS"));
-                String urlOfPicture = i + DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
+                String urlOfPicture = i + 1 + DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
                 Picture picture = new Picture();
                 picture.setUrlOFPicture(urlOfPicture);
                 pictures.add(picture);

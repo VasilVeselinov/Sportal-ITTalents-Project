@@ -13,7 +13,7 @@ import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface IAuthService extends UserDetailsService {
 
-    UserServiceDTO registration(UserServiceDTO serviceDTO) throws SQLException;
+    void registration(UserServiceDTO serviceDTO) throws SQLException;
 
     UserServiceDTO changePassword(UserServiceDTO serviceDTO, long userId);
 

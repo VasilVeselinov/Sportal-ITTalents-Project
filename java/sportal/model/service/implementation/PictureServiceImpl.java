@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @Service
 public class PictureServiceImpl implements IPictureService {
-    // Vasko : please fix me, if you change directory
+    // Vasko : please fix me, if you change directory for upload pictures
     private static final String PACKAGE_NAME = "C:\\Users\\ACER\\Desktop\\uploadPictures\\";
     private static final String NOT_EXIST_PICTURE = "The picture do not exist!";
     private static final String WRONG_REQUEST = "Invalid request!";

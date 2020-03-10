@@ -23,7 +23,7 @@ public class FileManagerDAO extends Thread {
     public void run() {
         for (int i = 0; i < multipartFiles.size(); i++) {
             try {
-                this.savePicture(this.multipartFiles.get(i + 1),
+                this.savePicture(this.multipartFiles.get(i),
                         this.packageName + this.pictures.get(i).getUrlOFPicture());
             } catch (IOException e) {
                 System.out.println(e.getMessage());

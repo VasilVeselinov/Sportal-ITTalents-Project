@@ -16,34 +16,32 @@ import sportal.model.service.IAuthService;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true) // @PreAuthorize
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private IAuthService authService;
-
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    private static final String[] urlForNonLoggedUser = {
+            "/", "/articles/{id}", "/articles/top_5_read_today", "/articles/the_category/{id}", "/articles/search",
+            "/categories/all" , "/comments/all/{id}", "/comments/{id}" , "/emails/registration_confirm"
+    };
+
+    private static final String[] urlResources = {
+            "/static/css/*", "/static/img/*", "/static/js/*", "/uploadPictures/*"
+    };
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                // for not logged user
                 .authorizeRequests()
-                    .antMatchers("/")
-                        .permitAll()
                     .antMatchers("/users/registration", "/users/login", "/after_registration")
                         .anonymous()
-                    .antMatchers("/css/*", "/img/*", "/js/*")
+                    .antMatchers(urlResources)
                         .permitAll()
-                    .antMatchers(HttpMethod.GET,"/articles/{id}", "/articles/top_5_read_today",
-                            "/articles/the_category/{id}", "/articles/search")
-                        .permitAll()
-                    .antMatchers(HttpMethod.GET,"/categories/all")
-                        .permitAll()
-                    .antMatchers(HttpMethod.GET,"/comments/all/{id}", "/comments/{id}")
-                        .permitAll()
-                    .antMatchers(HttpMethod.GET, "/emails/registration_confirm")
+                    .antMatchers(HttpMethod.GET, urlForNonLoggedUser)
                         .permitAll()
                     .anyRequest()
                         .authenticated()
@@ -53,10 +51,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .permitAll()
                             .usernameParameter("username")
                             .passwordParameter("password")
-                // redirect: after login -> /home
-                        .defaultSuccessUrl("/",true)
+                        .defaultSuccessUrl("/")
                 .and()
-                // redirect: after logout -> /login
                 .logout()
                     .logoutSuccessUrl("/")
                         .permitAll()

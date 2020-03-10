@@ -16,7 +16,6 @@ import sportal.controller.models.user.UserResponseModel;
 import sportal.controller.models.user.UserChangePasswordModel;
 import sportal.model.service.IAuthService;
 import sportal.model.service.dto.UserServiceDTO;
-import sportal.model.util.OnRegistrationCompleteEvent;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -33,8 +32,6 @@ public class AuthController extends AbstractController {
 
     @Autowired
     private IAuthService authService;
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
 
     @PostMapping(value = "/registration")
     public ModelAndView registerRequestBody(@Valid @RequestBody UserRegistrationModel userModel,
@@ -42,9 +39,8 @@ public class AuthController extends AbstractController {
         if (!userModel.getPassword().equals(userModel.getVerificationPassword())) {
             throw new InvalidInputException(NOT_EQUAL_PASSWORD);
         }
-        UserServiceDTO serviceDTO = this.authService.registration(
+        this.authService.registration(
                 new UserServiceDTO(userModel.getUsername(), userModel.getUserEmail(), userModel.getPassword()));
-        this.eventPublisher.publishEvent(new OnRegistrationCompleteEvent(serviceDTO));
         return new ModelAndView("redirect:/after_registration");
     }
 
