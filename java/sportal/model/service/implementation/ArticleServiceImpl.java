@@ -13,9 +13,11 @@ import sportal.model.db.repository.ArticleRepository;
 import sportal.model.service.IArticleService;
 import sportal.model.service.ICategoryService;
 import sportal.model.service.IPictureService;
+import sportal.model.service.IVideoService;
 import sportal.model.service.dto.ArticleServiceDTO;
 import sportal.model.service.dto.CategoryServiceDTO;
 import sportal.model.service.dto.PictureServiceDTO;
+import sportal.model.service.dto.VideoServiceDTO;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -32,6 +34,8 @@ public class ArticleServiceImpl implements IArticleService {
     private ICategoryService categoryService;
     @Autowired
     private IPictureService pictureService;
+    @Autowired
+    private IVideoService videoService;
     @Autowired
     private ArticleDAO articleDAO;
     @Autowired
@@ -65,7 +69,8 @@ public class ArticleServiceImpl implements IArticleService {
         }
         List<CategoryServiceDTO> categories = this.categoryService.findAllByArticleId(article.getId());
         List<PictureServiceDTO> pictures = this.pictureService.findAllByArticleId(article.getId());
-        ArticleServiceDTO viewArticle = new ArticleServiceDTO(article, pictures, categories);
+        List<VideoServiceDTO> videos = this.videoService.findAllByArticleId(article.getId());
+        ArticleServiceDTO viewArticle = new ArticleServiceDTO(article, pictures, categories, videos);
         if (article.getAuthorName() == null) {
             viewArticle.setAuthorName(COPYRIGHT);
         } else {
@@ -89,9 +94,7 @@ public class ArticleServiceImpl implements IArticleService {
     public long edit(ArticleServiceDTO serviceDTO, long userId) {
         Article existsArticle = this.articleRepository.findById(serviceDTO.getId())
                 .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_ARTICLE));
-        if (existsArticle.getAuthorId() != userId) {
-            throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
-        }
+        this.checkForAuthorCopyright(existsArticle.getAuthorId(), userId);
         Article article = new Article(serviceDTO);
         article.setAuthorId(userId);
         article.setViews(existsArticle.getViews());
@@ -108,8 +111,20 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     public void existsById(long articleId) {
-        if (!this.articleRepository.existsById(articleId)){
-            throw new ExistsObjectException(NOT_EXISTS_ARTICLE);
+        this.articleRepository.findById(articleId)
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_ARTICLE));
+    }
+
+    @Override
+    public void findByIdAndCheckForAuthorCopyright(long articleId, long userId) {
+        Article existsArticle = this.articleRepository.findById(articleId)
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_ARTICLE));
+        this.checkForAuthorCopyright(existsArticle.getAuthorId(), userId);
+    }
+
+    private void checkForAuthorCopyright(long authorId, long userId) {
+        if (authorId != userId) {
+            throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
     }
 

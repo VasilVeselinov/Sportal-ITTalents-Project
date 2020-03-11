@@ -22,6 +22,7 @@ public class ArticleServiceDTO {
     private List<CategoryServiceDTO> categories;
     private List<PictureServiceDTO> pictures;
     private String authorName;
+    private List<VideoServiceDTO> videos;
 
     public ArticleServiceDTO(String title, String fullText,
                              List<CategoryServiceDTO> categories, List<PictureServiceDTO> pictures) {
@@ -38,7 +39,8 @@ public class ArticleServiceDTO {
         this.views = article.getViews();
     }
 
-    public ArticleServiceDTO(Article article, List<PictureServiceDTO> pictures, List<CategoryServiceDTO> categories) {
+    public ArticleServiceDTO(Article article, List<PictureServiceDTO> pictures,
+                             List<CategoryServiceDTO> categories, List<VideoServiceDTO> videos) {
         this.id = article.getId();
         this.title = article.getTitle();
         this.fullText = article.getFullText();
@@ -47,6 +49,7 @@ public class ArticleServiceDTO {
         this.categories = categories;
         this.pictures = pictures;
         this.numberOfLikes = article.getNumberOfLikes();
+        this.videos = videos;
     }
 
     public ArticleServiceDTO(long oldArticleId, String newTitle, String newFullText) {

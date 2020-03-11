@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+import static sportal.GlobalConstants.WRONG_REQUEST;
+
 @Validated
 public abstract class AbstractController {
 
@@ -27,7 +29,6 @@ public abstract class AbstractController {
     public static final String LOGGED_USER_KEY_IN_SESSION = "loggedUser";
 
     // responses
-    private static final String WRONG_REQUEST = "Invalid request!";
     private static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String MASSAGE_FOR_INVALID_ID = "Id must be greater than 0!";
 
@@ -37,6 +38,7 @@ public abstract class AbstractController {
     static final String CATEGORY_ID = "category_id";
     static final String COMMENT_ID = "comment_id";
     static final String PICTURE_ID = "picture_id";
+    static final String VIDEO_ID = "video_id";
     static final String LOCATION = "Location";
 
     @ExceptionHandler({AuthorizationException.class, AccessDeniedException.class})
@@ -144,7 +146,7 @@ public abstract class AbstractController {
     }
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)  // vasko:
+    @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)
     public ModelAndView handlerOfException(Exception e) {
         System.out.println(e.getMessage());
         ModelAndView view = new ModelAndView("error.html");

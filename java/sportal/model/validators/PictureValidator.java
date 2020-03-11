@@ -13,17 +13,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static sportal.GlobalConstants.WRONG_REQUEST;
+
 public class PictureValidator {
 
-    private static final String WRONG_REQUEST = "Invalid request!";
-    private static final String FILE_EXPANSION = ".jpg";
     // date time formatter
     private static final String DATE_AND_TIME_OF_UPLOAD = "date_and_time_of_upload_";
     private static final List<String> CONTENT_TYPES_LIST = Arrays.asList(
-            "image/png", "image/jpeg", "image/gif", "application/octet-stream", "image/bmp", "image/cgm",
+            "image/png", "image/jpeg", "image/jpg", "image/gif", "application/octet-stream", "image/bmp", "image/cgm",
             "image/svg+xml", "image/ief", "image/tiff", "image/vnd.djvu", "image/vnd.wap.wbmp", "image/x-cmu-raster",
             "image/x-icon", "image/x-portable-anymap", "image/x-portable-bitmap", "image/x-portable-graymap",
             "image/x-portable-pixmap", "image/x-rgb");
+    private static final String FILE_EXPANSION = ".jpg";
+
     private static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST =
             "Some of the pictures do not exist or do not free!";
 
@@ -52,7 +54,7 @@ public class PictureValidator {
                 String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss.SSS"));
                 String urlOfPicture = i + 1 + DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
                 Picture picture = new Picture();
-                picture.setUrlOFPicture(urlOfPicture);
+                picture.setUrlOfPicture(urlOfPicture);
                 pictures.add(picture);
             } else {
                 throw new BadRequestException(WRONG_REQUEST);

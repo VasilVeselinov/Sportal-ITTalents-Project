@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import sportal.controller.models.category.CategoryResponseModel;
 import sportal.controller.models.picture.PictureModel;
+import sportal.controller.models.video.VideoModel;
 import sportal.model.service.dto.ArticleServiceDTO;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class ArticleFullDataModel {
     private int numberOfLikes;
     private List<CategoryResponseModel> categories;
     private List<PictureModel> pictures;
+    private List<VideoModel> videos;
     private String authorName;
 
     public ArticleFullDataModel(ArticleServiceDTO serviceDTO) {
@@ -37,5 +39,6 @@ public class ArticleFullDataModel {
         this.numberOfLikes=serviceDTO.getNumberOfLikes();
         this.categories = CategoryResponseModel.fromDTOToModel(serviceDTO.getCategories());
         this.pictures = PictureModel.fromDTOToModel(serviceDTO.getPictures());
+        this.videos = VideoModel.fromDTOToModel(serviceDTO.getVideos());
     }
 }

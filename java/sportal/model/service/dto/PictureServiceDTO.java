@@ -13,7 +13,7 @@ import java.util.List;
 public class PictureServiceDTO {
 
     private long id;
-    private String urlOFPicture;
+    private String urlOfPicture;
     private Long articleId;
 
     private PictureServiceDTO(long id) {
@@ -22,7 +22,7 @@ public class PictureServiceDTO {
 
     public PictureServiceDTO(Picture picture) {
         this(picture.getId());
-        this.urlOFPicture = picture.getUrlOFPicture();
+        this.urlOfPicture = picture.getUrlOfPicture();
         this.articleId = picture.getArticleId();
     }
 

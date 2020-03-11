@@ -32,4 +32,6 @@ public interface IArticleService {
     void existsById(long articleId);
 
     void existsVoteForThatArticleFromThisUser(long articleId, long userId) throws BadRequestException;
+
+    void findByIdAndCheckForAuthorCopyright(long articleId, long userId);
 }

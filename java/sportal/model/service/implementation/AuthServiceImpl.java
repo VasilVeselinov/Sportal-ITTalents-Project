@@ -21,7 +21,6 @@ import sportal.model.util.OnRegistrationCompleteEvent;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

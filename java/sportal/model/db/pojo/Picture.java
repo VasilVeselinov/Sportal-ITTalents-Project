@@ -17,7 +17,7 @@ import java.util.List;
 public class Picture extends BasePOJO {
 
     @Column(name = "picture_url")
-    private String urlOFPicture;
+    private String urlOfPicture;
     private Long articleId;
 
     private Picture(long id) {

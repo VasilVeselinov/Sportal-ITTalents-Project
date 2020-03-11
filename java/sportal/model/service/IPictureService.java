@@ -21,7 +21,7 @@ public interface IPictureService {
     PictureServiceDTO delete(long pictureId);
 
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
-    void addPictureToTheArticleById(long pictureId, long articleId);
+    void addPictureToTheArticleById(long pictureId, long articleId, long userId);
 
     List<PictureServiceDTO> findAllByArticleIdIsNullAndCheckIsValid(List<PictureServiceDTO> pictures);
 

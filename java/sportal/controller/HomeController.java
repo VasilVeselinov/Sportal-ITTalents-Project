@@ -16,11 +16,6 @@ public class HomeController extends AbstractController {
         return new ModelAndView("index.html");
     }
 
-    @GetMapping("/about")
-    public ModelAndView about() {
-        return new ModelAndView("about.html");
-    }
-
     @GetMapping("/unauthorized")
     public ModelAndView unauthorized() {
         return new ModelAndView("unauthorized.html");

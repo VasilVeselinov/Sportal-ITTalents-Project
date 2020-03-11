@@ -14,12 +14,12 @@ import java.util.List;
 public class PictureModel {
 
     private long id;
-    private String urlOFPicture;
+    private String urlOfPicture;
     private Long articleId;
 
     public PictureModel(PictureServiceDTO serviceDTO) {
         this.id = serviceDTO.getId();
-        this.urlOFPicture = serviceDTO.getUrlOFPicture();
+        this.urlOfPicture = serviceDTO.getUrlOfPicture();
         this.articleId = serviceDTO.getArticleId();
     }
 

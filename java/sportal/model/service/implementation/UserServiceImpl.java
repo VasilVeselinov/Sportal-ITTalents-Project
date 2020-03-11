@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.db.dao.UserDAO;
 import sportal.model.db.dao.UsersDislikeCommentsDAO;
 import sportal.model.db.dao.UsersLikeArticlesDAO;
 import sportal.model.db.dao.UsersLikeCommentsDAO;

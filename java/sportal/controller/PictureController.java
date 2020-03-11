@@ -7,10 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import sportal.controller.models.user.UserLoginModel;
 import sportal.exception.BadRequestException;
 import sportal.controller.models.picture.PictureModel;
 import sportal.model.service.IPictureService;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
@@ -45,8 +47,10 @@ public class PictureController extends AbstractController {
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
     public ResponseEntity<Void> addArticleIdByPictureId(
             @PathVariable(name = PICTURE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long pictureId,
-            @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId) {
-        this.pictureService.addPictureToTheArticleById(pictureId, articleId);
+            @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
+            HttpSession session) {
+        UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        this.pictureService.addPictureToTheArticleById(pictureId, articleId, logUser.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/articles/" + articleId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);

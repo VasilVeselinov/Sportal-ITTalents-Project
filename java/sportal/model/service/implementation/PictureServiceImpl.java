@@ -20,12 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static sportal.GlobalConstants.WRONG_REQUEST;
+
 @Service
 public class PictureServiceImpl implements IPictureService {
     // Vasko : please fix me, if you change directory for upload pictures
-    private static final String PACKAGE_NAME = "C:\\Users\\ACER\\Desktop\\uploadPictures\\";
+    private static final String PACKAGE_NAME = System.getProperty("user.home") + "\\Desktop\\uploadPictures\\";
     private static final String NOT_EXIST_PICTURE = "The picture do not exist!";
-    private static final String WRONG_REQUEST = "Invalid request!";
     @Autowired
     private PictureRepository pictureRepository;
     @Autowired
@@ -54,16 +55,16 @@ public class PictureServiceImpl implements IPictureService {
             throw new ExistsObjectException(NOT_EXIST_PICTURE);
         }
         this.pictureRepository.deleteById(pictureId);
-        File fileForDelete = new File(PACKAGE_NAME + picture.get().getUrlOFPicture());
+        File fileForDelete = new File(PACKAGE_NAME + picture.get().getUrlOfPicture());
         fileForDelete.delete();
         return new PictureServiceDTO(picture.get());
     }
 
     @Override
-    public void addPictureToTheArticleById(long pictureId, long articleId) {
+    public void addPictureToTheArticleById(long pictureId, long articleId, long userId) {
         Optional<Picture> optionalPicture = this.pictureRepository.findById(pictureId);
         Picture validPicture = PictureValidator.checkForValidPicture(optionalPicture);
-        this.articleService.existsById(articleId);
+        this.articleService.findByIdAndCheckForAuthorCopyright(articleId, userId);
         validPicture.setArticleId(articleId);
         this.pictureRepository.save(validPicture);
     }
