@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-import static sportal.GlobalConstants.WRONG_REQUEST;
-
 @Validated
 public abstract class AbstractController {
 
@@ -31,6 +29,8 @@ public abstract class AbstractController {
     // responses
     private static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String MASSAGE_FOR_INVALID_ID = "Id must be greater than 0!";
+    static final String WITHOUT_FILE_MASSAGE = "No attachment file!";
+    private static final String WRONG_REQUEST = "Invalid request!";
 
     // parameters
     static final String USER_ID = "user_id";
@@ -50,8 +50,7 @@ public abstract class AbstractController {
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);
-        view.addObject("ExceptionObject", exceptionObject);
-        view.addObject("message", exceptionObject.getMessages());
+        view.addObject("exception", exceptionObject);
         return view;
     }
 
@@ -64,15 +63,14 @@ public abstract class AbstractController {
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);
-        view.addObject("ExceptionObject", exceptionObject);
-        view.addObject("message", exceptionObject.getMessages());
+        view.addObject("exception", exceptionObject);
         return view;
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handlerOfConstraintViolationException(ConstraintViolationException e) {
-        StringBuilder message = new StringBuilder("");
+        StringBuilder message = new StringBuilder();
         for (ConstraintViolation<?> eex : e.getConstraintViolations()) {
             message.append(eex.getMessage());
         }
@@ -82,8 +80,7 @@ public abstract class AbstractController {
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);
-        view.addObject("ExceptionObject", exceptionObject);
-        view.addObject("message", exceptionObject.getMessages());
+        view.addObject("exception", exceptionObject);
         return view;
     }
 
@@ -98,7 +95,6 @@ public abstract class AbstractController {
         );
         System.out.println(exceptionObject);
         view.addObject("ExceptionObject", exceptionObject);
-        view.addObject("message", exceptionObject.getMessages());
         return view;
     }
 
@@ -111,8 +107,7 @@ public abstract class AbstractController {
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);
-        view.addObject("ExceptionObject", exceptionObject);
-        view.addObject("message", exceptionObject.getMessages());
+        view.addObject("exception", exceptionObject);
         return view;
     }
 
@@ -125,8 +120,7 @@ public abstract class AbstractController {
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);
-        view.addObject("ExceptionObject", exceptionObject);
-        view.addObject("message", exceptionObject.getMessages());
+        view.addObject("exception", exceptionObject);
         return view;
     }
 
@@ -140,8 +134,7 @@ public abstract class AbstractController {
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);
-        view.addObject("ExceptionObject", exceptionObject);
-        view.addObject("message", exceptionObject.getMessages());
+        view.addObject("exception", exceptionObject);
         return view;
     }
 
@@ -155,8 +148,7 @@ public abstract class AbstractController {
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);
-        view.addObject("ExceptionObject", exceptionObject);
-        view.addObject("message", exceptionObject.getMessages());
+        view.addObject("exception", exceptionObject);
         return view;
     }
 }

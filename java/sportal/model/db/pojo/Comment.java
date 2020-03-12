@@ -3,8 +3,6 @@ package sportal.model.db.pojo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sportal.controller.models.comment.CommentCreateModel;
-import sportal.model.service.dto.CommentServiceDTO;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -28,10 +26,10 @@ public class Comment extends BasePOJO {
     @Transient
     private int numberOfDislike;
 
-    public Comment(CommentServiceDTO serviceDTO, long userId) {
-        this.setFullCommentText(serviceDTO.getText());
+    public Comment(String text, long articleId , long userId) {
+        this.setFullCommentText(text);
         this.setUserId(userId);
-        this.setArticleId(serviceDTO.getArticleId());
+        this.setArticleId(articleId);
         this.setDatePublished(Timestamp.valueOf(LocalDateTime.now()));
     }
 }

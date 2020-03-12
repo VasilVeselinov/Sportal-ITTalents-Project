@@ -2,14 +2,13 @@ package sportal.model.validators;
 
 import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
+import sportal.exception.InvalidInputException;
 import sportal.model.db.pojo.Video;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-
-import static sportal.GlobalConstants.WRONG_REQUEST;
 
 public class VideoValidator {
 
@@ -18,6 +17,7 @@ public class VideoValidator {
             "video/quicktime", "video/x-msvideo", "video/x-ms-wmv");
     private static final String DATE_AND_TIME_OF_UPLOAD = "date_and_time_of_upload_";
     private static final String FILE_EXPANSION = ".mp4";
+    private static final String INVALID_FORMAT = "Invalid format for video!";
 
     public static Video checkForValidContentType(MultipartFile multipartFile) throws BadRequestException {
         String fileContentType = multipartFile.getContentType();
@@ -27,7 +27,7 @@ public class VideoValidator {
             String urlOfPicture = DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
             video.setUrlOfVideo(urlOfPicture);
         } else {
-            throw new BadRequestException(WRONG_REQUEST);
+            throw new InvalidInputException(INVALID_FORMAT);
         }
         return video;
     }

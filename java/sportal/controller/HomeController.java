@@ -10,7 +10,7 @@ public class HomeController extends AbstractController {
 
     @GetMapping("/")
     public ModelAndView index(Authentication authentication) {
-        if(authentication != null && authentication.isAuthenticated()) {
+        if (authentication != null && authentication.isAuthenticated()) {
             return new ModelAndView("home.html");
         }
         return new ModelAndView("index.html");

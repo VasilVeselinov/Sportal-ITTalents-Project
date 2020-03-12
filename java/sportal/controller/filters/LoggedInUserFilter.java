@@ -30,7 +30,7 @@ public class LoggedInUserFilter implements Filter {
         }
         HttpSession session = ((HttpServletRequest) servletRequest).getSession();
         UserLoginModel loginModel = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        if (loginModel == null){
+        if (loginModel == null) {
             loginModel = new UserLoginModel(this.authService.findUserByUsername(username));
             session.setAttribute(LOGGED_USER_KEY_IN_SESSION, loginModel);
         }

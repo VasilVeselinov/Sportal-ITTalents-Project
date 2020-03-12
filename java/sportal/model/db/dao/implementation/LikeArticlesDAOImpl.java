@@ -1,14 +1,13 @@
-package sportal.model.db.dao;
+package sportal.model.db.dao.implementation;
 
-import org.springframework.stereotype.Component;
-import sportal.model.db.dao.interfaceDAO.IDAODeleteFromSupportedTable;
-import sportal.model.db.dao.interfaceDAO.IDAOManyToMany;
+import sportal.annotations.DAOAnnotation;
+import sportal.model.db.dao.DAO;
+import sportal.model.db.dao.ILikeArticlesDAO;
 
 import java.sql.SQLException;
 
-
-@Component
-public class UsersLikeArticlesDAO extends DAO implements IDAOManyToMany, IDAODeleteFromSupportedTable {
+@DAOAnnotation
+public class LikeArticlesDAOImpl extends DAO implements ILikeArticlesDAO {
 
     private static final String ADD_LIKE =
             "INSERT INTO users_like_articles (article_id, user_id) " +
@@ -18,7 +17,7 @@ public class UsersLikeArticlesDAO extends DAO implements IDAOManyToMany, IDAODel
                     "WHERE article_id = ? AND user_id = ?;";
 
     @Override
-    public void addInThirdTable(long leftColumn, long rightColumn) throws SQLException {
+    public void add(long leftColumn, long rightColumn) throws SQLException {
         this.jdbcTemplate.update(ADD_LIKE, leftColumn, rightColumn);
     }
 

@@ -18,19 +18,19 @@ public class Category extends BasePOJO {
 
     private String categoryName;
 
-    public Category(CategoryServiceDTO editDTO) {
-        this.setId(editDTO.getId());
-        this.setCategoryName(editDTO.getCategoryName());
-    }
-
     public Category(String categoryName) {
         this.setCategoryName(categoryName);
     }
 
+    public Category(long id, String categoryName) {
+        this(categoryName);
+        this.setId(id);
+    }
+
     public static List<Category> fromDTOToPojo(List<CategoryServiceDTO> categories) {
-        List<Category> pojoList =new ArrayList<>();
-        for (CategoryServiceDTO category: categories){
-            pojoList.add(new Category(category));
+        List<Category> pojoList = new ArrayList<>();
+        for (CategoryServiceDTO category : categories) {
+            pojoList.add(new Category(category.getId(), category.getCategoryName()));
         }
         return pojoList;
     }

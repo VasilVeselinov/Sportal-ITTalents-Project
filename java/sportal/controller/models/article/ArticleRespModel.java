@@ -22,18 +22,18 @@ public class ArticleRespModel {
     private LocalDateTime createDateAndTime;
     private int views;
 
-   public ArticleRespModel(ArticleServiceDTO serviceDTO){
-       this.setId(serviceDTO.getId());
-       this.setTitle(serviceDTO.getTitle());
-       this.setCreateDateAndTime(serviceDTO.getCreateDateAndTime().toLocalDateTime());
-       this.setViews(serviceDTO.getViews());
-   }
+    public ArticleRespModel(ArticleServiceDTO serviceDTO) {
+        this.setId(serviceDTO.getId());
+        this.setTitle(serviceDTO.getTitle());
+        this.setCreateDateAndTime(serviceDTO.getCreateDateAndTime().toLocalDateTime());
+        this.setViews(serviceDTO.getViews());
+    }
 
     public static List<ArticleRespModel> fromDTOToModel(List<ArticleServiceDTO> articles) {
-       List<ArticleRespModel> articleRespModelList = new ArrayList<>();
-       for (ArticleServiceDTO article : articles){
-           articleRespModelList.add(new ArticleRespModel(article));
-       }
+        List<ArticleRespModel> articleRespModelList = new ArrayList<>();
+        for (ArticleServiceDTO article : articles) {
+            articleRespModelList.add(new ArticleRespModel(article));
+        }
         return articleRespModelList;
     }
 }

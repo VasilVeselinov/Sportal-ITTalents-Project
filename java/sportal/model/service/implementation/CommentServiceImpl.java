@@ -5,7 +5,8 @@ import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.db.dao.CommentDAO;
+import sportal.model.db.dao.ICommentDAO;
+import sportal.model.service.IArticleService;
 import sportal.model.service.dto.CommentServiceDTO;
 import sportal.model.db.pojo.Comment;
 import sportal.model.db.repository.CommentRepository;
@@ -20,20 +21,20 @@ import java.util.List;
 public class CommentServiceImpl implements ICommentService {
 
     private static final String ALREADY_VOTED = "You have already voted on this comment!";
-    private static final String WRONG_INFORMATION = "Wrong information about the user!";
+    private static final String YOU_ARE_NOT_AUTHOR = "You are not author of this comment!";
     private static final String NOT_EXISTS_COMMENT = "Comment not found!";
 
     @Autowired
     private CommentRepository commentRepository;
     @Autowired
-    private ArticleServiceImpl articleService;
+    private IArticleService articleService;
     @Autowired
-    private CommentDAO commentDAO;
+    private ICommentDAO commentDAO;
 
     @Override
     public long addComment(CommentServiceDTO serviceDTO) {
         this.articleService.existsById(serviceDTO.getArticleId());
-        Comment comment = new Comment(serviceDTO, serviceDTO.getUserId());
+        Comment comment = new Comment(serviceDTO.getText(), serviceDTO.getArticleId() , serviceDTO.getUserId());
         comment = this.commentRepository.save(comment);
         comment.setUserName(serviceDTO.getUserName());
         return comment.getArticleId();
@@ -44,7 +45,7 @@ public class CommentServiceImpl implements ICommentService {
         Comment existsComment = this.commentRepository.findById(serviceDTO.getId())
                 .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_COMMENT));
         if (serviceDTO.getUserId() != existsComment.getUserId()) {
-            throw new AuthorizationException(WRONG_INFORMATION);
+            throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
         existsComment.setFullCommentText(serviceDTO.getText());
         existsComment.setDatePublished(Timestamp.valueOf(LocalDateTime.now()));
@@ -57,7 +58,7 @@ public class CommentServiceImpl implements ICommentService {
         Comment existsComment = this.commentRepository.findById(commentId)
                 .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_COMMENT));
         if (userId != existsComment.getUserId()) {
-            throw new AuthorizationException(WRONG_INFORMATION);
+            throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
         this.commentRepository.deleteById(commentId);
         return existsComment.getArticleId();

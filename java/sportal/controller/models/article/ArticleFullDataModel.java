@@ -30,13 +30,13 @@ public class ArticleFullDataModel {
     private String authorName;
 
     public ArticleFullDataModel(ArticleServiceDTO serviceDTO) {
-        this.id=serviceDTO.getId();
-        this.title=serviceDTO.getTitle();
-        this.fullText=serviceDTO.getFullText();
-        this.createDateAndTime=serviceDTO.getCreateDateAndTime().toLocalDateTime();
-        this.views=serviceDTO.getViews();
-        this.authorName=serviceDTO.getAuthorName();
-        this.numberOfLikes=serviceDTO.getNumberOfLikes();
+        this.id = serviceDTO.getId();
+        this.title = serviceDTO.getTitle();
+        this.fullText = serviceDTO.getFullText();
+        this.createDateAndTime = serviceDTO.getCreateDateAndTime().toLocalDateTime();
+        this.views = serviceDTO.getViews();
+        this.authorName = serviceDTO.getAuthorName();
+        this.numberOfLikes = serviceDTO.getNumberOfLikes();
         this.categories = CategoryResponseModel.fromDTOToModel(serviceDTO.getCategories());
         this.pictures = PictureModel.fromDTOToModel(serviceDTO.getPictures());
         this.videos = VideoModel.fromDTOToModel(serviceDTO.getVideos());

@@ -18,15 +18,16 @@ import javax.transaction.Transactional;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static sportal.GlobalConstants.WRONG_REQUEST;
+import static sportal.GlobalConstants.PACKAGE_FOR_PICTURES;
 
 @Service
 public class PictureServiceImpl implements IPictureService {
     // Vasko : please fix me, if you change directory for upload pictures
-    private static final String PACKAGE_NAME = System.getProperty("user.home") + "\\Desktop\\uploadPictures\\";
-    private static final String NOT_EXIST_PICTURE = "The picture do not exist!";
+    private static final String PATH_NAME =
+            System.getProperty("user.home") + "\\Desktop\\" + PACKAGE_FOR_PICTURES + "\\";
+    private static final String NOT_EXIST = "The picture do not exist!";
+    private static final String DO_NOT_FREE = "The picture do not free!";
     @Autowired
     private PictureRepository pictureRepository;
     @Autowired
@@ -35,38 +36,36 @@ public class PictureServiceImpl implements IPictureService {
     @Transactional
     @Override
     public void upload(List<MultipartFile> multipartFiles) throws BadRequestException {
-        if (multipartFiles == null || multipartFiles.isEmpty()) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        File fileCreateDirectory = new File(PACKAGE_NAME);
+        File fileCreateDirectory = new File(PATH_NAME);
         if (!fileCreateDirectory.exists()) {
             fileCreateDirectory.mkdir();
         }
         List<Picture> pictures = PictureValidator.checkForValidContentType(multipartFiles);
-        FileManagerDAO fileManagerDAO = new FileManagerDAO(multipartFiles, PACKAGE_NAME, pictures);
+        FileManagerDAO fileManagerDAO = new FileManagerDAO(multipartFiles, PATH_NAME, pictures);
         fileManagerDAO.start();
         this.pictureRepository.saveAll(pictures);
     }
 
     @Override
     public PictureServiceDTO delete(long pictureId) {
-        Optional<Picture> picture = this.pictureRepository.findById(pictureId);
-        if (!picture.isPresent()) {
-            throw new ExistsObjectException(NOT_EXIST_PICTURE);
-        }
+        Picture picture = this.pictureRepository.findById(pictureId)
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST));
         this.pictureRepository.deleteById(pictureId);
-        File fileForDelete = new File(PACKAGE_NAME + picture.get().getUrlOfPicture());
+        File fileForDelete = new File(PATH_NAME + picture.getUrlOfPicture());
         fileForDelete.delete();
-        return new PictureServiceDTO(picture.get());
+        return new PictureServiceDTO(picture);
     }
 
     @Override
     public void addPictureToTheArticleById(long pictureId, long articleId, long userId) {
-        Optional<Picture> optionalPicture = this.pictureRepository.findById(pictureId);
-        Picture validPicture = PictureValidator.checkForValidPicture(optionalPicture);
+        Picture picture = this.pictureRepository.findById(pictureId)
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST));
+        if (picture.getArticleId() != null) {
+            throw new ExistsObjectException(DO_NOT_FREE);
+        }
         this.articleService.findByIdAndCheckForAuthorCopyright(articleId, userId);
-        validPicture.setArticleId(articleId);
-        this.pictureRepository.save(validPicture);
+        picture.setArticleId(articleId);
+        this.pictureRepository.save(picture);
     }
 
     @Override

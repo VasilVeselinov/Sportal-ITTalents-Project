@@ -15,6 +15,7 @@ import sportal.model.service.dto.VideoServiceDTO;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 
 import java.util.List;
 
@@ -31,7 +32,8 @@ public class VideoController extends AbstractController {
     @PostMapping(value = "/upload")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
     public ResponseEntity<Void> uploadVideo(
-            @RequestPart(value = "video") MultipartFile multipartFile) throws BadRequestException {
+            @RequestPart(value = "video") @Size(min = 1, message = WITHOUT_FILE_MASSAGE) MultipartFile multipartFile)
+            throws BadRequestException {
         this.videoService.upload(multipartFile);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/videos/all/article_id_is_null");

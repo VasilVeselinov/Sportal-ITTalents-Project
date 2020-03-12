@@ -1,15 +1,17 @@
-package sportal.model.db.dao;
+package sportal.model.db.dao.implementation;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
+import sportal.annotations.DAOAnnotation;
+import sportal.model.db.dao.DAO;
+import sportal.model.db.dao.ICategoryDAO;
 import sportal.model.db.pojo.Category;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class CategoryDAO extends DAO {
+@DAOAnnotation
+public class CategoryDAOImpl extends DAO implements ICategoryDAO {
 
     private static final String ALL_CATEGORIES_BY_ARTICLE_ID =
             "SELECT c.id, c.category_name " +
@@ -27,6 +29,7 @@ public class CategoryDAO extends DAO {
     private static final String DELETE_CATEGORY_FROM_ARTICLE =
             "DELETE FROM articles_categories WHERE article_id = ? AND category_id = ?;";
 
+    @Override
     public List<Category> allCategoriesByArticlesId(long articleID) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ALL_CATEGORIES_BY_ARTICLE_ID, articleID);
         List<Category> listWithCategories = new ArrayList<>();
@@ -43,15 +46,18 @@ public class CategoryDAO extends DAO {
         return category;
     }
 
+    @Override
     public boolean existsCombination(long articleId, long categoryId) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_COMBINATION, articleId, categoryId);
         return rowSet.next();
     }
 
+    @Override
     public void addCategoryToArticleById(long articleId, long categoryId) throws SQLException {
         this.jdbcTemplate.update(ADD_CATEGORY_BY_ARTICLE_ID, articleId, categoryId);
     }
 
+    @Override
     public void deleteCategoryFromArticleById(long articleId, long categoryId) {
         this.jdbcTemplate.update(DELETE_CATEGORY_FROM_ARTICLE, articleId, categoryId);
     }

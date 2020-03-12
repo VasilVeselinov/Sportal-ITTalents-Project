@@ -17,14 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
 
-import static sportal.GlobalConstants.WRONG_REQUEST;
+import static sportal.GlobalConstants.PACKAGE_FOR_VIDEOS;
 
 @Service
 public class VideoServiceImpl implements IVideoService {
 
     // Vasko : please fix me, if you change directory for upload videos
-    private static final String PACKAGE_NAME = System.getProperty("user.home") + "\\Desktop\\uploadVideos\\";
-    private static final String NOT_EXIST_VIDEO = "The video do not exist!";
+    private static final String PATH_NAME =
+            System.getProperty("user.home") + "\\Desktop\\" + PACKAGE_FOR_VIDEOS + "\\";
+    private static final String NOT_EXIST = "The video do not exist!";
     private static final String DO_NOT_FREE = "This video do not free!";
 
     @Autowired
@@ -34,15 +35,12 @@ public class VideoServiceImpl implements IVideoService {
 
     @Override
     public void upload(MultipartFile multipartFile) throws BadRequestException {
-        if (multipartFile == null || multipartFile.isEmpty()) {
-            throw new BadRequestException(WRONG_REQUEST);
-        }
-        File fileCreateDirectory = new File(PACKAGE_NAME);
+        File fileCreateDirectory = new File(PATH_NAME);
         if (!fileCreateDirectory.exists()) {
             fileCreateDirectory.mkdir();
         }
         Video video = VideoValidator.checkForValidContentType(multipartFile);
-        FileManagerDAO fileManagerDAO = new FileManagerDAO(multipartFile, PACKAGE_NAME, video);
+        FileManagerDAO fileManagerDAO = new FileManagerDAO(multipartFile, PATH_NAME, video);
         fileManagerDAO.start();
         this.videoRepository.save(video);
     }
@@ -50,9 +48,9 @@ public class VideoServiceImpl implements IVideoService {
     @Override
     public VideoServiceDTO delete(long videoId) {
         Video video = this.videoRepository.findById(videoId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST_VIDEO));
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST));
         this.videoRepository.deleteById(videoId);
-        File fileForDelete = new File(PACKAGE_NAME + video.getUrlOfVideo());
+        File fileForDelete = new File(PATH_NAME + video.getUrlOfVideo());
         fileForDelete.delete();
         return new VideoServiceDTO(video.getId(), video.getUrlOfVideo(), video.getArticleId());
     }
@@ -60,7 +58,7 @@ public class VideoServiceImpl implements IVideoService {
     @Override
     public void addVideoToTheArticleById(long videoId, long articleId, long userId) {
         Video video = this.videoRepository.findById(videoId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST_VIDEO));
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST));
         if (video.getArticleId() != null) {
             throw new ExistsObjectException(DO_NOT_FREE);
         }

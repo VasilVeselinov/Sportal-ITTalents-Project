@@ -1,15 +1,17 @@
-package sportal.model.db.dao;
+package sportal.model.db.dao.implementation;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
+import sportal.annotations.DAOAnnotation;
+import sportal.model.db.dao.DAO;
+import sportal.model.db.dao.ICommentDAO;
 import sportal.model.db.pojo.Comment;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class CommentDAO extends DAO {
+@DAOAnnotation
+public class CommentDAOImpl extends DAO implements ICommentDAO {
 
     private static final String FIND_COMMENT_BY_ID =
             "SELECT c.id, c.full_comment_text, c.date_published, c.user_id, c.article_id, u.username, " +
@@ -40,6 +42,7 @@ public class CommentDAO extends DAO {
                     "LEFT JOIN users_disliked_comments AS udc ON udc.comment_id = c.id " +
                     "WHERE (uls.comment_id = ? AND uls.user_id = ?) OR (udc.comment_id = ? AND udc.user_id = ?);";
 
+    @Override
     public Comment findById(long commentId) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_COMMENT_BY_ID, commentId);
         if (rowSet.next()) {
@@ -48,6 +51,7 @@ public class CommentDAO extends DAO {
         return null;
     }
 
+    @Override
     public List<Comment> allCommentsByArticleId(long articleId) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ALL_COMMENT_BY_ARTICLE_ID, articleId);
         List<Comment> listWithComments = new ArrayList<>();
@@ -70,6 +74,7 @@ public class CommentDAO extends DAO {
         return comment;
     }
 
+    @Override
     public boolean existsVoteForThatCommentFromThisUser(long commentId, long userId) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(EXISTS_VOTED_COMMENT,
                 commentId, userId, commentId, userId);

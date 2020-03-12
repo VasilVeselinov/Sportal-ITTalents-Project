@@ -1,8 +1,8 @@
 package sportal.model.validators;
 
 import org.springframework.web.multipart.MultipartFile;
-import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
+import sportal.exception.InvalidInputException;
 import sportal.model.db.pojo.Picture;
 import sportal.model.service.dto.PictureServiceDTO;
 
@@ -11,9 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-
-import static sportal.GlobalConstants.WRONG_REQUEST;
 
 public class PictureValidator {
 
@@ -28,6 +25,7 @@ public class PictureValidator {
 
     private static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST =
             "Some of the pictures do not exist or do not free!";
+    private static final String INVALID_FORMAT = "Invalid format for picture!";
 
     public static List<PictureServiceDTO> conformityCheck(List<Picture> existsPictures,
                                                           List<PictureServiceDTO> pictures) {
@@ -46,7 +44,7 @@ public class PictureValidator {
     }
 
     public static List<Picture> checkForValidContentType(
-            List<MultipartFile> multipartFiles) throws BadRequestException {
+            List<MultipartFile> multipartFiles) {
         List<Picture> pictures = new ArrayList<>();
         for (int i = 0; i < multipartFiles.size(); i++) {
             String fileContentType = multipartFiles.get(i).getContentType();
@@ -57,16 +55,9 @@ public class PictureValidator {
                 picture.setUrlOfPicture(urlOfPicture);
                 pictures.add(picture);
             } else {
-                throw new BadRequestException(WRONG_REQUEST);
+                throw new InvalidInputException(INVALID_FORMAT);
             }
         }
         return pictures;
-    }
-
-    public static Picture checkForValidPicture(Optional<Picture> optionalPicture) {
-        if (!optionalPicture.isPresent() || optionalPicture.get().getArticleId() != null) {
-            throw new ExistsObjectException(SOME_OF_THE_PICTURES_DO_NOT_EXIST);
-        }
-        return optionalPicture.get();
     }
 }

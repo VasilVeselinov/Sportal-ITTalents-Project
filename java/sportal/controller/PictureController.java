@@ -14,6 +14,7 @@ import sportal.model.service.IPictureService;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 import static sportal.GlobalConstants.HAS_AUTHORITY_ADMIN;
@@ -29,7 +30,8 @@ public class PictureController extends AbstractController {
     @PostMapping(value = "/upload")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
     public ResponseEntity<Void> uploadPictures(
-            @RequestPart(value = "picture") List<MultipartFile> multipartFiles) throws BadRequestException {
+            @RequestPart(value = "picture") @Size(min = 1, message = WITHOUT_FILE_MASSAGE)
+                    List<MultipartFile> multipartFiles) throws BadRequestException {
         this.pictureService.upload(multipartFiles);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/pictures/all/article_id_is_null");

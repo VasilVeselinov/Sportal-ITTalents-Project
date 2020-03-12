@@ -3,9 +3,10 @@ package sportal.model.service.implementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.db.dao.CategoryDAO;
+import sportal.model.db.dao.ICategoryDAO;
 import sportal.model.service.IArticleService;
 import sportal.model.service.dto.ArticleServiceDTO;
 import sportal.model.validators.CategoryValidator;
@@ -30,7 +31,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
-    private CategoryDAO categoryDAO;
+    private ICategoryDAO categoryDAO;
     @Autowired
     private IArticleService articleService;
 
@@ -45,7 +46,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public void edit(CategoryServiceDTO serviceDTO) {
-        Category category = new Category(serviceDTO);
+        Category category = new Category(serviceDTO.getId(), serviceDTO.getCategoryName());
         if (this.categoryRepository.existsByCategoryName(category.getCategoryName())) {
             throw new ExistsObjectException(EXISTS_CATEGORY);
         }
@@ -72,7 +73,7 @@ public class CategoryServiceImpl implements ICategoryService {
             long categoryId, long articleId, long userId) throws BadRequestException, SQLException {
         ArticleServiceDTO serviceDTO = this.articleService.findArticleById(articleId);
         if (serviceDTO.getAuthorId() != userId) {
-            throw new BadRequestException(YOU_ARE_NOT_AUTHOR);
+            throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
         Optional<Category> category = this.categoryRepository.findById(categoryId);
         if (!category.isPresent()) {

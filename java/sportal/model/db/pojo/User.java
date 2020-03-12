@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.userdetails.UserDetails;
-import sportal.model.service.dto.UserServiceDTO;
 
 import javax.persistence.*;
 import java.util.List;
@@ -24,11 +23,11 @@ public class User extends BasePOJO implements UserDetails {
     @Transient
     private List<Role> authorities;
 
-    public User(UserServiceDTO serviceDTO) {
-        this.setUsername(serviceDTO.getUsername());
-        this.setPassword(serviceDTO.getUserPassword());
-        this.setUserEmail(serviceDTO.getUserEmail());
-        this.authorities = Role.fromDTOToPOJO(serviceDTO.getAuthorities());
+    public User(String username, String password, String userEmail, List<Role> authorities) {
+        this.username = username;
+        this.password = password;
+        this.userEmail = userEmail;
+        this.authorities = authorities;
         this.isEnabled = false;
     }
 

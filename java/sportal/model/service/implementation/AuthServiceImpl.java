@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.db.dao.UserDAO;
+import sportal.model.db.dao.IUserDAO;
 import sportal.model.db.pojo.Role;
 import sportal.model.db.pojo.User;
 import sportal.model.db.repository.UserRepository;
@@ -44,7 +44,7 @@ public class AuthServiceImpl implements IAuthService {
     @Autowired
     private IBCryptService cryptService;
     @Autowired
-    private UserDAO userDAO;
+    private IUserDAO userDAO;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
@@ -55,7 +55,9 @@ public class AuthServiceImpl implements IAuthService {
         }
         serviceDTO.addAuthority(this.roleService.getAuthorities(USER_USER_AUTHORITY));
         serviceDTO.setUserPassword(this.cryptService.cryptPassword(serviceDTO.getUserPassword()));
-        User user = new User(serviceDTO);
+        User user = new User(
+                serviceDTO.getUsername(), serviceDTO.getUserPassword(),
+                serviceDTO.getUserEmail(), Role.fromDTOToPOJO(serviceDTO.getAuthorities()));
         String token = UUID.randomUUID().toString();
         user.setToken(token);
         user = this.userDAO.addUser(user);
@@ -66,7 +68,7 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     public UserServiceDTO changePassword(UserServiceDTO serviceDTO, long userId) {
         User userDB = this.userRepository.findById(userId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));;
+                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
         if (!this.cryptService.checkPassword(serviceDTO.getUserPassword(), userDB.getPassword())) {
             throw new AuthorizationException(FAILED_CREDENTIALS);
         }

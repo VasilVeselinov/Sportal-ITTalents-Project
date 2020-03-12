@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.db.dao.ArticleDAO;
+import sportal.model.db.dao.IArticleDAO;
 import sportal.model.db.pojo.Article;
 import sportal.model.db.pojo.Category;
 import sportal.model.db.pojo.Picture;
@@ -37,7 +37,7 @@ public class ArticleServiceImpl implements IArticleService {
     @Autowired
     private IVideoService videoService;
     @Autowired
-    private ArticleDAO articleDAO;
+    private IArticleDAO articleDAO;
     @Autowired
     private ArticleRepository articleRepository;
 
@@ -95,7 +95,7 @@ public class ArticleServiceImpl implements IArticleService {
         Article existsArticle = this.articleRepository.findById(serviceDTO.getId())
                 .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_ARTICLE));
         this.checkForAuthorCopyright(existsArticle.getAuthorId(), userId);
-        Article article = new Article(serviceDTO);
+        Article article = new Article(serviceDTO.getId(), serviceDTO.getTitle(), serviceDTO.getFullText());
         article.setAuthorId(userId);
         article.setViews(existsArticle.getViews());
         return this.articleRepository.save(article).getId();
@@ -130,8 +130,8 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     public void existsVoteForThatArticleFromThisUser(long articleId, long userId) throws BadRequestException {
-       if (this.articleDAO.existsVoteForThatArticleFromThisUser(articleId, userId)){
-           throw new BadRequestException(ALREADY_VOTED);
-       }
+        if (this.articleDAO.existsVoteForThatArticleFromThisUser(articleId, userId)) {
+            throw new BadRequestException(ALREADY_VOTED);
+        }
     }
 }

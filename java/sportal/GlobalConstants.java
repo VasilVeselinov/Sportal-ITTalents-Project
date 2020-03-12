@@ -6,5 +6,7 @@ public class GlobalConstants {
     public static final String HAS_AUTHORITY_EDITOR = "hasAuthority('EDITOR')";
     public static final String HAS_AUTHORITY_ADMIN = "hasAuthority('ADMIN')";
 
-    public static final String WRONG_REQUEST = "Invalid request!";
+    // package name for upload
+    public static final String PACKAGE_FOR_PICTURES = "upload_pictures";
+    public static final String PACKAGE_FOR_VIDEOS = "upload_videos";
 }

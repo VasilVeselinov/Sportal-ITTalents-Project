@@ -1,8 +1,10 @@
-package sportal.model.db.dao;
+package sportal.model.db.dao.implementation;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
+import sportal.annotations.DAOAnnotation;
 import sportal.exception.TransactionException;
+import sportal.model.db.dao.DAO;
+import sportal.model.db.dao.IArticleDAO;
 import sportal.model.db.pojo.Article;
 import sportal.model.db.pojo.Category;
 import sportal.model.db.pojo.Picture;
@@ -11,8 +13,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class ArticleDAO extends DAO {
+@DAOAnnotation
+public class ArticleDAOImpl extends DAO implements IArticleDAO {
 
     private static final String ADD_NEW_ARTICLE =
             "INSERT INTO articles (title, full_text, date_published, views, author_id) " +
@@ -56,6 +58,7 @@ public class ArticleDAO extends DAO {
                     "FROM users_like_articles " +
                     "WHERE article_id = ? AND user_id = ?";
 
+    @Override
     public Article addArticle(Article article, List<Picture> pictures, List<Category> categories) throws SQLException {
         Connection connection = this.jdbcTemplate.getDataSource().getConnection();
         try (
@@ -97,10 +100,12 @@ public class ArticleDAO extends DAO {
         return article;
     }
 
+    @Override
     public void addViewOfByArticleId(long articleID) throws SQLException {
         this.jdbcTemplate.update(UPDATE_VIEWS_BY_ARTICLE_ID, articleID);
     }
 
+    @Override
     public Article findById(long articleId) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_ARTICLE_BY_ID, articleId);
         if (rowSet.next()) {
@@ -122,6 +127,7 @@ public class ArticleDAO extends DAO {
         return article;
     }
 
+    @Override
     public List<Article> allArticlesByTitleOrCategory(String titleOrCategory) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(
                 SEARCH_ARTICLE_BY_TITLE_OR_CATEGORY, "%" + titleOrCategory + "%", "%" + titleOrCategory + "%");
@@ -141,6 +147,7 @@ public class ArticleDAO extends DAO {
         return article;
     }
 
+    @Override
     public List<Article> topFiveMostViewedArticlesForToday() throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(TOP_FIVE_MOST_VIEWED_ARTICLE);
         List<Article> listFromArticles = new ArrayList<>();
@@ -150,6 +157,7 @@ public class ArticleDAO extends DAO {
         return listFromArticles;
     }
 
+    @Override
     public List<Article> articlesByCategoryId(long categoryID) throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ARTICLES_BY_CATEGORY_ID, categoryID);
         List<Article> listWithCategories = new ArrayList<>();
@@ -169,6 +177,7 @@ public class ArticleDAO extends DAO {
         return article;
     }
 
+    @Override
     public boolean existsVoteForThatArticleFromThisUser(long articleId, long userId) {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_COMBINATION, articleId, userId);
         return rowSet.next();

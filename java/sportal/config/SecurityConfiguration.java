@@ -14,6 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import sportal.model.service.IAuthService;
 
+import static sportal.GlobalConstants.PACKAGE_FOR_PICTURES;
+import static sportal.GlobalConstants.PACKAGE_FOR_VIDEOS;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -23,13 +26,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private IAuthService authService;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private static final String[] urlForNonLoggedUser = {
+    private static final String[] URL_FOR_NON_LOGGED_USER = {
             "/", "/articles/{id}", "/articles/top_5_read_today", "/articles/the_category/{id}", "/articles/search",
-            "/categories/all" , "/comments/all/{id}", "/comments/{id}" , "/emails/registration_confirm"
+            "/categories/all", "/comments/all/{id}", "/comments/{id}", "/emails/registration_confirm"
     };
 
-    private static final String[] urlResources = {
-            "/static/css/*", "/static/img/*", "/static/js/*", "/uploadPictures/*"
+    private static final String[] URL_RESOURCES = {
+            "/static/css/*", "/static/img/*", "/static/js/*",
+            "/" + PACKAGE_FOR_PICTURES + "/*", "/" + PACKAGE_FOR_VIDEOS + "/*"
     };
 
     @Override
@@ -39,12 +43,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .antMatchers("/users/registration", "/users/login", "/after_registration")
                         .anonymous()
-                    .antMatchers(urlResources)
+                    .antMatchers(URL_RESOURCES)
                         .permitAll()
-                    .antMatchers(HttpMethod.GET, urlForNonLoggedUser)
+                    .antMatchers(HttpMethod.GET, URL_FOR_NON_LOGGED_USER)
                         .permitAll()
                     .anyRequest()
-                        .authenticated()
+                    .authenticated()
                 .and()
                     .formLogin()
                         .loginPage("/users/login")
@@ -53,9 +57,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .passwordParameter("password")
                         .defaultSuccessUrl("/", true)
                 .and()
-                .logout()
-                    .logoutSuccessUrl("/")
-                        .permitAll()
+                    .logout()
+                        .logoutSuccessUrl("/")
+                            .permitAll()
                 .and()
                     .exceptionHandling()
                         .accessDeniedPage("/unauthorized");

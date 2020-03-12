@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
 import sportal.exception.ExistsObjectException;
-import sportal.model.db.dao.UsersDislikeCommentsDAO;
-import sportal.model.db.dao.UsersLikeArticlesDAO;
-import sportal.model.db.dao.UsersLikeCommentsDAO;
+import sportal.model.db.dao.IDislikeCommentsDAO;
+import sportal.model.db.dao.ILikeArticlesDAO;
+import sportal.model.db.dao.ILikeCommentsDAO;
 import sportal.model.db.pojo.User;
 import sportal.model.db.repository.UserRepository;
 import sportal.model.service.IArticleService;
@@ -28,15 +28,15 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private UsersLikeArticlesDAO likeArticlesDAO;
+    private ILikeArticlesDAO likeArticlesDAO;
     @Autowired
     private ICommentService commentService;
     @Autowired
     private IArticleService articleService;
     @Autowired
-    private UsersLikeCommentsDAO likeCommentsDAO;
+    private ILikeCommentsDAO likeCommentsDAO;
     @Autowired
-    private UsersDislikeCommentsDAO dislikeCommentsDAO;
+    private IDislikeCommentsDAO dislikeCommentsDAO;
 
     @Override
     public UserServiceDTO removeUserByUserId(long userId, long editorId) {
@@ -76,7 +76,7 @@ public class UserServiceImpl implements IUserService {
     public void likeArticle(long articleId, long userId) throws SQLException, BadRequestException {
         this.articleService.existsById(articleId);
         this.articleService.existsVoteForThatArticleFromThisUser(articleId, userId);
-        this.likeArticlesDAO.addInThirdTable(articleId, userId);
+        this.likeArticlesDAO.add(articleId, userId);
     }
 
     @Override
@@ -90,14 +90,14 @@ public class UserServiceImpl implements IUserService {
     public void likeComment(long commentId, long userId) throws BadRequestException, SQLException {
         this.commentService.existsById(commentId);
         this.commentService.existsVoteForThatCommentFromThisUser(commentId, userId);
-        this.likeCommentsDAO.addInThirdTable(commentId, userId);
+        this.likeCommentsDAO.add(commentId, userId);
     }
 
     @Override
     public void dislikeComment(long commentId, long userId) throws BadRequestException, SQLException {
         this.commentService.existsById(commentId);
         this.commentService.existsVoteForThatCommentFromThisUser(commentId, userId);
-        this.dislikeCommentsDAO.addInThirdTable(commentId, userId);
+        this.dislikeCommentsDAO.add(commentId, userId);
     }
 
     @Override

@@ -1,8 +1,10 @@
-package sportal.model.db.dao;
+package sportal.model.db.dao.implementation;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
+import sportal.annotations.DAOAnnotation;
 import sportal.exception.TransactionException;
+import sportal.model.db.dao.DAO;
+import sportal.model.db.dao.IUserDAO;
 import sportal.model.db.pojo.Role;
 import sportal.model.db.pojo.User;
 
@@ -10,8 +12,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class UserDAO extends DAO {
+@DAOAnnotation
+public class UserDAOImpl extends DAO implements IUserDAO {
 
     private static final String ADD_USER =
             "INSERT INTO users (username, password, user_email, is_enabled, token) " +
@@ -26,6 +28,7 @@ public class UserDAO extends DAO {
                     "WHERE ua.user_id = ?;";
 
 
+    @Override
     public User addUser(User user) throws SQLException {
         Connection connection = this.jdbcTemplate.getDataSource().getConnection();
         try (
@@ -61,6 +64,7 @@ public class UserDAO extends DAO {
         return user;
     }
 
+    @Override
     public List<Role> findAllRolesByUserId(long userId) {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_ALL_ROLES, userId);
         List<Role> roleSet = new ArrayList<>();
@@ -73,6 +77,7 @@ public class UserDAO extends DAO {
         return roleSet;
     }
 
+    @Override
     public void upAuthorityByUserId(long userId, long authorityId) {
         this.jdbcTemplate.update(ADD_ROLES_OF_THE_USER, userId, authorityId);
     }
