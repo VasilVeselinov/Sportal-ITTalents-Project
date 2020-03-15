@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_ADMIN;
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_ADMIN;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 @RestController
 @RequestMapping(value = "/articles")
@@ -35,15 +35,15 @@ public class ArticleController extends AbstractController {
 
     @PostMapping(value = "/create")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
-    public ResponseEntity<Void> createArticle(@Valid @RequestBody ArticleCreateModel articleModel,
+    public ResponseEntity<Void> createArticle(@Valid @RequestBody ArticleCreateModel createModel,
                                               BindingResult bindingResult,
                                               HttpSession session) throws SQLException, BadRequestException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         ArticleServiceDTO serviceDTO =
                 new ArticleServiceDTO(
-                        articleModel.getTitle(), articleModel.getFullText(),
-                        CategoryServiceDTO.fromModelToDTO(articleModel.getCategories()),
-                        PictureServiceDTO.fromModelToDTO(articleModel.getPictures()));
+                        createModel.getTitle(), createModel.getFullText(),
+                        CategoryServiceDTO.fromModelToDTO(createModel.getCategories()),
+                        PictureServiceDTO.fromModelToDTO(createModel.getPictures()));
         long articleId = this.articleService.addArticle(serviceDTO, logUser.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/articles/" + articleId);
@@ -52,22 +52,25 @@ public class ArticleController extends AbstractController {
 
     @GetMapping(value = "/search")
     public List<ArticleRespModel> searchOfArticlesByTitleOfCategoryName(
-            @RequestParam(name = "text", required = false) String titleOrCategory) throws SQLException {
-        return ArticleRespModel.fromDTOToModel(this.articleService.findByArticleTitleOrCategory(titleOrCategory));
+            @RequestParam(name = "text", required = false) String titleOrCategory,
+            @RequestParam("page") @Positive(message = MASSAGE_FOR_INVALID_NUMBER_OF_PAGE) int page)
+            throws SQLException {
+        return ArticleRespModel.fromDTOToModel(this.articleService.findByTitleOrCategory(titleOrCategory, page));
     }
 
     @GetMapping(value = "/{" + ARTICLE_ID + "}")
     public ArticleFullDataModel articleById(
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId)
             throws SQLException, BadRequestException {
-        return new ArticleFullDataModel(this.articleService.findArticleById(articleId));
+        return new ArticleFullDataModel(this.articleService.findById(articleId));
     }
 
     @GetMapping(value = "/the_category/{" + CATEGORY_ID + "}")
     public List<ArticleRespModel> articlesByCategoryId(
-            @PathVariable(CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId)
+            @PathVariable(CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId,
+            @RequestParam("page") @Positive(message = MASSAGE_FOR_INVALID_NUMBER_OF_PAGE) int page)
             throws SQLException, BadRequestException {
-        return ArticleRespModel.fromDTOToModel(this.articleService.findByCategoryId(categoryId));
+        return ArticleRespModel.fromDTOToModel(this.articleService.findByCategoryId(categoryId, page));
     }
 
     @GetMapping(value = "/top_5_read_today")
@@ -77,13 +80,13 @@ public class ArticleController extends AbstractController {
 
     @PutMapping(value = "/edit")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
-    public void editArticleTitleOrText(@Valid @RequestBody ArticleEditModel articleEditDTO,
+    public void editArticleTitleOrText(@Valid @RequestBody ArticleEditModel editModel,
                                        BindingResult bindingResult,
                                        HttpSession session,
                                        HttpServletResponse response) throws BadRequestException, IOException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         ArticleServiceDTO serviceDTO = new ArticleServiceDTO(
-                articleEditDTO.getOldArticleId(), articleEditDTO.getNewTitle(), articleEditDTO.getNewFullText());
+                editModel.getOldArticleId(), editModel.getNewTitle(), editModel.getNewFullText());
         response.sendRedirect("/articles/" + this.articleService.edit(serviceDTO, logUser.getId()));
     }
 

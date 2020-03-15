@@ -17,8 +17,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_ADMIN;
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_ADMIN;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 @RestController
 @RequestMapping("/pictures")
@@ -45,9 +45,9 @@ public class PictureController extends AbstractController {
         return new PictureModel(this.pictureService.delete(pictureId));
     }
 
-    @PutMapping(value = "/add_into_article/{" + PICTURE_ID + "}/{" + ARTICLE_ID + "}")
+    @PutMapping(value = "/add_to_article/{" + PICTURE_ID + "}/{" + ARTICLE_ID + "}")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
-    public ResponseEntity<Void> addArticleIdByPictureId(
+    public ResponseEntity<Void> addPictureToArticle(
             @PathVariable(name = PICTURE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long pictureId,
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
             HttpSession session) {

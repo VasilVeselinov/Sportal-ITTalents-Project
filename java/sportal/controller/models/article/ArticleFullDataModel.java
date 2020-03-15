@@ -21,7 +21,7 @@ public class ArticleFullDataModel {
     private String title;
     private String fullText;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-    private LocalDateTime createDateAndTime;
+    private LocalDateTime creationDateAndTime;
     private int views;
     private int numberOfLikes;
     private List<CategoryResponseModel> categories;
@@ -33,7 +33,7 @@ public class ArticleFullDataModel {
         this.id = serviceDTO.getId();
         this.title = serviceDTO.getTitle();
         this.fullText = serviceDTO.getFullText();
-        this.createDateAndTime = serviceDTO.getCreateDateAndTime().toLocalDateTime();
+        this.creationDateAndTime = serviceDTO.getCreateDateAndTime().toLocalDateTime();
         this.views = serviceDTO.getViews();
         this.authorName = serviceDTO.getAuthorName();
         this.numberOfLikes = serviceDTO.getNumberOfLikes();

@@ -78,7 +78,7 @@ public class UserDAOImpl extends DAO implements IUserDAO {
     }
 
     @Override
-    public void upAuthorityByUserId(long userId, long authorityId) {
+    public void authorise(long userId, long authorityId) {
         this.jdbcTemplate.update(ADD_ROLES_OF_THE_USER, userId, authorityId);
     }
 }

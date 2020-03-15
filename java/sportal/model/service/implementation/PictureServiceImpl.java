@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
-import sportal.exception.ExistsObjectException;
+import sportal.exception.NotExistsObjectException;
+import sportal.exception.InvalidInputException;
 import sportal.model.file.FileManagerDAO;
 import sportal.model.service.IArticleService;
 import sportal.model.validators.PictureValidator;
@@ -19,7 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static sportal.GlobalConstants.PACKAGE_FOR_PICTURES;
+import static sportal.util.GlobalConstants.PACKAGE_FOR_PICTURES;
 
 @Service
 public class PictureServiceImpl implements IPictureService {
@@ -49,7 +50,7 @@ public class PictureServiceImpl implements IPictureService {
     @Override
     public PictureServiceDTO delete(long pictureId) {
         Picture picture = this.pictureRepository.findById(pictureId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXIST));
         this.pictureRepository.deleteById(pictureId);
         File fileForDelete = new File(PATH_NAME + picture.getUrlOfPicture());
         fileForDelete.delete();
@@ -59,9 +60,9 @@ public class PictureServiceImpl implements IPictureService {
     @Override
     public void addPictureToTheArticleById(long pictureId, long articleId, long userId) {
         Picture picture = this.pictureRepository.findById(pictureId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXIST));
         if (picture.getArticleId() != null) {
-            throw new ExistsObjectException(DO_NOT_FREE);
+            throw new InvalidInputException(DO_NOT_FREE);
         }
         this.articleService.findByIdAndCheckForAuthorCopyright(articleId, userId);
         picture.setArticleId(articleId);
@@ -69,13 +70,9 @@ public class PictureServiceImpl implements IPictureService {
     }
 
     @Override
-    public List<PictureServiceDTO> findAllByArticleIdIsNullAndCheckIsValid(List<PictureServiceDTO> pictures) {
-        List<Picture> pictureList = this.findAllByArticleIdIsNull();
+    public List<PictureServiceDTO> validatePictures(List<PictureServiceDTO> pictures) {
+        List<Picture> pictureList = this.pictureRepository.findAllByArticleIdIsNull();
         return PictureValidator.conformityCheck(pictureList, pictures);
-    }
-
-    private List<Picture> findAllByArticleIdIsNull() {
-        return this.pictureRepository.findAllByArticleIdIsNull();
     }
 
     @Override
@@ -85,7 +82,16 @@ public class PictureServiceImpl implements IPictureService {
 
     @Override
     public List<PictureServiceDTO> findAllByArticleId(long articleId) {
-        return new ArrayList<>(
-                PictureServiceDTO.fromPOJOToDTO(this.pictureRepository.findAllByArticleId(articleId)));
+        return new ArrayList<>(PictureServiceDTO.fromPOJOToDTO(this.pictureRepository.findAllByArticleId(articleId)));
+    }
+
+    @Override
+    public void deleteAllWhereArticleIdIsNull() {
+        List<Picture> pictures = this.pictureRepository.findAllByArticleIdIsNull();
+        this.pictureRepository.deleteAll(pictures);
+        for (Picture picture : pictures) {
+            File fileForDelete = new File(PATH_NAME + picture.getUrlOfPicture());
+            fileForDelete.delete();
+        }
     }
 }

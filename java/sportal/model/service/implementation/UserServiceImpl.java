@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
-import sportal.exception.ExistsObjectException;
+import sportal.exception.NotExistsObjectException;
 import sportal.model.db.dao.IDislikeCommentsDAO;
 import sportal.model.db.dao.ILikeArticlesDAO;
 import sportal.model.db.dao.ILikeCommentsDAO;
@@ -24,6 +24,7 @@ public class UserServiceImpl implements IUserService {
     private static final String ACTIVE_REGISTRATION = "This registration is already active!";
     private static final String NOT_ALLOWED_OPERATION = "The operation you want to perform is not allowed!";
     private static final String NOT_EXISTS_USER = "User not found!";
+    private static final int NUMBER_OF_USERS_OF_PAGE = 10;
 
     @Autowired
     private UserRepository userRepository;
@@ -39,9 +40,9 @@ public class UserServiceImpl implements IUserService {
     private IDislikeCommentsDAO dislikeCommentsDAO;
 
     @Override
-    public UserServiceDTO removeUserByUserId(long userId, long editorId) {
+    public UserServiceDTO deleteById(long userId, long editorId) {
         User existsUser = this.userRepository.findById(userId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_USER));
         if (editorId == userId) {
             throw new AuthorizationException(NOT_ALLOWED_OPERATION);
         }
@@ -50,22 +51,24 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<UserServiceDTO> findAll() {
-        return UserServiceDTO.fromPOJOToDTO(this.userRepository.findAll());
+    public List<UserServiceDTO> findAll(int page) {
+        final int theFirstUserOfThePage = NUMBER_OF_USERS_OF_PAGE * (page - 1);
+        return UserServiceDTO.fromPOJOToDTO(
+                this.userRepository.findAllByPages(NUMBER_OF_USERS_OF_PAGE, theFirstUserOfThePage));
     }
 
     @Override
     public UserServiceDTO findById(long userId) {
         User user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_USER));
         return new UserServiceDTO(user.getId(), user.getUsername(), user.getUserEmail());
     }
 
     @Override
     public void confirmToken(String token) throws BadRequestException {
         User user = this.userRepository.findByToken(token)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
-        if (user.isEnabled()){
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_USER));
+        if (user.isEnabled()) {
             throw new BadRequestException(ACTIVE_REGISTRATION);
         }
         user.setEnabled(true);
@@ -75,7 +78,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void likeArticle(long articleId, long userId) throws SQLException, BadRequestException {
         this.articleService.existsById(articleId);
-        this.articleService.existsVoteForThatArticleFromThisUser(articleId, userId);
+        this.articleService.isArticleLikedByUser(articleId, userId);
         this.likeArticlesDAO.add(articleId, userId);
     }
 
@@ -89,26 +92,26 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void likeComment(long commentId, long userId) throws BadRequestException, SQLException {
         this.commentService.existsById(commentId);
-        this.commentService.existsVoteForThatCommentFromThisUser(commentId, userId);
+        this.commentService.validateVoteOfCommentByUser(commentId, userId);
         this.likeCommentsDAO.add(commentId, userId);
     }
 
     @Override
     public void dislikeComment(long commentId, long userId) throws BadRequestException, SQLException {
         this.commentService.existsById(commentId);
-        this.commentService.existsVoteForThatCommentFromThisUser(commentId, userId);
+        this.commentService.validateVoteOfCommentByUser(commentId, userId);
         this.dislikeCommentsDAO.add(commentId, userId);
     }
 
     @Override
-    public void deleteLikeForComment(long commentId, long userId) throws BadRequestException {
+    public void deleteLikeOfComment(long commentId, long userId) throws BadRequestException {
         if (this.likeCommentsDAO.delete(commentId, userId) == 0) {
             throw new BadRequestException(NOT_ALLOWED_OPERATION);
         }
     }
 
     @Override
-    public void deleteDislikeForComment(long commentId, long userId) throws BadRequestException {
+    public void deleteDislikeOfComment(long commentId, long userId) throws BadRequestException {
         if (this.dislikeCommentsDAO.delete(commentId, userId) == 0) {
             throw new BadRequestException(NOT_ALLOWED_OPERATION);
         }

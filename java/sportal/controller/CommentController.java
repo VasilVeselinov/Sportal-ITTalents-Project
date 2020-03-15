@@ -20,7 +20,7 @@ import javax.validation.constraints.Positive;
 import java.sql.SQLException;
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 @RestController
 @RequestMapping("/comments")
@@ -30,12 +30,12 @@ public class CommentController extends AbstractController {
     private ICommentService commentService;
 
     @PostMapping(value = "/add")
-    public ResponseEntity<Void> addCommentToArticle(@Valid @RequestBody CommentCreateModel model,
+    public ResponseEntity<Void> addCommentToArticle(@Valid @RequestBody CommentCreateModel createModel,
                                                     BindingResult bindingResult, HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        CommentServiceDTO serviceDTO = new CommentServiceDTO(model.getCommentText(), model.getArticleId());
+        CommentServiceDTO serviceDTO =
+                new CommentServiceDTO(createModel.getCommentText(), createModel.getArticleId());
         serviceDTO.setUserId(logUser.getId());
-        serviceDTO.setUserName(logUser.getUsername());
         long articleId = this.commentService.addComment(serviceDTO);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/all/" + articleId);
@@ -43,10 +43,11 @@ public class CommentController extends AbstractController {
     }
 
     @PutMapping(value = "/edit")
-    public ResponseEntity<Void> editComment(@Valid @RequestBody CommentEditModel model,
+    public ResponseEntity<Void> editComment(@Valid @RequestBody CommentEditModel editModel,
                                             BindingResult bindingResult, HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        CommentServiceDTO serviceDTO = new CommentServiceDTO(model.getOldCommentId(), model.getNewTextOfComment());
+        CommentServiceDTO serviceDTO =
+                new CommentServiceDTO(editModel.getOldCommentId(), editModel.getNewTextOfComment());
         serviceDTO.setUserId(logUser.getId());
         long commentId = this.commentService.edit(serviceDTO);
         HttpHeaders headers = new HttpHeaders();
@@ -76,7 +77,7 @@ public class CommentController extends AbstractController {
     }
 
     @GetMapping(value = "/all/{" + ARTICLE_ID + "}")
-    public List<CommentResponseModel> getAllCommentToArticle(
+    public List<CommentResponseModel> allCommentsToArticle(
             @PathVariable(ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId) throws SQLException {
         return CommentResponseModel.fromDTOToModel(this.commentService.getAllCommentsByArticleId(articleId));
     }

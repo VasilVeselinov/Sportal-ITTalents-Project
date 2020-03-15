@@ -7,7 +7,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
-import sportal.exception.ExistsObjectException;
+import sportal.exception.NotExistsObjectException;
+import sportal.exception.InvalidInputException;
 import sportal.model.db.dao.IUserDAO;
 import sportal.model.db.pojo.Role;
 import sportal.model.db.pojo.User;
@@ -32,9 +33,9 @@ public class AuthServiceImpl implements IAuthService {
     private static final String EDITOR_USER_AUTHORITY = "EDITOR";
     private static final String ROOT_USER_AUTHORITY = "ROOT";
 
-    private static final String EXISTS = "There is already a registered user with that name or email!";
+    private static final String EXISTS = "There is already a registered user with this name or email!";
     private static final String NO_MORE_ACCESS_RIGHTS = "No more access rights!";
-    private static final String FAILED_CREDENTIALS = "Validate your data is failed!";
+    private static final String FAILED_CREDENTIALS = "Invalid old password!";
     private static final String NOT_EXISTS_USER = "User not found!";
 
     @Autowired
@@ -51,9 +52,9 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     public void registration(UserServiceDTO serviceDTO) throws SQLException {
         if (this.userRepository.existsUserByUsernameOrUserEmail(serviceDTO.getUsername(), serviceDTO.getUserEmail())) {
-            throw new ExistsObjectException(EXISTS);
+            throw new InvalidInputException(EXISTS);
         }
-        serviceDTO.addAuthority(this.roleService.getAuthorities(USER_USER_AUTHORITY));
+        serviceDTO.addAuthority(this.roleService.getAuthority(USER_USER_AUTHORITY));
         serviceDTO.setUserPassword(this.cryptService.cryptPassword(serviceDTO.getUserPassword()));
         User user = new User(
                 serviceDTO.getUsername(), serviceDTO.getUserPassword(),
@@ -68,7 +69,7 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     public UserServiceDTO changePassword(UserServiceDTO serviceDTO, long userId) {
         User userDB = this.userRepository.findById(userId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_USER));
         if (!this.cryptService.checkPassword(serviceDTO.getUserPassword(), userDB.getPassword())) {
             throw new AuthorizationException(FAILED_CREDENTIALS);
         }
@@ -80,21 +81,21 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     public UserServiceDTO findUserByUsername(String username) {
         User user = this.userRepository.findByUsername(username)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_USER));
         UserServiceDTO serviceDTO = new UserServiceDTO(user.getId(), user.getUsername(), user.getUserEmail());
         serviceDTO.setAuthorities(RoleServiceDTO.fromPOJOToDTO(this.userDAO.findAllRolesByUserId(user.getId())));
         return serviceDTO;
     }
 
     @Override
-    public void upAuthority(long userId, List<RoleServiceDTO> editorAuthorities) throws BadRequestException {
+    public void authorise(long userId, List<RoleServiceDTO> editorAuthorities) throws BadRequestException {
         this.userRepository.findById(userId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_USER));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_USER));
         List<Role> roles = this.userDAO.findAllRolesByUserId(userId);
         if (roles.size() >= editorAuthorities.size() - 1) {
             throw new BadRequestException(NO_MORE_ACCESS_RIGHTS);
         }
-        this.userDAO.upAuthorityByUserId(userId, this.roleService.getAuthorities(ADMIN_USER_AUTHORITY).getId());
+        this.userDAO.authorise(userId, this.roleService.getAuthority(ADMIN_USER_AUTHORITY).getId());
     }
 
     @Override

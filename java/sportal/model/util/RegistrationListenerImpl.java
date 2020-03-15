@@ -16,11 +16,12 @@ public class RegistrationListenerImpl implements IRegistrationListener {
     }
 
     private void confirmRegistration(OnRegistrationCompleteEvent event) {
-        String recipientAddress =  event.getUser().getUserEmail();
+        String recipientAddress = event.getUser().getUserEmail();
         String subject = "Registration Confirmation";
         String confirmationUrl = "/emails/registration_confirm?token=" + event.getUser().getToken();
-        String message = "Please click for confirm your registration:";
-        String text = message + "\r\n" + "http://localhost:8888" + confirmationUrl;
-        this.emailService.sendEmail(recipientAddress, subject, text);
+        String message = "Please click to confirm your registration:";
+        String linkForConfirm = "\r\n" + "http://localhost:8888" + confirmationUrl;
+        message = message + linkForConfirm + "\nThis is an automated system email. Please do not reply to this email!";
+        this.emailService.sendEmail(recipientAddress, subject, message);
     }
 }

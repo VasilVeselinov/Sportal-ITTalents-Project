@@ -19,8 +19,8 @@ import javax.validation.constraints.Size;
 
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_ADMIN;
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_ADMIN;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 @RestController
 @RequestMapping("/videos")
@@ -48,9 +48,9 @@ public class VideoController extends AbstractController {
         return new VideoModel(serviceDTO.getId(), serviceDTO.getUrlOFVideo(), serviceDTO.getArticleId());
     }
 
-    @PutMapping(value = "/add_into_article/{" + VIDEO_ID + "}/{" + ARTICLE_ID + "}")
+    @PutMapping(value = "/add_to_article/{" + VIDEO_ID + "}/{" + ARTICLE_ID + "}")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
-    public ResponseEntity<Void> addArticleIdByVideoId(
+    public ResponseEntity<Void> addVideoToArticle(
             @PathVariable(name = VIDEO_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long videoId,
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
             HttpSession session) {
@@ -63,7 +63,7 @@ public class VideoController extends AbstractController {
 
     @GetMapping(value = "/all/article_id_is_null")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
-    public List<VideoModel> allPictureWhereArticleIdIsNull() {
+    public List<VideoModel> allVideoWhereArticleIdIsNull() {
         return VideoModel.fromDTOToModel(this.videoService.findAllWhereArticleIdIsNull());
     }
 }

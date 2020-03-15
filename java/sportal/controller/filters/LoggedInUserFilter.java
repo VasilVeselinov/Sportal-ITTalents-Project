@@ -17,13 +17,13 @@ import static sportal.controller.AbstractController.LOGGED_USER_KEY_IN_SESSION;
 public class LoggedInUserFilter implements Filter {
 
     @Autowired
-    private IAuthenticationFacade authenticatedUserService;
+    private IAuthenticationFacade authenticatedFacade;
     @Autowired
     private IAuthService authService;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        String username = this.authenticatedUserService.getUsername();
+        String username = this.authenticatedFacade.getUsername();
         if (username.equals("anonymousUser")) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;

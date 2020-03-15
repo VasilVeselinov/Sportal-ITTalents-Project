@@ -19,13 +19,13 @@ public class ArticleRespModel {
     private long id;
     private String title;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-    private LocalDateTime createDateAndTime;
+    private LocalDateTime creationDateAndTime;
     private int views;
 
     public ArticleRespModel(ArticleServiceDTO serviceDTO) {
         this.setId(serviceDTO.getId());
         this.setTitle(serviceDTO.getTitle());
-        this.setCreateDateAndTime(serviceDTO.getCreateDateAndTime().toLocalDateTime());
+        this.setCreationDateAndTime(serviceDTO.getCreateDateAndTime().toLocalDateTime());
         this.setViews(serviceDTO.getViews());
     }
 

@@ -7,7 +7,7 @@ import sportal.model.service.dto.CommentServiceDTO;
 import java.sql.SQLException;
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface ICommentService {
 
@@ -24,7 +24,7 @@ public interface ICommentService {
 
     CommentServiceDTO getCommentsById(long commentId) throws SQLException;
 
-    void existsVoteForThatCommentFromThisUser(long commentId, long userId) throws SQLException, BadRequestException;
+    void validateVoteOfCommentByUser(long commentId, long userId) throws SQLException, BadRequestException;
 
     void existsById(long commentId);
 }

@@ -1,4 +1,4 @@
-package sportal;
+package sportal.util;
 
 public class GlobalConstants {
 

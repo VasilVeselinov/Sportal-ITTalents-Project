@@ -14,8 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import sportal.model.service.IAuthService;
 
-import static sportal.GlobalConstants.PACKAGE_FOR_PICTURES;
-import static sportal.GlobalConstants.PACKAGE_FOR_VIDEOS;
+import static sportal.util.GlobalConstants.PACKAGE_FOR_PICTURES;
+import static sportal.util.GlobalConstants.PACKAGE_FOR_VIDEOS;
 
 @Configuration
 @EnableWebSecurity

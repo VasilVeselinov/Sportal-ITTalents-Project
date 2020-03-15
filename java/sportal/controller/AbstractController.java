@@ -29,7 +29,8 @@ public abstract class AbstractController {
     // responses
     private static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
     static final String MASSAGE_FOR_INVALID_ID = "Id must be greater than 0!";
-    static final String WITHOUT_FILE_MASSAGE = "No attachment file!";
+    static final String MASSAGE_FOR_INVALID_NUMBER_OF_PAGE = "Invalid number of page!";
+    static final String WITHOUT_FILE_MASSAGE = "No attached file!";
     private static final String WRONG_REQUEST = "Invalid request!";
 
     // parameters
@@ -43,7 +44,7 @@ public abstract class AbstractController {
 
     @ExceptionHandler({AuthorizationException.class, AccessDeniedException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ModelAndView handlerOfAuthorizationException(Exception e) {
+    public ModelAndView handlerOfAuthException(Exception e) {
         ModelAndView view = new ModelAndView("unauthorized.html");
         ExceptionObject exceptionObject = new ExceptionObject(
                 e.getMessage(), HttpStatus.UNAUTHORIZED.value(),
@@ -54,12 +55,38 @@ public abstract class AbstractController {
         return view;
     }
 
-    @ExceptionHandler({BadRequestException.class, ExistsObjectException.class, InvalidInputException.class})
+    @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ModelAndView handlerOfBadRequestException(Exception e) {
         ModelAndView view = new ModelAndView("error.html");
         ExceptionObject exceptionObject = new ExceptionObject(
                 e.getMessage(), HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(), e.getClass().getName()
+        );
+        System.out.println(exceptionObject);
+        view.addObject("exception", exceptionObject);
+        return view;
+    }
+
+    @ExceptionHandler(InvalidInputException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ModelAndView handlerOfInvalidInputException(Exception e) {
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
+                e.getMessage(), HttpStatus.CONFLICT.value(),
+                LocalDateTime.now(), e.getClass().getName()
+        );
+        System.out.println(exceptionObject);
+        view.addObject("exception", exceptionObject);
+        return view;
+    }
+
+    @ExceptionHandler(NotExistsObjectException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView handlerOfNotExistsObjectException(Exception e) {
+        ModelAndView view = new ModelAndView("error.html");
+        ExceptionObject exceptionObject = new ExceptionObject(
+                e.getMessage(), HttpStatus.NOT_FOUND.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);
@@ -94,7 +121,7 @@ public abstract class AbstractController {
                 LocalDateTime.now(), e.getClass().getName()
         );
         System.out.println(exceptionObject);
-        view.addObject("ExceptionObject", exceptionObject);
+        view.addObject("exception", exceptionObject);
         return view;
     }
 

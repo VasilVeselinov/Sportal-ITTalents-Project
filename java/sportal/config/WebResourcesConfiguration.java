@@ -6,8 +6,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import static sportal.GlobalConstants.PACKAGE_FOR_PICTURES;
-import static sportal.GlobalConstants.PACKAGE_FOR_VIDEOS;
+import static sportal.util.GlobalConstants.PACKAGE_FOR_PICTURES;
+import static sportal.util.GlobalConstants.PACKAGE_FOR_VIDEOS;
 
 @Configuration
 @EnableWebMvc
@@ -15,9 +15,9 @@ import static sportal.GlobalConstants.PACKAGE_FOR_VIDEOS;
 public class WebResourcesConfiguration implements WebMvcConfigurer {
 
     // Vasko : please fix me, if you change directory for upload
-    private static final String UPLOAD_DIRECTORY_FOR_PICTURES =
+    private static final String UPLOAD_PATH_FOR_PICTURES =
             System.getProperty("user.home") + "\\Desktop\\" + PACKAGE_FOR_PICTURES;
-    private static final String UPLOAD_DIRECTORY_FOR_VIDEOS =
+    private static final String UPLOAD_PATH_FOR_VIDEOS =
             System.getProperty("user.home") + "\\Desktop\\" + PACKAGE_FOR_VIDEOS;
 
     @Override
@@ -29,8 +29,8 @@ public class WebResourcesConfiguration implements WebMvcConfigurer {
                 "/static/img/**",
                 "/static/js/**")
                 .addResourceLocations(
-                        "file:" + UPLOAD_DIRECTORY_FOR_PICTURES + "\\",
-                        "file:" + UPLOAD_DIRECTORY_FOR_VIDEOS + "\\",
+                        "file:" + UPLOAD_PATH_FOR_PICTURES + "\\",
+                        "file:" + UPLOAD_PATH_FOR_VIDEOS + "\\",
                         "classpath:/static/css/",
                         "classpath:/static/img/",
                         "classpath:/static/js/");

@@ -15,11 +15,11 @@ public interface IArticleDAO {
 
     Article findById(long articleId) throws SQLException;
 
-    List<Article> allArticlesByTitleOrCategory(String titleOrCategory) throws SQLException;
+    List<Article> allArticlesByTitleOrCategory(String titleOrCategory, int limit, int offset) throws SQLException;
 
     List<Article> topFiveMostViewedArticlesForToday() throws SQLException;
 
-    List<Article> articlesByCategoryId(long categoryID) throws SQLException;
+    List<Article> articlesByCategoryId(long categoryID, int limit, int offset) throws SQLException;
 
-    boolean existsVoteForThatArticleFromThisUser(long articleId, long userId);
+    boolean isArticleLikedByUser(long articleId, long userId);
 }

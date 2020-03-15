@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sportal.exception.BadRequestException;
-import sportal.exception.ExistsObjectException;
+import sportal.exception.NotExistsObjectException;
+import sportal.exception.InvalidInputException;
 import sportal.model.db.pojo.Video;
 import sportal.model.db.repository.VideoRepository;
 import sportal.model.file.FileManagerDAO;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
 
-import static sportal.GlobalConstants.PACKAGE_FOR_VIDEOS;
+import static sportal.util.GlobalConstants.PACKAGE_FOR_VIDEOS;
 
 @Service
 public class VideoServiceImpl implements IVideoService {
@@ -48,7 +49,7 @@ public class VideoServiceImpl implements IVideoService {
     @Override
     public VideoServiceDTO delete(long videoId) {
         Video video = this.videoRepository.findById(videoId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXIST));
         this.videoRepository.deleteById(videoId);
         File fileForDelete = new File(PATH_NAME + video.getUrlOfVideo());
         fileForDelete.delete();
@@ -58,9 +59,9 @@ public class VideoServiceImpl implements IVideoService {
     @Override
     public void addVideoToTheArticleById(long videoId, long articleId, long userId) {
         Video video = this.videoRepository.findById(videoId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXIST));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXIST));
         if (video.getArticleId() != null) {
-            throw new ExistsObjectException(DO_NOT_FREE);
+            throw new InvalidInputException(DO_NOT_FREE);
         }
         this.articleService.findByIdAndCheckForAuthorCopyright(articleId, userId);
         video.setArticleId(articleId);
@@ -74,7 +75,16 @@ public class VideoServiceImpl implements IVideoService {
 
     @Override
     public List<VideoServiceDTO> findAllByArticleId(long articleId) {
-        return new ArrayList<>(
-                VideoServiceDTO.fromPOJOToDTO(this.videoRepository.findAllByArticleId(articleId)));
+        return new ArrayList<>(VideoServiceDTO.fromPOJOToDTO(this.videoRepository.findAllByArticleId(articleId)));
+    }
+
+    @Override
+    public void deleteAllWhereArticleIdIsNull() {
+        List<Video> videos = this.videoRepository.findAllByArticleIdIsNull();
+        this.videoRepository.deleteAll(videos);
+        for (Video video : videos) {
+            File fileForDelete = new File(PATH_NAME + video.getUrlOfVideo());
+            fileForDelete.delete();
+        }
     }
 }

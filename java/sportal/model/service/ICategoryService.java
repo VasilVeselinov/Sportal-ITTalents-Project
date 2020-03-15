@@ -7,8 +7,8 @@ import sportal.model.service.dto.CategoryServiceDTO;
 import java.sql.SQLException;
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_ADMIN;
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_ADMIN;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface ICategoryService {
 
@@ -29,7 +29,7 @@ public interface ICategoryService {
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
     void removeCategoryFromArticle(long categoryId, long articleId) throws BadRequestException, SQLException;
 
-    List<CategoryServiceDTO> findAllExistsCategoriseAndCheckIsValid(List<CategoryServiceDTO> categories);
+    List<CategoryServiceDTO> validateCategories(List<CategoryServiceDTO> categories);
 
     List<CategoryServiceDTO> findAllByArticleId(long articleId) throws SQLException;
 }

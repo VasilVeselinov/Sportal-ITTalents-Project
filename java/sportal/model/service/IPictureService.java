@@ -8,8 +8,8 @@ import sportal.model.service.dto.PictureServiceDTO;
 import javax.transaction.Transactional;
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_ADMIN;
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_ADMIN;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface IPictureService {
 
@@ -23,10 +23,12 @@ public interface IPictureService {
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
     void addPictureToTheArticleById(long pictureId, long articleId, long userId);
 
-    List<PictureServiceDTO> findAllByArticleIdIsNullAndCheckIsValid(List<PictureServiceDTO> pictures);
+    List<PictureServiceDTO> validatePictures(List<PictureServiceDTO> pictures);
 
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
     List<PictureServiceDTO> findAllWhereArticleIdIsNull();
 
     List<PictureServiceDTO> findAllByArticleId(long articleId);
+
+    void deleteAllWhereArticleIdIsNull();
 }

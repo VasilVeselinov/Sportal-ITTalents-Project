@@ -9,7 +9,7 @@ import sportal.model.service.dto.UserServiceDTO;
 import java.sql.SQLException;
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface IAuthService extends UserDetailsService {
 
@@ -20,5 +20,5 @@ public interface IAuthService extends UserDetailsService {
     UserServiceDTO findUserByUsername(String username);
 
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
-    void upAuthority(long userId, List<RoleServiceDTO> editorAuthorities) throws BadRequestException;
+    void authorise(long userId, List<RoleServiceDTO> editorAuthorities) throws BadRequestException;
 }

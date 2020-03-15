@@ -21,7 +21,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.sql.SQLException;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 @RestController
 @RequestMapping("/users")
@@ -33,7 +33,7 @@ public class AuthController extends AbstractController {
     private IAuthService authService;
 
     @PostMapping(value = "/registration")
-    public ModelAndView registerRequestBody(@Valid @RequestBody UserRegistrationModel userModel,
+    public ModelAndView registrationOfUser(@Valid @RequestBody UserRegistrationModel userModel,
                                             BindingResult bindingResult) throws SQLException {
         if (!userModel.getPassword().equals(userModel.getVerificationPassword())) {
             throw new InvalidInputException(NOT_EQUAL_PASSWORD);
@@ -56,11 +56,11 @@ public class AuthController extends AbstractController {
 
     @PutMapping(value = "/up_authority/{" + USER_ID + "}")
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
-    public ResponseEntity<Void> upAuthorityOfUsersById(
+    public ResponseEntity<Void> authoriseUsersById(
             @PathVariable(name = USER_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long userId,
             HttpSession session) throws BadRequestException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        this.authService.upAuthority(userId, logUser.getAuthorities());
+        this.authService.authorise(userId, logUser.getAuthorities());
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/users/" + userId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);

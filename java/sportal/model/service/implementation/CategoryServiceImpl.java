@@ -5,7 +5,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
-import sportal.exception.ExistsObjectException;
+import sportal.exception.NotExistsObjectException;
+import sportal.exception.InvalidInputException;
 import sportal.model.db.dao.ICategoryDAO;
 import sportal.model.service.IArticleService;
 import sportal.model.service.dto.ArticleServiceDTO;
@@ -38,7 +39,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public void addNewCategory(String categoryName) {
         if (this.categoryRepository.existsByCategoryName(categoryName)) {
-            throw new ExistsObjectException(EXISTS_CATEGORY);
+            throw new InvalidInputException(EXISTS_CATEGORY);
         }
         Category category = new Category(categoryName);
         this.categoryRepository.save(category);
@@ -48,7 +49,7 @@ public class CategoryServiceImpl implements ICategoryService {
     public void edit(CategoryServiceDTO serviceDTO) {
         Category category = new Category(serviceDTO.getId(), serviceDTO.getCategoryName());
         if (this.categoryRepository.existsByCategoryName(category.getCategoryName())) {
-            throw new ExistsObjectException(EXISTS_CATEGORY);
+            throw new InvalidInputException(EXISTS_CATEGORY);
         }
         this.categoryRepository.save(category);
     }
@@ -63,7 +64,7 @@ public class CategoryServiceImpl implements ICategoryService {
     public void delete(long categoryId) {
         Optional<Category> category = this.categoryRepository.findById(categoryId);
         if (!category.isPresent()) {
-            throw new ExistsObjectException(NOT_EXISTS_CATEGORY);
+            throw new NotExistsObjectException(NOT_EXISTS_CATEGORY);
         }
         this.categoryRepository.deleteById(categoryId);
     }
@@ -71,34 +72,33 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public void addCategoryToArticle(
             long categoryId, long articleId, long userId) throws BadRequestException, SQLException {
-        ArticleServiceDTO serviceDTO = this.articleService.findArticleById(articleId);
+        ArticleServiceDTO serviceDTO = this.articleService.findById(articleId);
         if (serviceDTO.getAuthorId() != userId) {
             throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
         Optional<Category> category = this.categoryRepository.findById(categoryId);
         if (!category.isPresent()) {
-            throw new ExistsObjectException(NOT_EXISTS_CATEGORY);
+            throw new NotExistsObjectException(NOT_EXISTS_CATEGORY);
         }
         if (this.categoryDAO.existsCombination(articleId, categoryId)) {
-            throw new ExistsObjectException(ALREADY_COMBINATION);
+            throw new InvalidInputException(ALREADY_COMBINATION);
         }
-        this.categoryDAO.addCategoryToArticleById(articleId, category.get().getId());
+        this.categoryDAO.add(articleId, category.get().getId());
     }
 
     @Override
     public void removeCategoryFromArticle(long categoryId, long articleId) throws BadRequestException, SQLException {
-        this.articleService.findArticleById(articleId);
-        this.categoryDAO.deleteCategoryFromArticleById(articleId, categoryId);
+        this.articleService.findById(articleId);
+        this.categoryDAO.delete(articleId, categoryId);
     }
 
     @Override
-    public List<CategoryServiceDTO> findAllExistsCategoriseAndCheckIsValid(List<CategoryServiceDTO> categories) {
+    public List<CategoryServiceDTO> validateCategories(List<CategoryServiceDTO> categories) {
         return CategoryValidator.conformityCheck(this.categoryRepository.findAll(), categories);
     }
 
     @Override
     public List<CategoryServiceDTO> findAllByArticleId(long articleId) throws SQLException {
-        return new ArrayList<>(
-                CategoryServiceDTO.fromPOJOToDTO(this.categoryDAO.allCategoriesByArticlesId(articleId)));
+        return new ArrayList<>(CategoryServiceDTO.fromPOJOToDTO(this.categoryDAO.findAllByArticleId(articleId)));
     }
 }

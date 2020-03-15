@@ -19,7 +19,7 @@ public class CommentResponseModel {
     private String fullCommentText;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime datePublished;
-    private String userName;
+    private String username;
     private int numberOfLikes;
     private int numberOfDislike;
     private long articleId;
@@ -29,9 +29,9 @@ public class CommentResponseModel {
         this.fullCommentText = serviceDTO.getText();
         this.datePublished = serviceDTO.getDatePublished().toLocalDateTime();
         if (serviceDTO.getUserName() == null) {
-            this.userName = "User is deleted!";
+            this.username = "User is deleted!";
         } else {
-            this.userName = serviceDTO.getUserName();
+            this.username = serviceDTO.getUserName();
         }
         this.numberOfLikes = serviceDTO.getNumberOfLikes();
         this.numberOfDislike = serviceDTO.getNumberOfDislike();

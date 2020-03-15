@@ -24,7 +24,7 @@ public class CommentDAOImpl extends DAO implements ICommentDAO {
                     "WHERE c.id = ? " +
                     "GROUP BY c.id ;";
 
-    private static final String ALL_COMMENT_BY_ARTICLE_ID =
+    private static final String ALL_COMMENTS_TO_ARTICLE =
             "SELECT c.id, c.full_comment_text, c.date_published, c.user_id, c.article_id, u.username, " +
                     "COUNT(ulc.user_id) AS number_of_likes, " +
                     "COUNT(udc.user_id) AS number_of_dislikes " +
@@ -35,7 +35,7 @@ public class CommentDAOImpl extends DAO implements ICommentDAO {
                     "GROUP BY c.id " +
                     "HAVING c.article_id = ? " +
                     "ORDER BY c.date_published DESC;";
-    private static final String EXISTS_VOTED_COMMENT =
+    private static final String EXISTS_VOTE_TO_COMMENT =
             "SELECT c.id " +
                     "FROM comments AS c " +
                     "LEFT JOIN users_like_comments AS uls ON uls.comment_id = c.id " +
@@ -53,7 +53,7 @@ public class CommentDAOImpl extends DAO implements ICommentDAO {
 
     @Override
     public List<Comment> allCommentsByArticleId(long articleId) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ALL_COMMENT_BY_ARTICLE_ID, articleId);
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ALL_COMMENTS_TO_ARTICLE, articleId);
         List<Comment> listWithComments = new ArrayList<>();
         while (rowSet.next()) {
             listWithComments.add(this.createCommentByRowSet(rowSet));
@@ -75,8 +75,8 @@ public class CommentDAOImpl extends DAO implements ICommentDAO {
     }
 
     @Override
-    public boolean existsVoteForThatCommentFromThisUser(long commentId, long userId) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(EXISTS_VOTED_COMMENT,
+    public boolean isCommentLikedOrDislikedByUser(long commentId, long userId) throws SQLException {
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(EXISTS_VOTE_TO_COMMENT,
                 commentId, userId, commentId, userId);
         return rowSet.next();
     }

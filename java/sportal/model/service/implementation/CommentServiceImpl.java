@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
 import sportal.exception.BadRequestException;
-import sportal.exception.ExistsObjectException;
+import sportal.exception.NotExistsObjectException;
 import sportal.model.db.dao.ICommentDAO;
 import sportal.model.service.IArticleService;
 import sportal.model.service.dto.CommentServiceDTO;
@@ -34,16 +34,15 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public long addComment(CommentServiceDTO serviceDTO) {
         this.articleService.existsById(serviceDTO.getArticleId());
-        Comment comment = new Comment(serviceDTO.getText(), serviceDTO.getArticleId() , serviceDTO.getUserId());
+        Comment comment = new Comment(serviceDTO.getText(), serviceDTO.getArticleId(), serviceDTO.getUserId());
         comment = this.commentRepository.save(comment);
-        comment.setUserName(serviceDTO.getUserName());
         return comment.getArticleId();
     }
 
     @Override
     public long edit(CommentServiceDTO serviceDTO) {
         Comment existsComment = this.commentRepository.findById(serviceDTO.getId())
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_COMMENT));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_COMMENT));
         if (serviceDTO.getUserId() != existsComment.getUserId()) {
             throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
@@ -56,7 +55,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public long delete(long commentId, long userId) {
         Comment existsComment = this.commentRepository.findById(commentId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_COMMENT));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_COMMENT));
         if (userId != existsComment.getUserId()) {
             throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
@@ -67,7 +66,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public long deleteFromEditor(long commentId) {
         Comment existsComment = this.commentRepository.findById(commentId)
-                .orElseThrow(() -> new ExistsObjectException(NOT_EXISTS_COMMENT));
+                .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_COMMENT));
         this.commentRepository.deleteById(existsComment.getId());
         return existsComment.getArticleId();
     }
@@ -82,15 +81,14 @@ public class CommentServiceImpl implements ICommentService {
     public CommentServiceDTO getCommentsById(long commentId) throws SQLException {
         Comment existsComment = this.commentDAO.findById(commentId);
         if (existsComment == null) {
-            throw new ExistsObjectException(NOT_EXISTS_COMMENT);
+            throw new NotExistsObjectException(NOT_EXISTS_COMMENT);
         }
         return new CommentServiceDTO(existsComment);
     }
 
     @Override
-    public void existsVoteForThatCommentFromThisUser(
-            long commentId, long userId) throws SQLException, BadRequestException {
-        if (this.commentDAO.existsVoteForThatCommentFromThisUser(commentId, userId)){
+    public void validateVoteOfCommentByUser(long commentId, long userId) throws SQLException, BadRequestException {
+        if (this.commentDAO.isCommentLikedOrDislikedByUser(commentId, userId)) {
             throw new BadRequestException(ALREADY_VOTED);
         }
     }
@@ -98,7 +96,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public void existsById(long commentId) {
         if (!this.commentRepository.existsById(commentId)) {
-            throw new ExistsObjectException(NOT_EXISTS_COMMENT);
+            throw new NotExistsObjectException(NOT_EXISTS_COMMENT);
         }
     }
 }

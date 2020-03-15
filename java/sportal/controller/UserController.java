@@ -16,7 +16,7 @@ import javax.validation.constraints.Positive;
 import java.sql.SQLException;
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 @RestController
 @RequestMapping("/users")
@@ -31,18 +31,19 @@ public class UserController extends AbstractController {
             @PathVariable(name = USER_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long userId,
             HttpSession session) {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        return new UserResponseModel(this.userService.removeUserByUserId(userId, logUser.getId()));
+        return new UserResponseModel(this.userService.deleteById(userId, logUser.getId()));
     }
 
     @GetMapping(value = "/all")
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
-    public List<UserResponseModel> getAllUsers() {
-        return UserResponseModel.fromDTOToModel(this.userService.findAll());
+    public List<UserResponseModel> allUsers(
+            @RequestParam("page") @Positive(message = MASSAGE_FOR_INVALID_NUMBER_OF_PAGE) int page) {
+        return UserResponseModel.fromDTOToModel(this.userService.findAll(page));
     }
 
     @GetMapping(value = "/{" + USER_ID + "}")
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
-    public UserResponseModel getUsersById(
+    public UserResponseModel getUserById(
             @PathVariable(name = USER_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long userId) {
         return new UserResponseModel(this.userService.findById(userId));
     }
@@ -96,7 +97,7 @@ public class UserController extends AbstractController {
             @PathVariable(name = COMMENT_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long commentId,
             HttpSession session) throws BadRequestException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        this.userService.deleteLikeForComment(commentId, logUser.getId());
+        this.userService.deleteLikeOfComment(commentId, logUser.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/" + commentId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
@@ -107,7 +108,7 @@ public class UserController extends AbstractController {
             @PathVariable(name = COMMENT_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long commentId,
             HttpSession session) throws BadRequestException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
-        this.userService.deleteDislikeForComment(commentId, logUser.getId());
+        this.userService.deleteDislikeOfComment(commentId, logUser.getId());
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/comments/" + commentId);
         return new ResponseEntity<>(headers, HttpStatus.FOUND);

@@ -36,7 +36,6 @@ public class ArticleDAOImpl extends DAO implements IArticleDAO {
                     "LEFT JOIN users AS u ON a.author_id = u.id " +
                     "LEFT JOIN users_like_articles AS ula ON ula.article_id = a.id " +
                     "WHERE a.id = ?;";
-    private static final int LIMIT_FOR_OUTPUT_FOR_SEARCH = 10;
     private static final String SEARCH_ARTICLE_BY_TITLE_OR_CATEGORY =
             "SELECT DISTINCT(a.id), a.title, a.date_published, a.views " +
                     "FROM articles AS a " +
@@ -44,16 +43,15 @@ public class ArticleDAOImpl extends DAO implements IArticleDAO {
                     "LEFT JOIN categories AS c ON aa.category_id = c.id " +
                     "WHERE a.title LIKE ? " +
                     "OR c.category_name LIKE ? " +
-                    "ORDER BY a.date_published DESC LIMIT " + LIMIT_FOR_OUTPUT_FOR_SEARCH + ";";
-    private static final int LIMIT_FOR_OUTPUT_FOR_SEARCH_BY_CATEGORY_ID = 5;
+                    "ORDER BY a.date_published DESC LIMIT ? OFFSET ?;";
     private static final String ARTICLES_BY_CATEGORY_ID =
             "SELECT a.id, a.title, a.date_published, a.views " +
                     "FROM articles AS a " +
                     "JOIN articles_categories AS ac ON a.id = ac.article_id " +
                     "JOIN categories AS c ON c.id = ac.category_id " +
                     "WHERE category_id = ? " +
-                    "ORDER BY a.date_published DESC LIMIT " + LIMIT_FOR_OUTPUT_FOR_SEARCH_BY_CATEGORY_ID + ";";
-    private static final String FIND_COMBINATION =
+                    "ORDER BY a.date_published DESC LIMIT ? OFFSET ?;";
+    private static final String IF_USER_LIKES_ARTICLE =
             "SELECT article_id, user_id " +
                     "FROM users_like_articles " +
                     "WHERE article_id = ? AND user_id = ?";
@@ -128,9 +126,12 @@ public class ArticleDAOImpl extends DAO implements IArticleDAO {
     }
 
     @Override
-    public List<Article> allArticlesByTitleOrCategory(String titleOrCategory) throws SQLException {
+    public List<Article> allArticlesByTitleOrCategory(String titleOrCategory, int limit, int offset)
+            throws SQLException {
         SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(
-                SEARCH_ARTICLE_BY_TITLE_OR_CATEGORY, "%" + titleOrCategory + "%", "%" + titleOrCategory + "%");
+                SEARCH_ARTICLE_BY_TITLE_OR_CATEGORY,
+                "%" + titleOrCategory + "%", "%" + titleOrCategory + "%",
+                limit, offset);
         List<Article> listFromArticles = new ArrayList<>();
         while (rowSet.next()) {
             listFromArticles.add(this.createArticleForRespByRowSet(rowSet));
@@ -158,8 +159,8 @@ public class ArticleDAOImpl extends DAO implements IArticleDAO {
     }
 
     @Override
-    public List<Article> articlesByCategoryId(long categoryID) throws SQLException {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ARTICLES_BY_CATEGORY_ID, categoryID);
+    public List<Article> articlesByCategoryId(long categoryID, int limit, int offset) throws SQLException {
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(ARTICLES_BY_CATEGORY_ID, categoryID, limit, offset);
         List<Article> listWithCategories = new ArrayList<>();
         while (rowSet.next()) {
             listWithCategories.add(this.createByRowSet(rowSet));
@@ -178,8 +179,8 @@ public class ArticleDAOImpl extends DAO implements IArticleDAO {
     }
 
     @Override
-    public boolean existsVoteForThatArticleFromThisUser(long articleId, long userId) {
-        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(FIND_COMBINATION, articleId, userId);
+    public boolean isArticleLikedByUser(long articleId, long userId) {
+        SqlRowSet rowSet = this.jdbcTemplate.queryForRowSet(IF_USER_LIKES_ARTICLE, articleId, userId);
         return rowSet.next();
     }
 }

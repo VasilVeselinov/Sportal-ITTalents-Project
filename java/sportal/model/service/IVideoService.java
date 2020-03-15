@@ -7,8 +7,8 @@ import sportal.model.service.dto.VideoServiceDTO;
 
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_ADMIN;
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_ADMIN;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 public interface IVideoService {
 
@@ -25,5 +25,7 @@ public interface IVideoService {
     List<VideoServiceDTO> findAllWhereArticleIdIsNull();
 
     List<VideoServiceDTO> findAllByArticleId(long articleId);
+
+    void deleteAllWhereArticleIdIsNull();
 }
 

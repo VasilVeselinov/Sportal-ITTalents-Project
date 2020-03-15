@@ -1,6 +1,6 @@
 package sportal.model.validators;
 
-import sportal.exception.ExistsObjectException;
+import sportal.exception.NotExistsObjectException;
 import sportal.model.db.pojo.Category;
 import sportal.model.service.dto.CategoryServiceDTO;
 
@@ -21,7 +21,7 @@ public class CategoryValidator {
             }
         }
         if (countValidCategory != categories.size()) {
-            throw new ExistsObjectException(SOME_OF_THE_CATEGORIES_DO_NOT_EXIST);
+            throw new NotExistsObjectException(SOME_OF_THE_CATEGORIES_DO_NOT_EXIST);
         }
         return categories;
     }

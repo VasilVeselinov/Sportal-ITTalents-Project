@@ -11,5 +11,5 @@ public interface ICommentDAO {
 
     List<Comment> allCommentsByArticleId(long articleId) throws SQLException;
 
-    boolean existsVoteForThatCommentFromThisUser(long commentId, long userId) throws SQLException;
+    boolean isCommentLikedOrDislikedByUser(long commentId, long userId) throws SQLException;
 }

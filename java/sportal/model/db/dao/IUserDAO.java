@@ -12,5 +12,5 @@ public interface IUserDAO {
 
     List<Role> findAllRolesByUserId(long userId);
 
-    void upAuthorityByUserId(long userId, long authorityId);
+    void authorise(long userId, long authorityId);
 }

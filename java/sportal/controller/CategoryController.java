@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-import static sportal.GlobalConstants.HAS_AUTHORITY_ADMIN;
-import static sportal.GlobalConstants.HAS_AUTHORITY_EDITOR;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_ADMIN;
+import static sportal.util.GlobalConstants.HAS_AUTHORITY_EDITOR;
 
 @RestController
 @RequestMapping("/categories")
@@ -45,7 +45,7 @@ public class CategoryController extends AbstractController {
 
     @PutMapping(value = "/edit")
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
-    public void editCategories(@Valid @RequestBody CategoryRequestModel categoryModel, BindingResult bindingResult,
+    public void editCategory(@Valid @RequestBody CategoryRequestModel categoryModel, BindingResult bindingResult,
                                HttpServletResponse response) throws IOException {
         CategoryServiceDTO serviceDTO = new CategoryServiceDTO(categoryModel.getId(), categoryModel.getCategoryName());
         this.categoryService.edit(serviceDTO);
@@ -53,7 +53,7 @@ public class CategoryController extends AbstractController {
     }
 
     @GetMapping(value = "/all")
-    public List<CategoryResponseModel> allCategory() {
+    public List<CategoryResponseModel> allCategories() {
         return CategoryResponseModel.fromDTOToModel(this.categoryService.allCategories());
     }
 
@@ -67,7 +67,7 @@ public class CategoryController extends AbstractController {
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
-    @PutMapping(value = "/add_into_article/{" + CATEGORY_ID + "}/{" + ARTICLE_ID + "}")
+    @PutMapping(value = "/add_to_article/{" + CATEGORY_ID + "}/{" + ARTICLE_ID + "}")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
     public ResponseEntity<Void> addCategoryToArticle(
             @PathVariable(name = CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId,

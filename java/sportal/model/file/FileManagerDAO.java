@@ -33,7 +33,7 @@ public class FileManagerDAO extends Thread {
         if (this.pictures != null) {
             for (int i = 0; i < multipartFiles.size(); i++) {
                 try {
-                    this.savePicture(this.multipartFiles.get(i),
+                    this.save(this.multipartFiles.get(i),
                             this.packageName + this.pictures.get(i).getUrlOfPicture());
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
@@ -41,7 +41,7 @@ public class FileManagerDAO extends Thread {
             }
         } else {
             try {
-                this.saveVideo(this.multipartFile,
+                this.save(this.multipartFile,
                         this.packageName + this.video.getUrlOfVideo());
             } catch (IOException e) {
                 System.out.println(e.getMessage());
@@ -49,11 +49,7 @@ public class FileManagerDAO extends Thread {
         }
     }
 
-    private void savePicture(MultipartFile multipartFile, String fullPathUrlOfPicture) throws IOException {
-        multipartFile.transferTo(Paths.get(fullPathUrlOfPicture));
-    }
-
-    private void saveVideo(MultipartFile multipartFile, String fullPathUrlOfPicture) throws IOException {
+    private void save(MultipartFile multipartFile, String fullPathUrlOfPicture) throws IOException {
         multipartFile.transferTo(Paths.get(fullPathUrlOfPicture));
     }
 }

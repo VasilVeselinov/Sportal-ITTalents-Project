@@ -1,7 +1,7 @@
 package sportal.model.validators;
 
 import org.springframework.web.multipart.MultipartFile;
-import sportal.exception.ExistsObjectException;
+import sportal.exception.NotExistsObjectException;
 import sportal.exception.InvalidInputException;
 import sportal.model.db.pojo.Picture;
 import sportal.model.service.dto.PictureServiceDTO;
@@ -21,11 +21,11 @@ public class PictureValidator {
             "image/svg+xml", "image/ief", "image/tiff", "image/vnd.djvu", "image/vnd.wap.wbmp", "image/x-cmu-raster",
             "image/x-icon", "image/x-portable-anymap", "image/x-portable-bitmap", "image/x-portable-graymap",
             "image/x-portable-pixmap", "image/x-rgb");
-    private static final String FILE_EXPANSION = ".jpg";
+    private static final String FILE_EXTENSION = ".jpg";
 
     private static final String SOME_OF_THE_PICTURES_DO_NOT_EXIST =
             "Some of the pictures do not exist or do not free!";
-    private static final String INVALID_FORMAT = "Invalid format for picture!";
+    private static final String INVALID_FORMAT = "Invalid picture format!";
 
     public static List<PictureServiceDTO> conformityCheck(List<Picture> existsPictures,
                                                           List<PictureServiceDTO> pictures) {
@@ -38,7 +38,7 @@ public class PictureValidator {
             }
         }
         if (countValidPicture != pictures.size()) {
-            throw new ExistsObjectException(SOME_OF_THE_PICTURES_DO_NOT_EXIST);
+            throw new NotExistsObjectException(SOME_OF_THE_PICTURES_DO_NOT_EXIST);
         }
         return pictures;
     }
@@ -50,7 +50,7 @@ public class PictureValidator {
             String fileContentType = multipartFiles.get(i).getContentType();
             if (CONTENT_TYPES_LIST.contains(fileContentType)) {
                 String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss.SSS"));
-                String urlOfPicture = i + 1 + DATE_AND_TIME_OF_UPLOAD + now + FILE_EXPANSION;
+                String urlOfPicture = i + 1 + DATE_AND_TIME_OF_UPLOAD + now + FILE_EXTENSION;
                 Picture picture = new Picture();
                 picture.setUrlOfPicture(urlOfPicture);
                 pictures.add(picture);
