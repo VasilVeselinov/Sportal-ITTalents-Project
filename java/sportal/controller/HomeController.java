@@ -25,4 +25,9 @@ public class HomeController extends AbstractController {
     public ModelAndView afterRegistration() {
         return new ModelAndView("after_registration.html");
     }
+
+    @GetMapping("/favicon.ico")
+    public ModelAndView favicon() {
+        return new ModelAndView("home.html");
+    }
 }

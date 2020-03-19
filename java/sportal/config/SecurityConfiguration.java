@@ -14,8 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import sportal.model.service.IAuthService;
 
-import static sportal.util.GlobalConstants.PACKAGE_FOR_PICTURES;
-import static sportal.util.GlobalConstants.PACKAGE_FOR_VIDEOS;
+import static sportal.util.GlobalConstants.*;
 
 @Configuration
 @EnableWebSecurity
@@ -28,12 +27,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String[] URL_FOR_NON_LOGGED_USER = {
             "/", "/articles/{id}", "/articles/top_5_read_today", "/articles/the_category/{id}", "/articles/search",
-            "/categories/all", "/comments/all/{id}", "/comments/{id}", "/emails/registration_confirm"
+            "/categories/all", "/comments/all/{id}", "/comments/{id}", "/emails/registration_confirm", "/favicon.ico"
     };
 
     private static final String[] URL_RESOURCES = {
-            "/static/css/*", "/static/img/*", "/static/js/*",
-            "/" + PACKAGE_FOR_PICTURES + "/*", "/" + PACKAGE_FOR_VIDEOS + "/*"
+            "/static/css/*", "/static/img/*", "/static/js/*", "/favicon.ico",
+            "/" + PACKAGE_FOR_PICTURES + "/*", "/" + PACKAGE_FOR_VIDEOS + "/*", "/" + PACKAGE_FOR_LOG_FILES + "/*"
     };
 
     @Override
@@ -41,7 +40,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                    .antMatchers("/users/registration", "/users/login", "/after_registration")
+                    .antMatchers("/users/registration", "/users/login", "/after_registration",
+                            "favicon.ico")
                         .anonymous()
                     .antMatchers(URL_RESOURCES)
                         .permitAll()
