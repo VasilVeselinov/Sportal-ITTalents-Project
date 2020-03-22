@@ -1,5 +1,7 @@
 package sportal.model.file;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
 import sportal.model.db.pojo.Picture;
 import sportal.model.db.pojo.Video;
@@ -8,6 +10,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static sportal.util.GlobalConstants.SUCCESSFUL_TRANSFER_OF_FILES;
+
 public class FileManagerDAO extends Thread {
 
     private List<MultipartFile> multipartFiles;
@@ -15,6 +19,7 @@ public class FileManagerDAO extends Thread {
     private List<Picture> pictures;
     private MultipartFile multipartFile;
     private Video video;
+    private static final Logger LOGGER = LogManager.getLogger(FileManagerDAO.class);
 
     public FileManagerDAO(List<MultipartFile> multipartFiles, String packageName, List<Picture> pictures) {
         this.multipartFiles = multipartFiles;
@@ -47,6 +52,7 @@ public class FileManagerDAO extends Thread {
                 System.out.println(e.getMessage());
             }
         }
+        LOGGER.info(SUCCESSFUL_TRANSFER_OF_FILES);
     }
 
     private void save(MultipartFile multipartFile, String fullPathUrlOfPicture) throws IOException {

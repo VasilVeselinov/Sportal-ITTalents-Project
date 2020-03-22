@@ -1,5 +1,7 @@
 package sportal.model.service.implementation;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
 
-import static sportal.util.GlobalConstants.PACKAGE_FOR_VIDEOS;
+import static sportal.util.GlobalConstants.*;
 
 @Service
 public class VideoServiceImpl implements IVideoService {
@@ -33,6 +35,7 @@ public class VideoServiceImpl implements IVideoService {
     private VideoRepository videoRepository;
     @Autowired
     private IArticleService articleService;
+    private static final Logger LOGGER = LogManager.getLogger(IVideoService.class);
 
     @Override
     public void upload(MultipartFile multipartFile) throws BadRequestException {
@@ -41,18 +44,23 @@ public class VideoServiceImpl implements IVideoService {
             fileCreateDirectory.mkdir();
         }
         Video video = VideoValidator.checkForValidContentType(multipartFile);
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         FileManagerDAO fileManagerDAO = new FileManagerDAO(multipartFile, PATH_NAME, video);
         fileManagerDAO.start();
         this.videoRepository.save(video);
+        LOGGER.info(SUCCESSFUL_SAVE_IN_DB);
     }
 
     @Override
     public VideoServiceDTO delete(long videoId) {
         Video video = this.videoRepository.findById(videoId)
                 .orElseThrow(() -> new NotExistsObjectException(NOT_EXIST));
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.videoRepository.deleteById(videoId);
+        LOGGER.info(SUCCESSFUL_DELETE_FROM_DB);
         File fileForDelete = new File(PATH_NAME + video.getUrlOfVideo());
         fileForDelete.delete();
+        LOGGER.info(SUCCESSFUL_DELETE_OF_FILES);
         return new VideoServiceDTO(video.getId(), video.getUrlOfVideo(), video.getArticleId());
     }
 
@@ -64,13 +72,17 @@ public class VideoServiceImpl implements IVideoService {
             throw new InvalidInputException(DO_NOT_FREE);
         }
         this.articleService.findByIdAndCheckForAuthorCopyright(articleId, userId);
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         video.setArticleId(articleId);
         this.videoRepository.save(video);
+        LOGGER.info(SUCCESSFUL_UPDATE_OF_DB);
     }
 
     @Override
     public List<VideoServiceDTO> findAllWhereArticleIdIsNull() {
-        return VideoServiceDTO.fromPOJOToDTO(this.videoRepository.findAllByArticleIdIsNull());
+        List<Video> videos = this.videoRepository.findAllByArticleIdIsNull();
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
+        return VideoServiceDTO.fromPOJOToDTO(videos);
     }
 
     @Override
@@ -82,9 +94,11 @@ public class VideoServiceImpl implements IVideoService {
     public void deleteAllWhereArticleIdIsNull() {
         List<Video> videos = this.videoRepository.findAllByArticleIdIsNull();
         this.videoRepository.deleteAll(videos);
+        LOGGER.info(SUCCESSFUL_DELETE_FROM_DB);
         for (Video video : videos) {
             File fileForDelete = new File(PATH_NAME + video.getUrlOfVideo());
             fileForDelete.delete();
         }
+        LOGGER.info(SUCCESSFUL_DELETE_OF_FILES);
     }
 }

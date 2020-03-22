@@ -1,5 +1,7 @@
 package sportal.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,7 @@ public class ArticleController extends AbstractController {
 
     @Autowired
     private IArticleService articleService;
+    private static final Logger LOGGER = LogManager.getLogger(ArticleController.class);
 
     @PostMapping(value = "/create")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
@@ -39,6 +42,7 @@ public class ArticleController extends AbstractController {
                                               BindingResult bindingResult,
                                               HttpSession session) throws SQLException, BadRequestException {
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
+        LOGGER.info("POST /articles/create");
         ArticleServiceDTO serviceDTO =
                 new ArticleServiceDTO(
                         createModel.getTitle(), createModel.getFullText(),
@@ -55,6 +59,7 @@ public class ArticleController extends AbstractController {
             @RequestParam(name = "text", required = false) String titleOrCategory,
             @RequestParam("page") @Positive(message = MASSAGE_FOR_INVALID_NUMBER_OF_PAGE) int page)
             throws SQLException {
+        LOGGER.info("GET /articles/search");
         return ArticleRespModel.fromDTOToModel(this.articleService.findByTitleOrCategory(titleOrCategory, page));
     }
 
@@ -62,19 +67,22 @@ public class ArticleController extends AbstractController {
     public ArticleFullDataModel articleById(
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId)
             throws SQLException, BadRequestException {
+        LOGGER.info("GET /articles/{" + ARTICLE_ID + "}");
         return new ArticleFullDataModel(this.articleService.findById(articleId));
     }
 
-    @GetMapping(value = "/the_category/{" + CATEGORY_ID + "}")
+    @GetMapping(value = "/category/{" + CATEGORY_ID + "}")
     public List<ArticleRespModel> articlesByCategoryId(
             @PathVariable(CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId,
             @RequestParam("page") @Positive(message = MASSAGE_FOR_INVALID_NUMBER_OF_PAGE) int page)
             throws SQLException, BadRequestException {
+        LOGGER.info("GET /articles/category/{" + CATEGORY_ID + "}");
         return ArticleRespModel.fromDTOToModel(this.articleService.findByCategoryId(categoryId, page));
     }
 
     @GetMapping(value = "/top_5_read_today")
     public List<ArticleRespModel> topFiveViewedArticlesToday() throws SQLException {
+        LOGGER.info("GET /articles/top_5_read_today");
         return ArticleRespModel.fromDTOToModel(this.articleService.findTopFiveReadToday());
     }
 
@@ -84,6 +92,7 @@ public class ArticleController extends AbstractController {
                                        BindingResult bindingResult,
                                        HttpSession session,
                                        HttpServletResponse response) throws BadRequestException, IOException {
+        LOGGER.info("PUT /articles/edit");
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         ArticleServiceDTO serviceDTO = new ArticleServiceDTO(
                 editModel.getOldArticleId(), editModel.getNewTitle(), editModel.getNewFullText());
@@ -95,6 +104,7 @@ public class ArticleController extends AbstractController {
     public ArticleRespModel removeArticle(
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId)
             throws BadRequestException {
+        LOGGER.info("DELETE /articles/{" + ARTICLE_ID + "}");
         return new ArticleRespModel(this.articleService.delete(articleId));
     }
 }

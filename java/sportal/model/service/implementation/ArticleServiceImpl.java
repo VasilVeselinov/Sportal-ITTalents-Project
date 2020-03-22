@@ -1,5 +1,7 @@
 package sportal.model.service.implementation;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
@@ -22,6 +24,8 @@ import sportal.model.service.dto.VideoServiceDTO;
 import java.sql.SQLException;
 import java.util.List;
 
+import static sportal.util.GlobalConstants.*;
+
 @Service
 public class ArticleServiceImpl implements IArticleService {
 
@@ -41,28 +45,32 @@ public class ArticleServiceImpl implements IArticleService {
     private IArticleDAO articleDAO;
     @Autowired
     private ArticleRepository articleRepository;
+    private static final Logger LOGGER = LogManager.getLogger(IArticleService.class);
 
     @Override
     public long addArticle(ArticleServiceDTO serviceDTO, long userId) throws SQLException {
         List<CategoryServiceDTO> categories = this.categoryService.validateCategories(serviceDTO.getCategories());
         List<PictureServiceDTO> pictures = this.pictureService.validatePictures(serviceDTO.getPictures());
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         Article article = new Article(serviceDTO.getTitle(), serviceDTO.getFullText());
         article.setAuthorId(userId);
         article = this.articleDAO.addArticle(
                 article,
                 Picture.fromDTOToPojo(pictures),
                 Category.fromDTOToPojo(categories));
+        LOGGER.info(SUCCESSFUL_SAVE_IN_DB);
         return article.getId();
     }
 
     @Override
     public List<ArticleServiceDTO> findByTitleOrCategory(String titleOrCategory, int page) throws SQLException {
         final int theFirstArticleOfThePage = NUMBER_OF_ARTICLES_OF_PAGE * (page - 1);
-        return ArticleServiceDTO.fromPOJOToDTO(
-                this.articleDAO.allArticlesByTitleOrCategory(
-                        titleOrCategory,
-                        NUMBER_OF_ARTICLES_OF_PAGE,
-                        theFirstArticleOfThePage));
+        List<Article> articles = this.articleDAO.allArticlesByTitleOrCategory(
+                titleOrCategory,
+                NUMBER_OF_ARTICLES_OF_PAGE,
+                theFirstArticleOfThePage);
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
+        return ArticleServiceDTO.fromPOJOToDTO(articles);
     }
 
     @Override
@@ -71,32 +79,38 @@ public class ArticleServiceImpl implements IArticleService {
         if (article.getId() == 0) {
             throw new NotExistsObjectException(NOT_EXISTS_ARTICLE);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         List<CategoryServiceDTO> categories = this.categoryService.findAllByArticleId(article.getId());
         List<PictureServiceDTO> pictures = this.pictureService.findAllByArticleId(article.getId());
         List<VideoServiceDTO> videos = this.videoService.findAllByArticleId(article.getId());
         ArticleServiceDTO viewArticle = new ArticleServiceDTO(article, pictures, categories, videos);
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
         if (article.getAuthorName() == null) {
             viewArticle.setAuthorName(COPYRIGHT);
         } else {
             viewArticle.setAuthorName(article.getAuthorName());
         }
         this.articleDAO.addViewOfByArticleId(article.getId());
+        LOGGER.info(SUCCESSFUL_UPDATE_OF_DB);
         return viewArticle;
     }
 
     @Override
     public List<ArticleServiceDTO> findByCategoryId(long categoryId, int page) throws SQLException {
         final int theFirstArticleOfThePage = NUMBER_OF_ARTICLES_OF_PAGE * (page - 1);
-        return ArticleServiceDTO.fromPOJOToDTO(
-                this.articleDAO.articlesByCategoryId(
-                        categoryId,
-                        NUMBER_OF_ARTICLES_OF_PAGE,
-                        theFirstArticleOfThePage));
+        List<Article> articles = this.articleDAO.articlesByCategoryId(
+                categoryId,
+                NUMBER_OF_ARTICLES_OF_PAGE,
+                theFirstArticleOfThePage);
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
+        return ArticleServiceDTO.fromPOJOToDTO(articles);
     }
 
     @Override
     public List<ArticleServiceDTO> findTopFiveReadToday() throws SQLException {
-        return ArticleServiceDTO.fromPOJOToDTO(this.articleDAO.topFiveMostViewedArticlesForToday());
+        List<Article> articles = this.articleDAO.topFiveMostViewedArticlesForToday();
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
+        return ArticleServiceDTO.fromPOJOToDTO(articles);
     }
 
     @Override
@@ -104,17 +118,22 @@ public class ArticleServiceImpl implements IArticleService {
         Article existsArticle = this.articleRepository.findById(serviceDTO.getId())
                 .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_ARTICLE));
         this.checkForAuthorCopyright(existsArticle.getAuthorId(), userId);
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         Article article = new Article(serviceDTO.getId(), serviceDTO.getTitle(), serviceDTO.getFullText());
         article.setAuthorId(userId);
         article.setViews(existsArticle.getViews());
-        return this.articleRepository.save(article).getId();
+        long articleId = this.articleRepository.save(article).getId();
+        LOGGER.info(SUCCESSFUL_UPDATE_OF_DB);
+        return articleId;
     }
 
     @Override
     public ArticleServiceDTO delete(long articleId) {
         Article existsArticle = this.articleRepository.findById(articleId)
                 .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_ARTICLE));
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.articleRepository.deleteById(existsArticle.getId());
+        LOGGER.info(SUCCESSFUL_DELETE_FROM_DB);
         return new ArticleServiceDTO(existsArticle);
     }
 

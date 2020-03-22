@@ -1,5 +1,7 @@
 package sportal.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,12 +30,14 @@ public class VideoController extends AbstractController {
 
     @Autowired
     private IVideoService videoService;
+    private static final Logger LOGGER = LogManager.getLogger(VideoController.class);
 
     @PostMapping(value = "/upload")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
     public ResponseEntity<Void> uploadVideo(
             @RequestPart(value = "video") @Size(min = 1, message = WITHOUT_FILE_MASSAGE) MultipartFile multipartFile)
             throws BadRequestException {
+        LOGGER.info("POST /videos/upload");
         this.videoService.upload(multipartFile);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/videos/all/article_id_is_null");
@@ -44,6 +48,7 @@ public class VideoController extends AbstractController {
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
     public VideoModel deleteVideo(
             @PathVariable(name = VIDEO_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long videoId) {
+        LOGGER.info("DELETE /videos/delete/{" + PICTURE_ID + "}");
         VideoServiceDTO serviceDTO = this.videoService.delete(videoId);
         return new VideoModel(serviceDTO.getId(), serviceDTO.getUrlOFVideo(), serviceDTO.getArticleId());
     }
@@ -54,6 +59,7 @@ public class VideoController extends AbstractController {
             @PathVariable(name = VIDEO_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long videoId,
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
             HttpSession session) {
+        LOGGER.info("PUT /videos/add_to_article/{" + PICTURE_ID + "}/{" + ARTICLE_ID + "}");
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         this.videoService.addVideoToTheArticleById(videoId, articleId, logUser.getId());
         HttpHeaders headers = new HttpHeaders();
@@ -63,7 +69,8 @@ public class VideoController extends AbstractController {
 
     @GetMapping(value = "/all/article_id_is_null")
     @PreAuthorize(HAS_AUTHORITY_ADMIN)
-    public List<VideoModel> allVideoWhereArticleIdIsNull() {
+    public List<VideoModel> allVideosWhereArticleIdIsNull() {
+        LOGGER.info("GET /videos/all/article_id_is_null");
         return VideoModel.fromDTOToModel(this.videoService.findAllWhereArticleIdIsNull());
     }
 }

@@ -1,5 +1,7 @@
 package sportal.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,10 +33,12 @@ public class AuthController extends AbstractController {
 
     @Autowired
     private IAuthService authService;
+    private static final Logger LOGGER = LogManager.getLogger(AuthController.class);
 
     @PostMapping(value = "/registration")
     public ModelAndView registrationOfUser(@Valid @RequestBody UserRegistrationModel userModel,
                                             BindingResult bindingResult) throws SQLException {
+        LOGGER.info("POST /users/registration");
         if (!userModel.getPassword().equals(userModel.getVerificationPassword())) {
             throw new InvalidInputException(NOT_EQUAL_PASSWORD);
         }
@@ -46,6 +50,7 @@ public class AuthController extends AbstractController {
     @PutMapping(value = "/change_password")
     public UserResponseModel changePassword(@Valid @RequestBody UserChangePasswordModel userModel,
                                             BindingResult bindingResult, HttpSession session) {
+        LOGGER.info("PUT /users/change_password");
         if (!userModel.getNewPassword().equals(userModel.getVerificationPassword())) {
             throw new InvalidInputException(NOT_EQUAL_PASSWORD);
         }
@@ -59,6 +64,7 @@ public class AuthController extends AbstractController {
     public ResponseEntity<Void> authoriseUsersById(
             @PathVariable(name = USER_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long userId,
             HttpSession session) throws BadRequestException {
+        LOGGER.info("PUT /users/up_authority/{" + USER_ID + "}");
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         this.authService.authorise(userId, logUser.getAuthorities());
         HttpHeaders headers = new HttpHeaders();
@@ -67,12 +73,14 @@ public class AuthController extends AbstractController {
     }
 
     @GetMapping("/login")
-    public ModelAndView login() {
+    public ModelAndView loginForm() {
+        LOGGER.info("GET /users/login");
         return new ModelAndView("login.html");
     }
 
     @GetMapping("/registration")
-    public ModelAndView registerForm() {
+    public ModelAndView registrationForm() {
+        LOGGER.info("GET /users/registration");
         return new ModelAndView("register.html");
     }
 }

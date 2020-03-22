@@ -1,5 +1,7 @@
 package sportal.model.service.implementation;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sportal.exception.AuthorizationException;
@@ -17,6 +19,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static sportal.util.GlobalConstants.*;
+
 @Service
 public class CommentServiceImpl implements ICommentService {
 
@@ -30,12 +34,15 @@ public class CommentServiceImpl implements ICommentService {
     private IArticleService articleService;
     @Autowired
     private ICommentDAO commentDAO;
+    private static final Logger LOGGER = LogManager.getLogger(ICommentService.class);
 
     @Override
     public long addComment(CommentServiceDTO serviceDTO) {
         this.articleService.existsById(serviceDTO.getArticleId());
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         Comment comment = new Comment(serviceDTO.getText(), serviceDTO.getArticleId(), serviceDTO.getUserId());
         comment = this.commentRepository.save(comment);
+        LOGGER.info(SUCCESSFUL_SAVE_IN_DB);
         return comment.getArticleId();
     }
 
@@ -46,9 +53,11 @@ public class CommentServiceImpl implements ICommentService {
         if (serviceDTO.getUserId() != existsComment.getUserId()) {
             throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         existsComment.setFullCommentText(serviceDTO.getText());
         existsComment.setDatePublished(Timestamp.valueOf(LocalDateTime.now()));
         Comment editComment = this.commentRepository.save(existsComment);
+        LOGGER.info(SUCCESSFUL_UPDATE_OF_DB);
         return editComment.getId();
     }
 
@@ -59,7 +68,9 @@ public class CommentServiceImpl implements ICommentService {
         if (userId != existsComment.getUserId()) {
             throw new AuthorizationException(YOU_ARE_NOT_AUTHOR);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.commentRepository.deleteById(commentId);
+        LOGGER.info(SUCCESSFUL_DELETE_FROM_DB);
         return existsComment.getArticleId();
     }
 
@@ -67,13 +78,16 @@ public class CommentServiceImpl implements ICommentService {
     public long deleteFromEditor(long commentId) {
         Comment existsComment = this.commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_COMMENT));
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.commentRepository.deleteById(existsComment.getId());
+        LOGGER.info(SUCCESSFUL_DELETE_FROM_DB);
         return existsComment.getArticleId();
     }
 
     @Override
     public List<CommentServiceDTO> getAllCommentsByArticleId(long articleId) throws SQLException {
         List<Comment> comments = this.commentDAO.allCommentsByArticleId(articleId);
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
         return CommentServiceDTO.fromPOJOToDTO(comments);
     }
 
@@ -83,6 +97,7 @@ public class CommentServiceImpl implements ICommentService {
         if (existsComment == null) {
             throw new NotExistsObjectException(NOT_EXISTS_COMMENT);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         return new CommentServiceDTO(existsComment);
     }
 

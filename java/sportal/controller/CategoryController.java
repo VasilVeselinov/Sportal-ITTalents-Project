@@ -1,5 +1,7 @@
 package sportal.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,11 +34,13 @@ public class CategoryController extends AbstractController {
 
     @Autowired
     private ICategoryService categoryService;
+    private static final Logger LOGGER = LogManager.getLogger(CategoryController.class);
 
-    @PostMapping(value = "/add_new")
+    @PostMapping(value = "/create")
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
     public ResponseEntity<Void> addNewCategory(
             @RequestParam(name = "text", required = false) @NameValid String categoryName) {
+        LOGGER.info("POST /categories/create");
         this.categoryService.addNewCategory(categoryName);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/categories/all");
@@ -46,7 +50,8 @@ public class CategoryController extends AbstractController {
     @PutMapping(value = "/edit")
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
     public void editCategory(@Valid @RequestBody CategoryRequestModel categoryModel, BindingResult bindingResult,
-                               HttpServletResponse response) throws IOException {
+                             HttpServletResponse response) throws IOException {
+        LOGGER.info("PUT /categories/edit");
         CategoryServiceDTO serviceDTO = new CategoryServiceDTO(categoryModel.getId(), categoryModel.getCategoryName());
         this.categoryService.edit(serviceDTO);
         response.sendRedirect("/categories/all");
@@ -54,6 +59,7 @@ public class CategoryController extends AbstractController {
 
     @GetMapping(value = "/all")
     public List<CategoryResponseModel> allCategories() {
+        LOGGER.info("GET /categories/all");
         return CategoryResponseModel.fromDTOToModel(this.categoryService.allCategories());
     }
 
@@ -61,6 +67,7 @@ public class CategoryController extends AbstractController {
     @PreAuthorize(HAS_AUTHORITY_EDITOR)
     public ResponseEntity<Void> deleteCategory(
             @PathVariable(name = CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId) {
+        LOGGER.info("DELETE /categories/delete/{" + CATEGORY_ID + "}");
         this.categoryService.delete(categoryId);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/categories/all");
@@ -73,6 +80,7 @@ public class CategoryController extends AbstractController {
             @PathVariable(name = CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId,
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId,
             HttpSession session) throws BadRequestException, SQLException {
+        LOGGER.info("PUT /categories/add_to_article/{" + CATEGORY_ID + "}/{" + ARTICLE_ID + "}");
         UserLoginModel logUser = (UserLoginModel) session.getAttribute(LOGGED_USER_KEY_IN_SESSION);
         this.categoryService.addCategoryToArticle(categoryId, articleId, logUser.getId());
         HttpHeaders headers = new HttpHeaders();
@@ -86,6 +94,7 @@ public class CategoryController extends AbstractController {
             @PathVariable(name = CATEGORY_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long categoryId,
             @PathVariable(name = ARTICLE_ID) @Positive(message = MASSAGE_FOR_INVALID_ID) long articleId)
             throws BadRequestException, SQLException {
+        LOGGER.info("DELETE /categories/delete_category_from_article/{" + CATEGORY_ID + "}/{" + ARTICLE_ID + "}");
         this.categoryService.removeCategoryFromArticle(categoryId, articleId);
         HttpHeaders headers = new HttpHeaders();
         headers.add(LOCATION, "/articles/" + articleId);

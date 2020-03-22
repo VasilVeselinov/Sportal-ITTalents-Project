@@ -31,7 +31,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     };
 
     private static final String[] URL_RESOURCES = {
-            "/static/css/*", "/static/img/*", "/static/js/*", "/favicon.ico",
+            "/static/css/*", "/static/img/*", "/static/js/*",
             "/" + PACKAGE_FOR_PICTURES + "/*", "/" + PACKAGE_FOR_VIDEOS + "/*", "/" + PACKAGE_FOR_LOG_FILES + "/*"
     };
 
@@ -48,7 +48,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.GET, URL_FOR_NON_LOGGED_USER)
                         .permitAll()
                     .anyRequest()
-                    .authenticated()
+                    	.authenticated()
                 .and()
                     .formLogin()
                         .loginPage("/users/login")

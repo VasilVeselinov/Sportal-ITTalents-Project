@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-import static org.apache.logging.log4j.Level.INFO;
+import static sportal.util.GlobalConstants.DATE_TIME_FORMATTER;
 
 @Validated
 @RestControllerAdvice
@@ -36,11 +36,10 @@ public abstract class AbstractController {
 
     // responses
     private static final String SOMETHING_WENT_WRONG = "Please contact IT team!";
-    private static final String SOMETHING_WENT_WRONG_ = "Please contact IT team!";
+    private static final String WRONG_REQUEST = "Invalid request!";
     static final String MASSAGE_FOR_INVALID_ID = "Id must be greater than 0!";
     static final String MASSAGE_FOR_INVALID_NUMBER_OF_PAGE = "Invalid number of page!";
     static final String WITHOUT_FILE_MASSAGE = "No attached file!";
-    private static final String WRONG_REQUEST = "Invalid request!";
 
     // parameters
     static final String USER_ID = "user_id";
@@ -51,7 +50,7 @@ public abstract class AbstractController {
     static final String VIDEO_ID = "video_id";
     static final String LOCATION = "Location";
 
-    private final Logger logger = LogManager.getLogger(AbstractController.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractController.class);
 
     @ExceptionHandler({AuthorizationException.class, AccessDeniedException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -60,9 +59,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.UNAUTHORIZED.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.log(INFO, exceptionObject);
+        LOGGER.info(exceptionObject);
         ModelAndView view = new ModelAndView("unauthorized.html");
         view.addObject("error", e.getMessage());
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -73,9 +73,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.log(INFO, exceptionObject);
+        LOGGER.info(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", e.getMessage());
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -86,9 +87,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.CONFLICT.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.log(INFO, exceptionObject);
+        LOGGER.info(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", e.getMessage());
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -99,9 +101,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.NOT_FOUND.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.log(INFO, exceptionObject);
+        LOGGER.info(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", e.getMessage());
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -116,9 +119,10 @@ public abstract class AbstractController {
                 message.toString(), HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.log(INFO, exceptionObject);
+        LOGGER.info(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", message.toString());
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -130,9 +134,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.log(INFO, exceptionObject);
+        LOGGER.info(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", WRONG_REQUEST);
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -143,9 +148,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.log(INFO, exceptionObject);
+        LOGGER.info(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", WRONG_REQUEST);
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -156,9 +162,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.log(INFO, exceptionObject);
+        LOGGER.info(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", WRONG_REQUEST);
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -169,9 +176,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.error(exceptionObject);
+        LOGGER.error(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", SOMETHING_WENT_WRONG);
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -182,9 +190,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.BAD_GATEWAY.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.error(exceptionObject);
+        LOGGER.error(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", SOMETHING_WENT_WRONG);
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 
@@ -195,9 +204,10 @@ public abstract class AbstractController {
                 e.getMessage(), HttpStatus.I_AM_A_TEAPOT.value(),
                 LocalDateTime.now(), e.getClass().getName()
         );
-        this.logger.error(exceptionObject);
+        LOGGER.error(exceptionObject);
         ModelAndView view = new ModelAndView("error.html");
         view.addObject("error", SOMETHING_WENT_WRONG);
+        view.addObject("time", exceptionObject.getTime().format(DATE_TIME_FORMATTER));
         return view;
     }
 }

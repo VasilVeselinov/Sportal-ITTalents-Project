@@ -1,5 +1,7 @@
 package sportal.model.service.implementation;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static sportal.util.GlobalConstants.*;
+
 @Service
 public class CategoryServiceImpl implements ICategoryService {
 
@@ -35,14 +39,17 @@ public class CategoryServiceImpl implements ICategoryService {
     private ICategoryDAO categoryDAO;
     @Autowired
     private IArticleService articleService;
+    private static final Logger LOGGER = LogManager.getLogger(ICategoryService.class);
 
     @Override
     public void addNewCategory(String categoryName) {
         if (this.categoryRepository.existsByCategoryName(categoryName)) {
             throw new InvalidInputException(EXISTS_CATEGORY);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         Category category = new Category(categoryName);
         this.categoryRepository.save(category);
+        LOGGER.info(SUCCESSFUL_SAVE_IN_DB);
     }
 
     @Override
@@ -51,12 +58,15 @@ public class CategoryServiceImpl implements ICategoryService {
         if (this.categoryRepository.existsByCategoryName(category.getCategoryName())) {
             throw new InvalidInputException(EXISTS_CATEGORY);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.categoryRepository.save(category);
+        LOGGER.info(SUCCESSFUL_UPDATE_OF_DB);
     }
 
     @Override
     public List<CategoryServiceDTO> allCategories() {
         List<Category> categories = this.categoryRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
         return CategoryServiceDTO.fromPOJOToDTO(categories);
     }
 
@@ -66,7 +76,9 @@ public class CategoryServiceImpl implements ICategoryService {
         if (!category.isPresent()) {
             throw new NotExistsObjectException(NOT_EXISTS_CATEGORY);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.categoryRepository.deleteById(categoryId);
+        LOGGER.info(SUCCESSFUL_DELETE_FROM_DB);
     }
 
     @Override
@@ -83,13 +95,17 @@ public class CategoryServiceImpl implements ICategoryService {
         if (this.categoryDAO.existsCombination(articleId, categoryId)) {
             throw new InvalidInputException(ALREADY_COMBINATION);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.categoryDAO.add(articleId, category.get().getId());
+        LOGGER.info(SUCCESSFUL_UPDATE_OF_DB);
     }
 
     @Override
     public void removeCategoryFromArticle(long categoryId, long articleId) throws BadRequestException, SQLException {
         this.articleService.findById(articleId);
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.categoryDAO.delete(articleId, categoryId);
+        LOGGER.info(SUCCESSFUL_DELETE_FROM_DB);
     }
 
     @Override

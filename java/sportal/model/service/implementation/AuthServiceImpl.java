@@ -1,5 +1,7 @@
 package sportal.model.service.implementation;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +25,8 @@ import sportal.model.util.OnRegistrationCompleteEvent;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+
+import static sportal.util.GlobalConstants.*;
 
 @Service
 public class AuthServiceImpl implements IAuthService {
@@ -48,13 +52,16 @@ public class AuthServiceImpl implements IAuthService {
     private IUserDAO userDAO;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+    private static final Logger LOGGER = LogManager.getLogger(IAuthService.class);
 
     @Override
     public void registration(UserServiceDTO serviceDTO) throws SQLException {
         if (this.userRepository.existsUserByUsernameOrUserEmail(serviceDTO.getUsername(), serviceDTO.getUserEmail())) {
             throw new InvalidInputException(EXISTS);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         serviceDTO.addAuthority(this.roleService.getAuthority(USER_USER_AUTHORITY));
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
         serviceDTO.setUserPassword(this.cryptService.cryptPassword(serviceDTO.getUserPassword()));
         User user = new User(
                 serviceDTO.getUsername(), serviceDTO.getUserPassword(),
@@ -62,6 +69,7 @@ public class AuthServiceImpl implements IAuthService {
         String token = UUID.randomUUID().toString();
         user.setToken(token);
         user = this.userDAO.addUser(user);
+        LOGGER.info(SUCCESSFUL_SAVE_IN_DB);
         serviceDTO = new UserServiceDTO(user.getId(), user.getUsername(), user.getUserEmail(), user.getToken());
         this.eventPublisher.publishEvent(new OnRegistrationCompleteEvent(serviceDTO));
     }
@@ -73,8 +81,10 @@ public class AuthServiceImpl implements IAuthService {
         if (!this.cryptService.checkPassword(serviceDTO.getUserPassword(), userDB.getPassword())) {
             throw new AuthorizationException(FAILED_CREDENTIALS);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         userDB.setPassword(this.cryptService.cryptPassword(serviceDTO.getNewPassword()));
         userDB = this.userRepository.save(userDB);
+        LOGGER.info(SUCCESSFUL_SAVE_IN_DB);
         return new UserServiceDTO(userDB.getId(), userDB.getUsername(), userDB.getUserEmail());
     }
 
@@ -84,6 +94,7 @@ public class AuthServiceImpl implements IAuthService {
                 .orElseThrow(() -> new NotExistsObjectException(NOT_EXISTS_USER));
         UserServiceDTO serviceDTO = new UserServiceDTO(user.getId(), user.getUsername(), user.getUserEmail());
         serviceDTO.setAuthorities(RoleServiceDTO.fromPOJOToDTO(this.userDAO.findAllRolesByUserId(user.getId())));
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
         return serviceDTO;
     }
 
@@ -95,14 +106,18 @@ public class AuthServiceImpl implements IAuthService {
         if (roles.size() >= editorAuthorities.size() - 1) {
             throw new BadRequestException(NO_MORE_ACCESS_RIGHTS);
         }
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.userDAO.authorise(userId, this.roleService.getAuthority(ADMIN_USER_AUTHORITY).getId());
+        LOGGER.info(SUCCESSFUL_UPDATE_OF_DB);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(NOT_EXISTS_USER));
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         user.setAuthorities(this.userDAO.findAllRolesByUserId(user.getId()));
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),

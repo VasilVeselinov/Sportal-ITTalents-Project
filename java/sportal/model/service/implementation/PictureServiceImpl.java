@@ -1,5 +1,7 @@
 package sportal.model.service.implementation;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static sportal.util.GlobalConstants.PACKAGE_FOR_PICTURES;
+import static sportal.util.GlobalConstants.*;
 
 @Service
 public class PictureServiceImpl implements IPictureService {
@@ -33,6 +35,7 @@ public class PictureServiceImpl implements IPictureService {
     private PictureRepository pictureRepository;
     @Autowired
     private IArticleService articleService;
+    private static final Logger LOGGER = LogManager.getLogger(IPictureService.class);
 
     @Transactional
     @Override
@@ -42,18 +45,23 @@ public class PictureServiceImpl implements IPictureService {
             fileCreateDirectory.mkdir();
         }
         List<Picture> pictures = PictureValidator.checkForValidContentType(multipartFiles);
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         FileManagerDAO fileManagerDAO = new FileManagerDAO(multipartFiles, PATH_NAME, pictures);
         fileManagerDAO.start();
         this.pictureRepository.saveAll(pictures);
+        LOGGER.info(SUCCESSFUL_SAVE_IN_DB);
     }
 
     @Override
     public PictureServiceDTO delete(long pictureId) {
         Picture picture = this.pictureRepository.findById(pictureId)
                 .orElseThrow(() -> new NotExistsObjectException(NOT_EXIST));
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         this.pictureRepository.deleteById(pictureId);
+        LOGGER.info(SUCCESSFUL_DELETE_FROM_DB);
         File fileForDelete = new File(PATH_NAME + picture.getUrlOfPicture());
         fileForDelete.delete();
+        LOGGER.info(SUCCESSFUL_DELETE_OF_FILES);
         return new PictureServiceDTO(picture);
     }
 
@@ -65,8 +73,10 @@ public class PictureServiceImpl implements IPictureService {
             throw new InvalidInputException(DO_NOT_FREE);
         }
         this.articleService.findByIdAndCheckForAuthorCopyright(articleId, userId);
+        LOGGER.info(SUCCESSFUL_VALIDATION);
         picture.setArticleId(articleId);
         this.pictureRepository.save(picture);
+        LOGGER.info(SUCCESSFUL_UPDATE_OF_DB);
     }
 
     @Override
@@ -77,7 +87,9 @@ public class PictureServiceImpl implements IPictureService {
 
     @Override
     public List<PictureServiceDTO> findAllWhereArticleIdIsNull() {
-        return PictureServiceDTO.fromPOJOToDTO(this.pictureRepository.findAllByArticleIdIsNull());
+        List<Picture> pictures = this.pictureRepository.findAllByArticleIdIsNull();
+        LOGGER.info(SUCCESSFUL_RETRIEVAL);
+        return PictureServiceDTO.fromPOJOToDTO(pictures);
     }
 
     @Override
@@ -89,9 +101,11 @@ public class PictureServiceImpl implements IPictureService {
     public void deleteAllWhereArticleIdIsNull() {
         List<Picture> pictures = this.pictureRepository.findAllByArticleIdIsNull();
         this.pictureRepository.deleteAll(pictures);
+        LOGGER.info(SUCCESSFUL_DELETE_FROM_DB);
         for (Picture picture : pictures) {
             File fileForDelete = new File(PATH_NAME + picture.getUrlOfPicture());
             fileForDelete.delete();
         }
+        LOGGER.info(SUCCESSFUL_DELETE_OF_FILES);
     }
 }
